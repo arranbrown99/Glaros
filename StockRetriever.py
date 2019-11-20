@@ -51,7 +51,3 @@ def best_stock(list_of_stocks):
         if value > stock_data[greatest]:
             greatest = key
     return greatest
-   
-
-stock_names = ['amzn', 'msft', 'goog']
-print(best_stock(stock_names))
