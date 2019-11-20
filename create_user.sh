@@ -1,10 +1,18 @@
 #!/bin/bash
 
-# short script that when run using sudo will create a new sudo user with the name of the
+# short script that when run using sudo will
+#create a new sudo user with the name of the
 # user being the first argument
 # run on linux (namely the cloud VM) using
 # sudo ./create_user.sh admin1 
 # for example 
+
+#exits if script is not ran on root
+if [ $EUID != 0 ]
+then
+	echo "please run as root. Use the sudo command"
+	exit 1
+fi
 
 #exits if no argument is supplied
 if [ $# -eq 0 ]
