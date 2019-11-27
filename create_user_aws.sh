@@ -28,7 +28,6 @@ mkdir -p /home/$1/.ssh
 touch /home/$1/.ssh/authorized_keys
 usermod -aG wheel $1
 chown -R $1:$1 /home/$1
-chown root:root /home/$1
 chmod 755 /home/$1 
 chmod 700 /home/$1/.ssh
 chmod 644 /home/$1/.ssh/authorized_keys

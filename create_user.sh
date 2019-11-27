@@ -29,7 +29,6 @@ touch /home/$1/.ssh/authorized_keys
 useradd -d /home/$1 $1
 usermod -aG sudo $1
 chown -R $1:$1 /home/$1
-chown root:root /home/$1
 chmod 755 /home/$1 
 chmod 700 /home/$1/.ssh
 chmod 644 /home/$1/.ssh/authorized_keys
