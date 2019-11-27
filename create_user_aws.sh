@@ -4,7 +4,7 @@
 #create a new sudo user with the name of the
 # user being the first argument
 # run on linux (namely the cloud VM) using
-# sudo ./create_user.sh admin1 
+# sudo ./create_user_aws.sh admin1 
 # for example 
 #remember to configure /etc/ssh/sshd_config 
 #if getting Permission denied(public key)
@@ -23,9 +23,9 @@ then
 	exit 1
 fi
 echo $1
+useradd -d /home/$1 $1
 mkdir -p /home/$1/.ssh
 touch /home/$1/.ssh/authorized_keys
-useradd -d /home/$1 $1
 usermod -aG wheel $1
 chown -R $1:$1 /home/$1
 chown root:root /home/$1

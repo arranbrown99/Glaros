@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # short script that when run using sudo will
-#create a new sudo user with the name of the
+# create a new sudo user with the name of the
 # user being the first argument
 # run on linux (namely the cloud VM) using
 # sudo ./create_user.sh admin1 
 # for example 
+# remember to configure /etc/ssh/ssh_config 
+# if getting Permission denied(public key)
+
 
 #exits if script is not ran on root
 if [ $EUID != 0 ]
