@@ -1,14 +1,13 @@
 #!/bin/bash
 
 # short script that when run using sudo will
-# create a new sudo user with the name of the
+#create a new sudo user with the name of the
 # user being the first argument
 # run on linux (namely the cloud VM) using
-# sudo ./create_user.sh admin1 
+# sudo ./create_user_aws.sh admin1 
 # for example 
-# remember to configure /etc/ssh/ssh_config 
-# if getting Permission denied(public key)
-
+#remember to configure /etc/ssh/sshd_config 
+#if getting Permission denied(public key)
 
 #exits if script is not ran on root
 if [ $EUID != 0 ]
@@ -24,13 +23,13 @@ then
 	exit 1
 fi
 echo $1
+useradd -d /home/$1 $1
 mkdir -p /home/$1/.ssh
 touch /home/$1/.ssh/authorized_keys
-useradd -d /home/$1 $1
-usermod -aG sudo $1
+usermod -aG wheel $1
 chown -R $1:$1 /home/$1
 chmod 755 /home/$1 
 chmod 700 /home/$1/.ssh
 chmod 644 /home/$1/.ssh/authorized_keys
 passwd $1
-sudo service ssh restart
+sudo service sshd restart
