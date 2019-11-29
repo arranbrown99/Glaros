@@ -18,7 +18,6 @@ Have old driver delete itself
 """
 import sys
 import threading
-from typing import List
 
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
