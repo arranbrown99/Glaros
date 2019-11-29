@@ -21,11 +21,15 @@ class AbstractCSP(ABC):
         pass
 
     @abstractmethod
-    def execute_command(self):
+    def execute_commands(self, commands):
         pass
 
     @abstractmethod
     def upload_file(self):
+        pass
+
+    @abstractmethod
+    def is_running(self):
         pass
 
     def get_stock_name(self):
