@@ -1,10 +1,11 @@
-from cloud_service_providers.AbstractCSP import AbstractCSP
+#from AbstractCSP import AbstractCSP
 import os
 import traceback
-from azure.cli.core import get_default_cli
+#from azure.cli.core import get_default_cli
+import subprocess
+import json
 
-
-class AzureCSP(AbstractCSP):
+class AzureCSP():
 
     def __init__(self):
 
@@ -18,15 +19,15 @@ class AzureCSP(AbstractCSP):
         self.GROUP_NAME = 'cs27'
         self.VM_NAME = 'cs27VM2'
 
-    def az_cli(self, args_str):
-        args = args_str.split()
-        cli = get_default_cli()
-        cli.invoke(args)
-        if cli.result.result:
-            return cli.result.result
-        elif cli.result.error:
-            raise cli.result.error
-        return True
+ #   def az_cli(self, args_str):
+  #      args = args_str.split()
+   #     cli = get_default_cli()
+    #    cli.invoke(args)
+     #   if cli.result.result:
+      #      return cli.result.result
+       # elif cli.result.error:
+       #     raise cli.result.error
+       # return True
 
     def identify(self):
         print("This was called from an AzureCSP instance.")
@@ -34,7 +35,13 @@ class AzureCSP(AbstractCSP):
     def print_vm(self):
         # response = self.az_cli("vm list")
         # print("vm's: %s" % response)
-        get_default_cli().invoke(['vm', 'list', '-g', self.GROUP_NAME])
+        # az vm list -d -o table --query "[?name=='vm-name']"
+        process = subprocess.Popen(['az','vm','list','-d','-o','table','--query','"[name=='+ self.VM_NAME +']"'],stdout=subprocess.PIPE)
+        out, err = process.communicate()
+#        d = json.loads(out)
+        print(out)
+        print()
+        print()
 
     def is_running(self):
         pass
@@ -45,18 +52,19 @@ class AzureCSP(AbstractCSP):
     def start_vm(self):
         # Start the VM
         print('\nStart VM')
-        try:
-
-            return 0
-        except:
-            print("Failed to start VM")
-            return
+        process = subprocess.Popen(['az','vm','start','-g',self.GROUP_NAME,'-n',self.VM_NAME],stdout=subprocess.PIPE)
+        out, err = process.communicate()
+        return 0
 
     def stop_vm(self):
-        pass
+        # Stop the VM
+        print('\nStop VM')
+        process = subprocess.Popen(['az','vm','stop','-g',self.GROUP_NAME,'-n',self.VM_NAME],stdout=subprocess.PIPE)
+        print("Done")
+        out, err = process.communicate()
+        return 0
 
-    def get_info(self):
-        pass
+ 
 
     def execute_command(self):
         pass
@@ -67,4 +75,8 @@ class AzureCSP(AbstractCSP):
 
 if __name__ == '__main__':
     azure_vm = AzureCSP()
+    azure_vm.print_vm()
+    azure_vm.stop_vm()
+    azure_vm.print_vm()
+    azure_vm.start_vm()
     azure_vm.print_vm()
