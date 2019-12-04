@@ -1,16 +1,10 @@
-from AbstractCSP import AbstractCSP
+from cloud_service_providers.AbstractCSP import AbstractCSP
 import os
 import traceback
+from azure.cli.core import get_default_cli
 
-from azure.common.credentials import ServicePrincipalCredentials
-from azure.mgmt.resource import ResourceManagementClient
-from azure.mgmt.network import NetworkManagementClient
-from azure.mgmt.compute import ComputeManagementClient
-from azure.mgmt.compute.models import DiskCreateOption
 
 class AzureCSP(AbstractCSP):
-
-
 
     def __init__(self):
 
@@ -24,29 +18,39 @@ class AzureCSP(AbstractCSP):
         self.GROUP_NAME = 'cs27'
         self.VM_NAME = 'cs27VM2'
 
+    def az_cli(self, args_str):
+        args = args_str.split()
+        cli = get_default_cli()
+        cli.invoke(args)
+        if cli.result.result:
+            return cli.result.result
+        elif cli.result.error:
+            raise cli.result.error
+        return True
 
     def identify(self):
         print("This was called from an AzureCSP instance.")
 
     def print_vm(self):
-        virtual_machine = compute_client.virtual_machines.get(
-            GROUP_NAME,
-            VM_NAME
-        )
-        print(virtual_machine)
+        # response = self.az_cli("vm list")
+        # print("vm's: %s" % response)
+        get_default_cli().invoke(['vm', 'list', '-g', self.GROUP_NAME])
 
+    def is_running(self):
+        pass
+
+    def execute_commands(self, commands):
+        pass
 
     def start_vm(self):
         # Start the VM
         print('\nStart VM')
         try:
-            async_vm_start = compute_client.virtual_machines.start(
-                GROUP_NAME, VM_NAME)
+
             return 0
         except:
             print("Failed to start VM")
             return
-
 
     def stop_vm(self):
         pass
@@ -60,8 +64,7 @@ class AzureCSP(AbstractCSP):
     def upload_file(self):
         pass
 
-if __name__ == '__main__':
-    print("here")
-    azure_vm = Azure_CSP()
-    print(azure_vm.GROUP_NAME)
 
+if __name__ == '__main__':
+    azure_vm = AzureCSP()
+    azure_vm.print_vm()
