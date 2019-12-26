@@ -1,12 +1,11 @@
-"""Update the A-record of the DNS server to point to a new vm
-
-Call change_service
-"""
+'''
+Update the DNS server to reflect the migration between hosts
+Call change_service()
+'''
 
 # To do
 # Improve modularity, extendability
 # Error handling for configparser
-# Better docstrings
 
 import requests
 import json
@@ -17,17 +16,21 @@ __config_file = 'config.ini'
 
 
 class Error(Exception):
-    """Base class for exceptions"""
+    '''
+    Base class for exceptions
+    '''
     pass
 
 
 class DNSUpdateError(Error):
-    """Exception raised for errors in the input.
+    '''
+    Exception raised for errors in the input.
 
-    Attributes:
+    Attributes
+    ------
         expression -- input expression in which the error occurred
         message -- explanation of the error
-    """
+    '''
 
     def __init__(self, expression, message):
         self.expression = expression
@@ -35,9 +38,27 @@ class DNSUpdateError(Error):
 
 
 def _get_ip(url, headers):
-    """Retrieve domain records
-    Returns current IP address
-    """
+    '''
+    Retrieves the currently set IP address in the DNS A-Record 
+
+    Parameters
+    ------
+    url : str
+        the url for the api call
+
+    headers : str
+        headers to send for api authentication
+
+    Raises
+    ------
+    DNSUpdateError
+        HTTP request failed
+
+    Returns
+    -------
+    ip
+        the IPv4 address of the A-record in dotted decimal form 'x.x.x.x'
+    '''
 
     try:
         response = requests.get(url, headers=headers)
@@ -48,35 +69,60 @@ def _get_ip(url, headers):
         raise Exception(f"{e}")
 
 
-def _update_ip(ip, headers, url):
-    """Update domain records
-    """
+def _update_ip(url, headers, ip):
+    '''
+    Updates the DNS server records to reflect the new IP
+
+    Parameters
+    ------
+    url : str
+        the url for the api call
+
+    headers : str
+        headers to send for api authentication
+
+    ip : str
+        the ip address of the new host in dotted decimal form 'x.x.x.x'
+
+    Raises
+    ------
+    DNSUpdateError
+        something went wrong updating the ip
+    '''
 
     payload = json.dumps(
         [{'data': f'{ip}', 'ttl': 600}])
     try:
         response = requests.put(url, data=payload, headers=headers)
-        print(response)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
         # This shouldn't happen
-        raise Exception(f"{e}, {response.json()['fields']}")
+        raise DNSUpdateError(f"{e}, {response.json()['fields']}")
     except requests.exceptions.HTTPError as e:
-        raise Exception(f"{e}")
+        raise DNSUpdateError(f"{e}")
 
 
 def change_service(service):
-    """Updates domain name servers to point at new cloud service
-    Will throw DNSUpdateError if update failed
+    '''
+    Handles DNS update for service change
 
-    """
+    Parameters
+    ------
+    service : str
+        aws, azure or gcp
+        this string will be used to take relevant IP address from config file
+
+    Raises
+    ------
+    DNSUpdateError
+        something went wrong updating the DNS server
+    '''
 
     try:
         config = configparser.ConfigParser()
         config.read(__config_file)
     except Exception as e:
-        print(f"Could not read {__config_file}")
-        raise(DNSUpdateError)
+        raise(DNSUpdateError(f"Could not read {__config_file}"))
 
     # Read in data from config
     dns = config['dns']
@@ -91,13 +137,11 @@ def change_service(service):
 
     try:
         current_ip = _get_ip(url, headers)
-        if(current_ip == ip):
-            pass
-        _update_ip(ip, headers, url)
+        _update_ip(url, headers, ip)
     except Exception as e:
         raise(DNSUpdateError(e, ""))
     else:
-        print("Changed IP")
+        print(f"DNS server A-record IP changed from {current_ip} to {ip}")
 
 
 if __name__ == "__main__":
