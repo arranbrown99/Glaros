@@ -1,7 +1,7 @@
 # from AbstractCSP import AbstractCSP
 
 from subprocess import call, check_output
-
+import json
 
 # uses subprocesses to call the azure cli
 
@@ -33,17 +33,20 @@ class AzureCSP():
         self.VM_NAME = 'cs27VM2'
 
     def identify(self):
-        print("This was called from an AzureCSP instance.")
+        info = self.get_info()
+        return info[0]["id"]
+        
 
     def get_info(self):
-        command = ["az", "vm", "list", "-d", "-o", "table", "--query", "[?name=='cs27VM2']"]
-        if self.execute_commands(["az", "vm", "list", "-d", "-o", "table", "--query", "[?name=='cs27VM2']"]) == 0:
-            return check_output(command)
+        command = ["az", "vm", "list","-d", "--output","json","--query", "[?name=='cs27VM2']"]
+        info = check_output(command)
+        return json.loads(info)
+
 
     def is_running(self):
-        # fails if the VM_NAME is 'VM running' for example but shouldnt be an issue for us
         info = self.get_info()
-        if "VM running" in info:
+        powerstate = info[0]["powerState"]
+        if powerstate == "VM running":
             return True
         else:
             return False
@@ -75,9 +78,11 @@ class AzureCSP():
 
 def main():
     azure_vm = AzureCSP()
+
     if not azure_vm.is_running():
         azure_vm.start_vm()
 
+    print("azure vm ID is " + azure_vm.identify())
     azure_vm.stop_vm()
 
 
