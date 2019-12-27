@@ -47,7 +47,12 @@ class AzureCSP():
 #        return self.execute_commands(["az", "vm", "list", "-d", "-o", "table", "--query", "[?name=='cs27VM2']"])
 
     def is_running(self):
-        pass
+        #fails if the VM_NAME is 'VM running' for example but shouldnt be an issue for us
+        info = self.get_info()
+        if "VM running" in info:
+            return True
+        else:
+            return False
 
 
     def start_vm(self):
@@ -57,6 +62,7 @@ class AzureCSP():
     
     def stop_vm(self):
         # Stop the VM
+        #uses deallocate rather than stop as it costs less money
         print('\nStop VM')
         return self.execute_commands(["az","vm","deallocate","-g",self.GROUP_NAME,'-n',self.VM_NAME]) 
     
@@ -75,9 +81,13 @@ class AzureCSP():
     def logout(self):
         return self.execute_commands(["az","logout"])
 
+def main():
+    azure_vm = AzureCSP()
+    if azure_vm.is_running() != True:
+        azure_vm.start_vm()
+
+    azure_vm.stop_vm()
+
 
 if __name__ == '__main__':
-    azure_vm = AzureCSP()
-    azure_vm.get_info()
-  #  azure_vm.stop_vm()
-
+    main()
