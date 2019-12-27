@@ -12,7 +12,7 @@ import json
 import configparser
 
 
-__config_file = 'config.ini'
+__config_file__ = 'config.ini'
 
 
 class Error(Exception):
@@ -120,9 +120,9 @@ def change_service(service):
 
     try:
         config = configparser.ConfigParser()
-        config.read(__config_file)
+        config.read(__config_file__)
     except Exception as e:
-        raise(DNSUpdateError(f"Could not read {__config_file}"))
+        raise(DNSUpdateError(f"Could not read {__config_file__}"))
 
     # Read in data from config
     dns = config['dns']
@@ -134,6 +134,9 @@ def change_service(service):
     headers = {'Authorization': f'sso-key {api_key}:{api_secret}',
                'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
     url = f'https://api.godaddy.com/v1/domains/{domain}/records/A/@'
+
+    # dns_session = requests.Session()
+    # dns_session.headers.update(headers)
 
     try:
         current_ip = _get_ip(url, headers)
