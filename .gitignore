@@ -149,4 +149,4 @@ dmypy.json
 !.vscode/extensions.json
 *.code-workspace
 
-config.ini
+devconfig.ini

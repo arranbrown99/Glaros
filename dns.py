@@ -95,9 +95,8 @@ def _update_ip(url, headers, ip):
     try:
         response = requests.put(url, data=payload, headers=headers)
         response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        # This shouldn't happen
-        raise DNSUpdateError(f"{e}, {response.json()['fields']}")
+    # except requests.exceptions.RequestException as e:
+    #     raise DNSUpdateError(f"{e}, {response.json()['fields']}")
     except requests.exceptions.HTTPError as e:
         raise DNSUpdateError(f"{e}")
 
