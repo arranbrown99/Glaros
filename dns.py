@@ -4,8 +4,8 @@ Call change_service()
 '''
 
 # To do
-# Improve modularity, extendability
 # Error handling for configparser
+# Requesst timeouts, retries
 
 import requests
 import json
@@ -51,8 +51,7 @@ def _get_ip(url, headers):
 
     Raises
     ------
-    DNSUpdateError
-        HTTP request failed
+    Exception
 
     Returns
     -------
@@ -66,7 +65,7 @@ def _get_ip(url, headers):
         response.raise_for_status()
         return ip
     except Exception as e:
-        raise Exception(f"{e}")
+        raise
 
 
 def _update_ip(url, headers, ip):
@@ -86,8 +85,7 @@ def _update_ip(url, headers, ip):
 
     Raises
     ------
-    DNSUpdateError
-        something went wrong updating the ip
+    Exception
     '''
 
     payload = json.dumps(
@@ -97,8 +95,10 @@ def _update_ip(url, headers, ip):
         response.raise_for_status()
     # except requests.exceptions.RequestException as e:
     #     raise DNSUpdateError(f"{e}, {response.json()['fields']}")
-    except requests.exceptions.HTTPError as e:
-        raise DNSUpdateError(f"{e}")
+    # except requests.exceptions.HTTPError as e:
+    #     raise DNSUpdateError(f"{e}")
+    except Exception as e:
+        raise
 
 
 def change_service(service):
@@ -137,14 +137,10 @@ def change_service(service):
     # dns_session = requests.Session()
     # dns_session.headers.update(headers)
 
-    try:
-        current_ip = _get_ip(url, headers)
-        _update_ip(url, headers, ip)
-    except Exception as e:
-        raise(DNSUpdateError(e, ""))
-    else:
-        print(f"DNS server A-record IP changed from {current_ip} to {ip}")
+    current_ip = _get_ip(url, headers)
+    _update_ip(url, headers, ip)
+    print(f"DNS server A-record IP changed from {current_ip} to {ip}")
 
 
 if __name__ == "__main__":
-    change_service('aws')
+    change_service('msft')
