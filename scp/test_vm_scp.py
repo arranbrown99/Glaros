@@ -1,13 +1,15 @@
 # tests for scp_aws
 import sys
 my_file = 'cs27-main/'
-import scp_aws
+import vm_scp
 import os
 
 # inputs
-ip = '52.204.54.141'
-un = 'test3'
-pw = sys.argv[2]
+#ip = '52.204.54.141'
+#ip = '54.89.139.235'
+ip = '34.196.229.24'
+un = 'test2'
+pw = sys.argv[1]
 
 # to use, pass password on command line
 
@@ -16,27 +18,27 @@ def test_uploadFile():
     """
 
     # invalid local_path, default remote_path
-    assert(scp_aws.uploadFile('doesnt_exist.txt',ip,un,pw)) == None
+    assert(vm_scp.uploadFile('doesnt_exist.txt',ip,un,pw)) == None
     # valid local_path, default remote_path
     print("before 2nd assertion.")
-    assert(scp_aws.uploadFile('test.txt',ip,un,pw)) == 1
+    assert(vm_scp.uploadFile('test.txt',ip,un,pw)) == 1
     # invalid local_path, invalid remote_path
-    assert(scp_aws.uploadFile('doesnt_exist.txt', ip, un,pw, 'doesnt_exist/')) == None
+    assert(vm_scp.uploadFile('doesnt_exist.txt', ip, un,pw, 'doesnt_exist/')) == None
     # valid local_path, invalid remote_path
-    assert(scp_aws.uploadFile('test.txt', ip, un,pw, 'doesnt_exist/')) == None
+    assert(vm_scp.uploadFile('test.txt', ip, un,pw, 'doesnt_exist/')) == None
 
 def test_downloadFile():
     """ tests function downloadFile behaves as desired.
     """
 
     # invalid remote_path, default local_path
-    assert(scp_aws.downloadFile('doesnt_exist.txt',ip,un,pw)) == None
+    assert(vm_scp.downloadFile('doesnt_exist.txt',ip,un,pw)) == None
     # valid remote_path, default local_path
-    assert(scp_aws.downloadFile('text.txt',ip,un,pw)) != 1
+    assert(vm_scp.downloadFile('text.txt',ip,un,pw)) != 1
     # invalid remote_path, invalid local_path
-    assert(scp_aws.downloadFile('doesnt_exist.txt',ip,un,'doesnt_exist/',pw)) == None
+    assert(vm_scp.downloadFile('doesnt_exist.txt',ip,un,'doesnt_exist/',pw)) == None
     # valid remote_path, invalid local_path
-    assert(scp_aws.downloadFile('test.txt',ip,un,'doesnt_exist/',pw)) == None
+    assert(vm_scp.downloadFile('test.txt',ip,un,'doesnt_exist/',pw)) == None
 
 
 
