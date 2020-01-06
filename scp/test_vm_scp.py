@@ -5,13 +5,13 @@ import vm_scp
 import os
 
 # inputs
-#ip = '52.204.54.141'
-#ip = '54.89.139.235'
 ip = '34.196.229.24'
 un = 'test2'
-pw = sys.argv[1]
-
-# to use, pass password on command line
+if len(sys.argv) > 1:
+    pw = sys.argv[-1]
+else:
+    pw = ''
+# to use password enter on command line
 
 def test_uploadFile():
     """ tests function uploadFile behaves as desired.
@@ -20,7 +20,6 @@ def test_uploadFile():
     # invalid local_path, default remote_path
     assert(vm_scp.uploadFile('doesnt_exist.txt',ip,un,pw)) == None
     # valid local_path, default remote_path
-    print("before 2nd assertion.")
     assert(vm_scp.uploadFile('test.txt',ip,un,pw)) == 1
     # invalid local_path, invalid remote_path
     assert(vm_scp.uploadFile('doesnt_exist.txt', ip, un,pw, 'doesnt_exist/')) == None
