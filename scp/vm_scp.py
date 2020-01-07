@@ -31,11 +31,11 @@ def uploadFile(local_path, ip_address, username, password='', remote_path=''):
 
     # Check if local_path is valid
     if os.path.exists(local_path) == False:
-        print("Error: invalid local_path")
+        print("Error: invalid local_path: " + local_path)
         return
 
     # try to establish connection to AWS virtual machine
-    else: 
+    try: 
         ssh = SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(AutoAddPolicy())
@@ -46,17 +46,17 @@ def uploadFile(local_path, ip_address, username, password='', remote_path=''):
             ssh.connect(ip_address, username=username,pkey=ki)
         else:
             ssh.connect(ip_address, username=username, password=password)
-    #else:
-    #    print("Error: Could not connect.")
-    #    return
+    except:
+        print("Error: Could not connect.")
+        return
 
     # try to upload file
     try:
         scp = SCPClient(ssh.get_transport())
         if remote_path != '':
-            scp.put(local_path, remote_path=remote_path)
+            scp.put(local_path, remote_path=remote_path,recursive=True)
         else:
-            scp.put(local_path)
+            scp.put(local_path,recursive=True)
     except Exception:
         print("Error: Could not upload file.")
         return
@@ -74,7 +74,7 @@ def downloadFile(remote_path, ip_address, username, password='',local_path=''):
 
     # Check if remote_path is valid
     if os.path.exists(remote_path) == False:
-        print("Error: invalid remote_path")
+        print("Error: invalid remote_path: "+ remote_path)
         return
 
     # try establish a connection to AWS virtual machine

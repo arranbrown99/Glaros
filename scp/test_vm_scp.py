@@ -18,13 +18,20 @@ def test_uploadFile():
     """
 
     # invalid local_path, default remote_path
-    assert(vm_scp.uploadFile('doesnt_exist.txt',ip,un,pw)) == None
+    assert(vm_scp.uploadFile('doesnt_exist.txt',ip,un,pw)) == None,"should not be able to send a file that doesn't exist"
     # valid local_path, default remote_path
-    assert(vm_scp.uploadFile('test.txt',ip,un,pw)) == 1
+    assert(vm_scp.uploadFile('test.txt',ip,un,pw)) == 1,"should send a file that exists"
     # invalid local_path, invalid remote_path
-    assert(vm_scp.uploadFile('doesnt_exist.txt', ip, un,pw, 'doesnt_exist/')) == None
+    assert(vm_scp.uploadFile('doesnt_exist.txt', ip, un,pw, 'doesnt_exist/')) == None,"should not be able to send to a remote path that doesn't exist"
     # valid local_path, invalid remote_path
-    assert(vm_scp.uploadFile('test.txt', ip, un,pw, 'doesnt_exist/')) == None
+    assert(vm_scp.uploadFile('test.txt', ip, un,pw, 'doesnt_exist/')) == None,"should not be able to send to a remote path that doesn't exist"
+    # sending itself
+    assert(vm_scp.uploadFile('vm_scp.py',ip,un,pw)) == 1, "should send vm_scp.py"
+    SCP_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+    PROJECT_BASE_DIR = os.path.dirname(SCP_BASE_DIR)
+    assert(vm_scp.uploadFile(SCP_BASE_DIR,ip,un,pw)) == 1, "should send the directory this is in"
+    assert(vm_scp.uploadFile(PROJECT_BASE_DIR,ip,un,pw)) == 1, "should send the directory containing the entire project"
+
 
 def test_downloadFile():
     """ tests function downloadFile behaves as desired.
