@@ -21,6 +21,27 @@ def get_key_for_host(host):
             raise Exception("Specified IdentityFile "+path + " for " + host + " in ~/.ssh/config not existing anymore.")
         else:
             return path
+
+def connection(ip_address,username,password=''):
+
+    # try to establish connection to remote virtual machine
+    try: 
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(AutoAddPolicy())
+        if(password==''):
+            key = get_key_for_host(ip_address)
+            
+            ki = RSAKey.from_private_key_file(key)
+            ssh.connect(ip_address, username=username,pkey=ki)
+        else:
+            ssh.connect(ip_address, username=username, password=password)
+        return ssh
+    except:
+        print("Error: Could not connect.")
+        return False
+
+
     
 
 def uploadFile(local_path, ip_address, username, password='', remote_path=''):
@@ -33,21 +54,9 @@ def uploadFile(local_path, ip_address, username, password='', remote_path=''):
     if os.path.exists(local_path) == False:
         print("Error: invalid local_path: " + local_path)
         return
-
-    # try to establish connection to AWS virtual machine
-    try: 
-        ssh = SSHClient()
-        ssh.load_system_host_keys()
-        ssh.set_missing_host_key_policy(AutoAddPolicy())
-        if(password==''):
-            key = get_key_for_host(ip_address)
-            
-            ki = RSAKey.from_private_key_file(key)
-            ssh.connect(ip_address, username=username,pkey=ki)
-        else:
-            ssh.connect(ip_address, username=username, password=password)
-    except:
-        print("Error: Could not connect.")
+    
+    ssh = connection(ip_address,username,password)
+    if ssh == False:
         return
 
     # try to upload file
