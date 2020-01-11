@@ -30,7 +30,6 @@ def test_uploadFile():
     SCP_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
     PROJECT_BASE_DIR = os.path.dirname(SCP_BASE_DIR)
     assert(vm_scp.uploadFile(SCP_BASE_DIR,ip,un,pw)) == 1, "should send the directory this is in"
-    print(PROJECT_BASE_DIR)
     assert(vm_scp.uploadFile(PROJECT_BASE_DIR,ip,un,pw)) == 1, "should send the directory containing the entire project"
 
 

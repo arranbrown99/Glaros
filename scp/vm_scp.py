@@ -85,18 +85,8 @@ def downloadFile(remote_path, ip_address, username, password='',local_path=''):
     if os.path.exists(remote_path) == False:
         print("Error: invalid remote_path: "+ remote_path)
         return
-
-    # try establish a connection to AWS virtual machine
-    try:
-        ssh = SSHClient()
-        ssh.load_system_host_keys()
-        ssh.set_missing_host_key_policy(AutoAddPolicy())
-        if(password==''):
-            ssh.connect(ip_address=ip_address, username=username)
-        else:
-            ssh.connect(ip_address=ip_address, username=username, password=password)
-    except Exception:
-        print("Error: Could not connect.")
+    ssh = connection(ip_address,username,password)
+    if ssh == False:
         return
 
     # try to download file
