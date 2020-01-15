@@ -1,7 +1,7 @@
 import remote_process
 
-ip_address = '34.196.229.24'
-username = 'test2'
+ip_address = "54.194.29.151"
+username = 'ec2-user'
 
 def test_remote():
     assert(remote_process.remote_python(ip_address,username,'infinite.py')) == True,"should run a python program in the background"

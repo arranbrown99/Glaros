@@ -24,5 +24,5 @@ def remote_remove(ip_address,username,remote_filepath):
     #-r to delete directories
     #-f to delete automatically without human confirmation
     #this could be dangerous if we accidently delete important files but everything should be backed up
-    cmd = 'rm -r -f ' + remote_filepath
+    cmd = 'rm -r ' + remote_filepath
     return remote_cmd(ip_address,username,cmd)
