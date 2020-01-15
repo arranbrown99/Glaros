@@ -1,6 +1,5 @@
 import os
 import boto3
-from subprocess import call
 from botocore.exceptions import ClientError
 from cloud_service_providers.AbstractCSP import AbstractCSP
 import cloud_service_providers.CredentialsParser as cp
