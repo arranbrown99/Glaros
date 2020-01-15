@@ -3,9 +3,14 @@ from abc import ABC, abstractmethod
 
 class AbstractCSP(ABC):
     stock_name = ""
+    username = ""
 
     @abstractmethod
     def identify(self):
+        pass
+
+    @abstractmethod    
+    def get_ip(self):
         pass
 
     @abstractmethod
@@ -21,12 +26,19 @@ class AbstractCSP(ABC):
         pass
 
     @abstractmethod
-    def execute_command(self):
+    def upload_file(self):
         pass
 
     @abstractmethod
-    def upload_file(self):
+    def is_running(self):
         pass
+
+    def get_username(self):
+        """
+        returns the username to needed to login used with ssh
+        """
+        return self.username
+
 
     def get_stock_name(self):
         """
