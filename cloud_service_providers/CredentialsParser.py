@@ -26,7 +26,8 @@ class CredentialsParser:
                     credentials[username] = row
                     line_count += 1
                 print(f' {line_count} lines.')
-        except:
+        except Exception as e:
+            print(e)
             raise TypeError("%s must be a csv file" % filename)
 
         return credentials
