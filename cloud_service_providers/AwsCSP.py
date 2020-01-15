@@ -21,8 +21,6 @@ class AwsCSP(AbstractCSP):
             aws_secret_access_key=credentials.get("PythonManager").get("Secret access key"),
             region_name='eu-west-1'
         )
-        # response = self.client.describe_instances()
-        # instances = self.client.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
 
     def identify(self):
         print("This was called from an AwsCSP instance.")
@@ -58,8 +56,8 @@ class AwsCSP(AbstractCSP):
             print(e)
 
     def get_info(self):
-        response = self.client.describe_instances()
-        print(response)
+        response = self.client.describe_instances(InstanceIds=[instance_id])
+        return response
 
     def execute_commands(self, commands):
         pass
@@ -70,3 +68,7 @@ class AwsCSP(AbstractCSP):
     def is_running(self):
         response = self.client.describe_instance_status(InstanceIds=[instance_id])
         return response['InstanceStatuses'][0]['InstanceState']['Name'] == 'running'
+
+    def get_ip(self):
+        response = self.client.describe_instances(InstanceIds=[instance_id])
+        return response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['Association']['PublicIp']
