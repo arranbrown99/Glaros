@@ -159,6 +159,31 @@ def change_ip(passed_ip):
                              f'Change to {ip.exploded} requested but DNS is {curr_dns_ip}')
 
 
+def gen_config():
+    '''
+    Creates a config.ini, if it already exists: truncates it
+    '''
+    while True:
+        try:
+            print("You are required to provide the following information")
+            domain_in = input("Domain: ")
+            key_in = input("API key: ")
+            secret_in = input("API secret: ")
+        except:
+            print("Incorrect input")
+            continue
+        else:
+            break
+    config = configparser.ConfigParser()
+    config['dns'] = {'domain': f'{domain_in}',
+                     'key': f'{key_in}',
+                     'secret': f'{secret_in}'}
+
+    with open(f'{__config_file__}', 'w') as configfile:
+        config.write(configfile)
+
+
 if __name__ == "__main__":
     # For testing
-    change_ip('1.1.1.8')
+    # change_ip('1.1.1.8')
+    gen_config()
