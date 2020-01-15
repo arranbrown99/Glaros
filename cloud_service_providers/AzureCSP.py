@@ -2,6 +2,7 @@
 
 from subprocess import call, check_output
 import json
+from AbstractCSP import AbstractCSP
 
 # uses subprocesses to call the azure cli
 
@@ -18,7 +19,7 @@ import json
 # or run the login function in this script
 # this login stays for 3 months
 
-class AzureCSP():
+class AzureCSP(AbstractCSP):
 
     def __init__(self):
 
@@ -31,6 +32,7 @@ class AzureCSP():
         self.LOCATION = 'eastus'
         self.GROUP_NAME = 'cs27'
         self.VM_NAME = 'cs27VM2'
+        self.username = 'glarosAzure'
 
     def identify(self):
         info = self.get_info()
@@ -41,7 +43,11 @@ class AzureCSP():
         command = ["az", "vm", "list","-d", "--output","json","--query", "[?name=='cs27VM2']"]
         info = check_output(command)
         return json.loads(info)
-
+    
+    def get_ip(self):
+        info = self.get_info()
+        ip = info[0]["publicIps"]
+        return ip
 
     def is_running(self):
         info = self.get_info()
@@ -82,9 +88,8 @@ def main():
     if not azure_vm.is_running():
         azure_vm.start_vm()
 
-    print("azure vm ID is " + azure_vm.identify())
-    azure_vm.stop_vm()
-
+    print(azure_vm.get_ip())
+    print(azure_vm.get_username())
 
 if __name__ == '__main__':
     main()
