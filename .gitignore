@@ -154,4 +154,4 @@ dmypy.json
 *.code-workspace
 
 # configparser
-config.ini
+*.ini
