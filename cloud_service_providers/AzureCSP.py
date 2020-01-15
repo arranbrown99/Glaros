@@ -2,7 +2,7 @@
 
 from subprocess import call, check_output
 import json
-from AbstractCSP import AbstractCSP
+from cloud_service_providers.AbstractCSP import AbstractCSP
 
 # uses subprocesses to call the azure cli
 
