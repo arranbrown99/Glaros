@@ -21,12 +21,12 @@ class TestStockRetrieverMethods(unittest.TestCase):
         self.assertIsNone(StockRetriever.get_stock_price(bad_l[0]))
 
     def test_calculate_difference(self):
-        """test  a correct and incorrect input for calculate_difference
+        """test a correct and incorrect input for calculate_difference
         """
         # Test good input
         self.assertIsNotNone(StockRetriever.calculate_difference(good_l[0]))
         # Test bad input
-        self.assertIsNone(StockRetriever.calculate_difference(good_l[0]))
+        self.assertIsNone(StockRetriever.calculate_difference(bad_l[0]))
 
     def test_get_stock_data(self):
         """test that get_stock_data returns a dictionary
