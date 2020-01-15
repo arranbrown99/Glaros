@@ -1,5 +1,5 @@
 import unittest
-from dns import change_service
+from dns import change_ip
 
 
 class TestDNS(unittest.TestCase):
