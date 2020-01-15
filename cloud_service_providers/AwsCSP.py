@@ -1,8 +1,9 @@
 import os
 import boto3
+from subprocess import call
 from botocore.exceptions import ClientError
 from cloud_service_providers.AbstractCSP import AbstractCSP
-import CredentialsParser as cp
+import cloud_service_providers.CredentialsParser as cp
 
 AWS_DIR = os.environ['AWS_DIR']  # (ie: ~/.aws/)
 instance_id = "i-02d62ad8d9438ea4e"
@@ -58,9 +59,6 @@ class AwsCSP(AbstractCSP):
     def get_info(self):
         response = self.client.describe_instances(InstanceIds=[instance_id])
         return response
-
-    def execute_commands(self, commands):
-        pass
 
     def upload_file(self):
         pass

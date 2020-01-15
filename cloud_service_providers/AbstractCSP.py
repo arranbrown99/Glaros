@@ -26,10 +26,6 @@ class AbstractCSP(ABC):
         pass
 
     @abstractmethod
-    def execute_commands(self, commands):
-        pass
-
-    @abstractmethod
     def upload_file(self):
         pass
 
