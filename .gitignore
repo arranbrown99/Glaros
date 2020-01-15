@@ -153,5 +153,5 @@ dmypy.json
 !.vscode/extensions.json
 *.code-workspace
 
-# configparser
+#configparser
 *.ini
