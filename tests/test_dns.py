@@ -1,5 +1,5 @@
-import unittest
-from dns import change_ip
+
+from context import *
 
 
 class TestDNS(unittest.TestCase):

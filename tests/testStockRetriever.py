@@ -1,6 +1,5 @@
 # tests for StockRetriever
-import unittest
-import StockRetriever
+from context import *
 
 # list for good test input
 good_l = ['amzn', 'goog', 'msft', ]

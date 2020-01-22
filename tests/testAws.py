@@ -1,4 +1,4 @@
-from AwsCSP import AwsCSP
+from context import * 
  
 def main():
     aws_vm = AwsCSP()

@@ -1,9 +1,7 @@
 # tests for scp_aws
-import sys
+
+from context import *
 my_file = 'cs27-main/'
-import vm_scp
-import os
-import unittest
 
 # inputs
 ip = '34.196.229.24'
