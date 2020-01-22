@@ -1,5 +1,5 @@
 # from AbstractCSP import AbstractCSP
-
+import time
 from subprocess import call, check_output
 import json
 from cloud_service_providers.AbstractCSP import AbstractCSP
@@ -60,7 +60,9 @@ class AzureCSP(AbstractCSP):
     def start_vm(self):
         # Start the VM
         print('\nStart VM')
-        return self.execute_commands(["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
+        output = self.execute_commands(["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
+        time.sleep(2*60)  # mins
+        return output
 
     def stop_vm(self):
         # Stop the VM

@@ -1,4 +1,5 @@
-import vm_scp
+import os
+from glaros_ssh import vm_scp
 
 #given a command executes the cmd on a remote computer
 def remote_cmd(ip_address,username,cmd):
@@ -9,7 +10,8 @@ def remote_cmd(ip_address,username,cmd):
     
     try:
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-        return True
+        print(ssh_stderr.readlines())
+        return ssh_stdout.readlines()
     except:
         print("command failed")
         return 
@@ -17,8 +19,23 @@ def remote_cmd(ip_address,username,cmd):
 def remote_python(ip_address,username,python_file):
     #nohup so process on child vm continues even after logout of parent vm
     # & to run in the background
-    cmd = 'nohup python ' + python_file + ' &'
+    #cd parent_dir; moves into the cs27-main so that the code is alway excuted in the same working directory
+    # >> ../driver.out 2>&1 &
+    # the above is used to create output append it onto a seperate file that is not transferred and also redirects errors to that output
+    parent_dir = os.path.basename(os.path.abspath('.'))
+    cmd = 'cd ' + parent_dir + ';nohup python3 ' + python_file + ' >> ../driver.out 2>&1 &'
     return remote_cmd(ip_address,username,cmd)
+
+def remote_mkdir(ip_address,username,dir_name):
+    #used to create the directory we will send files to
+    cmd = 'mkdir ' + dir_name
+    return remote_cmd(ip_address,username,cmd)
+
+def remote_ls(ip_address,username,arguments):
+    #used for testing
+    cmd = 'ls ' + arguments
+    return remote_cmd(ip_address,username,cmd)
+
 
 def remote_remove(ip_address,username,remote_filepath):
     #-r to delete directories

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "$1" != "" ]; then
+    echo "Starting up the Driver..."
+    python3 Driver.py $1
+else
+    echo "Positional parameter 1 is empty. (Must be \"amzn\", \"msft\", \"from_amzn\" or \"from_msft\")"
+fi
