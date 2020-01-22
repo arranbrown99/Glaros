@@ -1,5 +1,5 @@
-import unittest
-import remote_process
+
+from context import *
 
 ip_address = "54.194.29.151"
 username = 'ec2-user'
