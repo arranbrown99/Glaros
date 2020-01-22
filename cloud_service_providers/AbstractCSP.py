@@ -1,3 +1,4 @@
+import time
 from abc import ABC, abstractmethod
 
 
@@ -46,3 +47,8 @@ class AbstractCSP(ABC):
         The stock_name field is set once a derived class is instantiated.
         """
         return self.stock_name
+
+    # @staticmethod
+    # def wait_until(condition):
+    #     while condition:
+    #         time.sleep(1)

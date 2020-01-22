@@ -3,10 +3,11 @@ import sys
 my_file = 'cs27-main/'
 import vm_scp
 import os
-
+from cloud_service_providers import AzureCSP,AwsCSP
 # inputs
-ip = '34.196.229.24'
-un = 'test2'
+aws_vm = AwsCSP()
+ip = aws_vm.get_ip()
+un = aws_vm.get_username()
 if len(sys.argv) > 1:
     pw = sys.argv[-1]
 else:
