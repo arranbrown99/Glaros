@@ -1,0 +1,104 @@
+#dashboard-navbar {
+    margin-left: 10em;
+}
+
+.navbar-brand img {
+    height: 25px;
+}
+
+#logout_btn {
+    border-radius: 17px;
+    border-color: rgb(238, 238, 238);
+    color: rgb(238, 238, 238);
+}
+
+#logout_btn:hover {
+    border-color: rgb(0, 144, 158);
+    background-color: rgb(0, 144, 158);
+
+}
+
+.font1 {
+    font-family: 'Rubik', sans-serif;
+}
+
+#dashboard-icon {
+    border-radius: 15px;
+    background-color: rgb(70, 88, 129);
+}
+
+.square {
+    width: 50px;
+    height: 50px;
+    padding-top: 3px;
+}
+
+/* Glaros Colour Palette */
+.gla-primary {
+    background-color: rgb(0, 144, 158)
+}
+
+.text-gla-primary {
+    color: rgb(0, 144, 158)
+}
+
+.gla-secondary {
+    background-color: rgb(27, 42, 73)
+}
+
+.text-gla-secondary {
+    color: rgb(27, 42, 73)
+}
+
+.gla-success {
+    background-color: rgb(38, 194, 100)
+}
+
+.text-gla-success {
+    color: rgb(38, 194, 100)
+}
+
+.gla-failure {
+    background-color: rgb(194, 38, 74)
+}
+
+.text-gla-failure {
+    color: rgb(194, 38, 74)
+}
+
+.gla-light {
+    background-color: rgb(238, 238, 238)
+}
+
+.text-gla-light {
+    color: rgb(238, 238, 238)
+}
+
+/* Cloud Service Providers */
+.gla-aws {
+    background-color: rgb(255, 99, 132)
+}
+
+.text-gla-aws {
+    color: rgb(255, 99, 132)
+}
+
+.gla-azure {
+    background-color: rgb(54, 162, 235)
+}
+
+.text-gla-azure {
+    color: rgb(54, 162, 235)
+}
+
+.gla-google {
+    background-color: rgb(255, 205, 86)
+}
+
+.text-gla-google {
+    color: rgb(255, 205, 86)
+}
+
+.heighttest {
+    height: 100px;
+}

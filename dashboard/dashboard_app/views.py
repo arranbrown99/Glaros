@@ -3,4 +3,5 @@ from django.http import HttpResponse
 
 
 def index(request):
-    return HttpResponse("Dashboard Page")
+    context = {}
+    return render(request, 'dashboard_app/dashboard_base.html', context)
