@@ -7,6 +7,7 @@ good_l = ['amzn', 'goog', 'msft', ]
 # list for bad test input
 bad_l = ['foooo']
 
+
 class TestStockRetrieverMethods(unittest.TestCase):
 
     def test_get_stock_price(self):
@@ -36,6 +37,7 @@ class TestStockRetrieverMethods(unittest.TestCase):
         """test that best_stock returns a string
         """
         self.assertIs(type(StockRetriever.best_stock(good_l)), str)
+
 
 if __name__ == '__main__':
     unittest.main()
