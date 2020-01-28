@@ -1,6 +1,6 @@
 # tests for StockRetriever
 import unittest
-import Driver
+import .Driver
 # list for good test input
 good_l = ['amzn', 'goog', 'msft', ]
 
