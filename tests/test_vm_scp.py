@@ -1,6 +1,9 @@
 # tests for scp_aws
 
-from context import *
+import unittest
+import Driver
+import sys
+
 my_file = 'cs27-main/'
 
 # inputs

@@ -1,4 +1,5 @@
-from context import *
+import unittest
+import Driver
 
 
 class TestDNS(unittest.TestCase):

@@ -1,8 +1,9 @@
-from context import *
+import unittest
+import Driver
 
 
 def main():
-    aws_vm = AwsCSP()
+    aws_vm = Driver.cloud_service_providers.AwsCSP()
     aws_vm.start_vm()
 
 

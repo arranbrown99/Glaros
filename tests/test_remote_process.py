@@ -1,5 +1,5 @@
-
-from context import *
+import unittest
+import Driver
 
 ip_address = "54.194.29.151"
 username = 'ec2-user'
