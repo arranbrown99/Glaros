@@ -3,6 +3,7 @@ import time
 from subprocess import call, check_output
 import json
 from cloud_service_providers.AbstractCSP import AbstractCSP
+import os
 
 
 # uses subprocesses to call the azure cli
@@ -30,10 +31,10 @@ class AzureCSP(AbstractCSP):
         # Here we need to configure all the things necessary to connect
         # to the Azure instance.
 
-        self.LOCATION = 'eastus'
-        self.GROUP_NAME = 'cs27'
-        self.VM_NAME = 'cs27VM2'
-        self.username = 'glarosAzure'
+        self.LOCATION = os.environ['AZURE_LOCATION']
+        self.GROUP_NAME = os.environ['AZURE_GROUP_NAME']
+        self.VM_NAME = os.environ['AZURE_VM_NAME']
+        self.username = os.environ['AZURE_USERNAME']
 
     def identify(self):
         info = self.get_info()
