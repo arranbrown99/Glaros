@@ -1,14 +1,18 @@
 # tests for scp_aws
 
 import unittest
-import Driver
 import sys
+import os
 
-my_file = 'cs27-main/'
-
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from glaros_ssh import vm_scp
+from cloud_service_providers.AzureCSP import AzureCSP
 # inputs
-ip = '34.196.229.24'
-un = 'test2'
+azure_vm = AzureCSP()
+ip = azure_vm.get_ip()
+un = azure_vm.get_username()
+
 if len(sys.argv) > 1:
     pw = sys.argv[-1]
 else:
@@ -19,7 +23,6 @@ else:
 class TestVMSCP(unittest.TestCase):
 
     def test_uploadFile(self):
-
         """ tests function uploadFile behaves as desired.
         """
 
@@ -35,10 +38,10 @@ class TestVMSCP(unittest.TestCase):
             vm_scp.uploadFile('test.txt', ip, un, pw, 'doesnt_exist/'))
         # sending itself
         self.assertIs(vm_scp.uploadFile('vm_scp.py', ip, un, pw), 1)
-        SCP_BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-        PROJECT_BASE_DIR = os.path.dirname(SCP_BASE_DIR)
-        self.assertIs(vm_scp.uploadFile(SCP_BASE_DIR, ip, un, pw), 1)
-        self.assertIs(vm_scp.uploadFile(PROJECT_BASE_DIR, ip, un, pw), 1)
+        scp_base_dir = os.path.dirname(os.path.realpath(__file__))
+        project_base_dir = os.path.dirname(scp_base_dir)
+        self.assertIs(vm_scp.uploadFile(scp_base_dir, ip, un, pw), 1)
+        self.assertIs(vm_scp.uploadFile(project_base_dir, ip, un, pw), 1)
 
     def test_downloadFile(self):
         """ tests function downloadFile behaves as desired.

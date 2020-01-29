@@ -20,12 +20,12 @@ class CredentialsParser:
                 line_count = 0
                 for row in csv_reader:
                     if line_count == 0:
-                        print(f'Column names are {", ".join(row)}')
+                       # print(f'Column names are {", ".join(row)}')
                         line_count += 1
                     username = row.pop("User name")
                     credentials[username] = row
                     line_count += 1
-                print(f' {line_count} lines.')
+               # print(f' {line_count} lines.')
         except Exception as e:
             print(e)
             raise TypeError("%s must be a csv file" % filename)

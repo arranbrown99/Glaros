@@ -1,12 +1,14 @@
 # from AbstractCSP import AbstractCSP
-
+import time
 from subprocess import call, check_output
 import json
 from cloud_service_providers.AbstractCSP import AbstractCSP
 
+
 # uses subprocesses to call the azure cli
 
 # install this first on ubuntu
+
 # curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # on centOS ie amazon use these commands
@@ -37,13 +39,12 @@ class AzureCSP(AbstractCSP):
     def identify(self):
         info = self.get_info()
         return info[0]["id"]
-        
 
     def get_info(self):
-        command = ["az", "vm", "list","-d", "--output","json","--query", "[?name=='cs27VM2']"]
+        command = ["az", "vm", "list", "-d", "--output", "json", "--query", "[?name=='cs27VM2']"]
         info = check_output(command)
         return json.loads(info)
-    
+
     def get_ip(self):
         info = self.get_info()
         ip = info[0]["publicIps"]
@@ -60,7 +61,9 @@ class AzureCSP(AbstractCSP):
     def start_vm(self):
         # Start the VM
         print('\nStart VM')
-        return self.execute_commands(["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
+        output = self.execute_commands(["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
+        time.sleep(2 * 60)  # mins
+        return output
 
     def stop_vm(self):
         # Stop the VM
@@ -90,6 +93,7 @@ def main():
 
     print(azure_vm.get_ip())
     print(azure_vm.get_username())
+
 
 if __name__ == '__main__':
     main()
