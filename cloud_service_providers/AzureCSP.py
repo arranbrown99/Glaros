@@ -29,7 +29,6 @@ class AzureCSP(AbstractCSP):
 
         # Here we need to configure all the things necessary to connect
         # to the Azure instance.
-        self.TENANT_ID = '6e725c29-763a-4f50-81f2-2e254f0133c8'
 
         self.LOCATION = 'eastus'
         self.GROUP_NAME = 'cs27'
