@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard_style.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Rubik:400,500&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     {% block head_imports %}{% endblock %}
 </head>
 <body>
@@ -32,7 +31,7 @@
     <div class="container">
         <div class="row">
             <div class="col-xl-6 col-lg-6 rounded-circle">
-                <div class="card shadow mb-4">
+                <div id="left-card" class="card shadow mb-4">
                     <!-- Card Header -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-center">
                         <h6 class="m-0 text-dark">General Information</h6>
@@ -84,25 +83,17 @@
 
             <!-- Stock Prices Plot -->
             <div class="col-xl-6 col-lg-6">
-                <div class="card shadow mb-4">
+                <div id="right-card" class="card shadow mb-4">
                     <!-- Card Header -->
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-center">
                         <h6 class="m-0 text-dark">Stock Prices</h6>
+                        <button id="update-stock-prices-btn" class="ml-5" onclick="update_stock_prices()"
+                                data-ajaxurl="{% url 'ajax_update_stock_prices' %}">Update
+                        </button>
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
-
-                        <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> Direct
-                    </span>
-                            <span class="mr-2">
-                      <i class="fas fa-circle text-success"></i> Social
-                    </span>
-                            <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> Referral
-                    </span>
-                        </div>
+                        <canvas id="stockPricesChart" class="h-100"></canvas>
                     </div>
                 </div>
             </div>
@@ -112,21 +103,7 @@
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                         aria-labelledby="dropdownMenuLink">
-                        <div class="dropdown-header">Dropdown Header:</div>
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </div>
+                <h6 class="m-0 text-dark">Migration Timeline</h6>
             </div>
             <!-- Card Body -->
             <div class="card-body">
@@ -138,9 +115,13 @@
     </div>
     {% block main_body %}{% endblock %}
 </main>
-<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<!-- Chart imports -->
+<script type="text/javascript" src="{% static 'js/loader.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<!-- JQuery & Bootstrap -->
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!-- Custom Dashboard scripts -->
 <script src="{% static 'js/dashboard_script.js' %}"></script>
 </body>
 </html>

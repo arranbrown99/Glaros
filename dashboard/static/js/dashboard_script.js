@@ -30,3 +30,75 @@ function drawChart() {
 }
 
 /* Stock Prices (Line Plot) code */
+const ctx = document.getElementById("stockPricesChart");
+console.log(ctx);
+var stock_prices_chart = null;
+
+function update_stock_prices() {
+    $.ajax({
+        url: $("#update-stock-prices-btn").attr("data-ajaxurl"), // the url is provided by the button's attributes
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            stock_prices_chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: data.datasets,
+                },
+                // options: options
+            });
+        }
+    });
+
+
+}
+
+// let stock_prices_chart = new Chart(ctx, {
+//     type: 'line',
+//     data: {
+//         labels: [new Date().toLocaleDateString(), 'February', 'March', 'April', 'May', 'June', 'July'],
+//         datasets:
+//             [{
+//                 label: 'AWS',
+//                 backgroundColor: 'rgb(255, 99, 132)',
+//                 borderColor: 'rgb(255, 99, 132)',
+//                 data: [73, -6, -99, 79, 93, -32, -99],
+//                 fill: false,
+//             }, {
+//                 label: 'AZURE',
+//                 fill: false,
+//                 backgroundColor: 'rgb(54, 162, 235)',
+//                 borderColor: 'rgb(54, 162, 235)',
+//                 data: [-98, -26, 23, -95, 1, -72, -14],
+//             }]
+//     },
+//     // options: options
+// });
+
+
+$(document).ready(function () {
+    console.log("ready");
+    /*
+    Update the Stock Prices Chart for the first time
+     */
+    update_stock_prices();
+
+    /* Some code to ensure that the height of the stock prices chart
+       matches the card on the left ("general information")*/
+    setHeight($('#right-card'), $('#left-card'));
+
+    // When the window is resized the height might
+    // change depending on content. So to be safe
+    // we rerun the function
+    $(window).on('resize', function () {
+        setHeight($('#right-card'), $('#left-card'));
+    });
+
+});
+
+// sets height of element 1 to equal the height of element 2
+function setHeight(elem1, elem2) {
+    var height = elem2.height();
+    elem1.css('height', height);
+}
