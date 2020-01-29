@@ -32,6 +32,7 @@ import time
 from glaros_ssh import remote_process, vm_scp
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
+from datetime import datetime
 import StockRetriever
 import dns
 
@@ -48,8 +49,7 @@ exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
 
 def event_loop(currently_on):
     current = currently_on.get_stock_name()
-#    global counter
-    move = False
+    global counter
 
     # Logic to decide (using StockRetriever)
     best_stock = StockRetriever.best_stock(cloud_service_providers)
@@ -82,8 +82,22 @@ def event_loop(currently_on):
         threading.Timer(check_every, event_loop, [currently_on]).start()
 #        counter += 1
 
+# Write to logfile before migration starts
+def write_log_before(sender, target):
+    with open('migrations.log', 'a') as migrations_log:
+            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                " Starting migration from %s to %s...\n" % (sender, target))
 
-def migrate(stock_name, currently_on):
+# Write to logfile once migration finishes
+def write_log_after(sender, target):
+    with open('migrations.log', 'a') as migrations_log:
+            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                " Finished migration from %s to %s.\n" % (sender, target))
+
+
+def migrate(stock_name,currently_on):
+    # Write to logfile
+    write_log_before(currently_on, stock_name)
     # create object for 'best' stock
     if stock_name == "amzn":
         moving_to = AwsCSP()
@@ -149,8 +163,7 @@ def migrate(stock_name, currently_on):
         print("Failed to run Driver.py on new VM.")
         return
 
-
-def after_migration(sender):
+def after_migration(sender, currently_on):
     # delete old driver on now remote vm
     parent_dir_path = os.path.abspath('.')
     parent_dir = os.path.basename(parent_dir_path)
@@ -168,7 +181,10 @@ def after_migration(sender):
     if sender.is_running():
         print("Turning off " + sender.get_stock_name() + " vm.")
         sender.stop_vm()
-
+    # update dns
+#    dns.change_ip(sender.get_ip())
+    # Update logfile
+    write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
 
 def main():
     # First we need to identify on which CSP this Driver was created from
@@ -184,12 +200,12 @@ def main():
         from_msft = AzureCSP()
         currently_on = AwsCSP()
 
-        after_migration(from_msft)
+        after_migration(from_msft, currently_on)
     elif sys.argv[1] == "from_amzn":
         from_amzn = AwsCSP()
         currently_on = AzureCSP()
 
-        after_migration(from_amzn)
+        after_migration(from_amzn, currently_on)
     else:
         print("Please enter either amzn or msft")
         return
