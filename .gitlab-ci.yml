@@ -12,4 +12,5 @@ stages:
 test:
   stage: test
   script:
+  - cd tests
   - python3.7 tests/testStockRetriever.py

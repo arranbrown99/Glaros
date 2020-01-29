@@ -1,6 +1,10 @@
 # tests for StockRetriever
 import unittest
-import .Driver
+import os
+import sys
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import StockRetriever
 # list for good test input
 good_l = ['amzn', 'goog', 'msft', ]
 
@@ -14,29 +18,29 @@ class TestStockRetrieverMethods(unittest.TestCase):
         """test  a correct and incorrect input for get_stock_price
         """
         # Test good input
-        self.assertIsNotNone(Driver.StockRetriever.get_stock_price(good_l[0]))
-        self.assertIsNotNone(Driver.StockRetriever.get_stock_price(good_l[1]))
-        self.assertIsNotNone(Driver.StockRetriever.get_stock_price(good_l[2]))
+        self.assertIsNotNone(StockRetriever.get_stock_price(good_l[0]))
+        self.assertIsNotNone(StockRetriever.get_stock_price(good_l[1]))
+        self.assertIsNotNone(StockRetriever.get_stock_price(good_l[2]))
         # Test bad input
-        self.assertIsNone(Driver.StockRetriever.get_stock_price(bad_l[0]))
+        self.assertIsNone(StockRetriever.get_stock_price(bad_l[0]))
 
     def test_calculate_difference(self):
         """test a correct and incorrect input for calculate_difference
         """
         # Test good input
-        self.assertIsNotNone(Driver.StockRetriever.calculate_difference(good_l[0]))
+        self.assertIsNotNone(StockRetriever.calculate_difference(good_l[0]))
         # Test bad input
-        self.assertIsNone(Driver.StockRetriever.calculate_difference(bad_l[0]))
+        self.assertIsNone(StockRetriever.calculate_difference(bad_l[0]))
 
     def test_get_stock_data(self):
         """test that get_stock_data returns a dictionary
         """
-        self.assertIs(type(Driver.StockRetriever.get_stock_data(good_l)), dict)
+        self.assertIs(type(StockRetriever.get_stock_data(good_l)), dict)
 
     def test_best_stock(self):
         """test that best_stock returns a string
         """
-        self.assertIs(type(Driver.StockRetriever.best_stock(good_l)), str)
+        self.assertIs(type(StockRetriever.best_stock(good_l)), str)
 
 
 if __name__ == '__main__':
