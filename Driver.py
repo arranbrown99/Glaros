@@ -36,7 +36,7 @@ import StockRetriever
 import dns
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
-check_every = 3  # seconds
+check_every = 15 * 60  # seconds
 cloud_service_providers = [
     'amzn',  # Amazon (AWS)
     'msft',  # Microsoft (Azure)
@@ -47,7 +47,7 @@ exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
 
 def event_loop(currently_on):
     current = currently_on.get_stock_name()
-    global counter
+#    global counter
     move = False
 
     # Logic to decide (using StockRetriever)
@@ -63,23 +63,23 @@ def event_loop(currently_on):
         print("Now migrating to " + best_stock)
         migrate(best_stock,currently_on)
 
-    elif counter == 10:
-        if current == 'amzn':
-            best_stock = 'msft'
-        else:
-            best_stock = 'amzn'
-
-        move = True
-        print("For demos sake took too long will 'migrate' any way")
-        print("Moving from " + current + " to " + best_stock)
-        migrate(best_stock,currently_on)
+#    elif counter == 10:
+#        if current == 'amzn':
+#            best_stock = 'msft'
+#        else:
+#            best_stock = 'amzn'
+#
+#        move = True
+#        print("For demos sake took too long will 'migrate' any way")
+#        print("Moving from " + current + " to " + best_stock)
+#        migrate(best_stock,currently_on)
 
     else:
         print("not now!")
         print()
         # If it's not time to move we start the Timer again.
         threading.Timer(check_every, event_loop, [currently_on]).start()
-        counter += 1
+#        counter += 1
 
 
 def migrate(stock_name,currently_on):
@@ -142,8 +142,6 @@ def after_migration(sender):
     if sender.is_running():
         print("Turning off " + sender.get_stock_name() + " vm.")
         sender.stop_vm()
-    # update dns
-#    dns.change_ip(sender.get_ip())
 
 def main():
     # First we need to identify on which CSP this Driver was created from
@@ -171,6 +169,10 @@ def main():
 
     print("Currently on " + currently_on.get_stock_name())
     print()
+    # update dns
+    print("Updating DNS")
+    dns.change_ip(currently_on.get_ip())
+
     # Start checking the stock prices and decide when to migrate
     event_loop(currently_on)
 

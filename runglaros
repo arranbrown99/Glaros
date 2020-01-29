@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -f config.ini ]; then
+    echo "Setting up config.ini for dns updates"
+    python3 dns.py
+fi
+
 if [ "$1" != "" ]; then
     echo "Starting up the Driver..."
     python3 Driver.py $1
