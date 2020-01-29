@@ -1,5 +1,5 @@
 .idea/
-
+nohup.out
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -153,4 +153,5 @@ dmypy.json
 !.vscode/extensions.json
 *.code-workspace
 
-devconfig.ini
+#configparser
+*.ini

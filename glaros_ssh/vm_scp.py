@@ -14,7 +14,6 @@ def get_key_for_host(host):
         with open(user_config_file) as f:
             ssh_config.parse(f)
     user_config = ssh_config.lookup(host)
-                                         
     if 'identityfile' in user_config:
         path = os.path.expanduser(user_config['identityfile'][0])
         if not os.path.exists(path):
@@ -25,26 +24,28 @@ def get_key_for_host(host):
 def connection(ip_address,username,password=''):
 
     # try to establish connection to remote virtual machine
-    try: 
+    try:
         ssh = SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(AutoAddPolicy())
         if(password==''):
             key = get_key_for_host(ip_address)
-            
             ki = RSAKey.from_private_key_file(key)
             ssh.connect(ip_address, username=username,pkey=ki)
         else:
             ssh.connect(ip_address, username=username, password=password)
         return ssh
-    except:
+    except Exception as e:
+        print(e)
         print("Error: Could not connect.")
         return False
 
 
-    
+def progress4(filename, size, sent, peername):
+    print("(%s:%s) %s\'s progress: %.2f%%   \r" % (peername[0], peername[1], filename, float(sent)/float(size)*100) ) 
 
-def uploadFile(local_path, ip_address, username, password='', remote_path=''):
+
+def uploadFile(local_path, ip_address, username, password='', remote_path='',recursive=False):
     '''Connect to the AWS virtual machine via SSH and copy a file to it. Optional
     remote_path specifies path to which file will be copied. Default is ~.
     '''
@@ -61,12 +62,13 @@ def uploadFile(local_path, ip_address, username, password='', remote_path=''):
 
     # try to upload file
     try:
-        scp = SCPClient(ssh.get_transport())
+        scp = SCPClient(ssh.get_transport(), progress4=progress4)
         if remote_path != '':
-            scp.put(local_path, remote_path=remote_path,recursive=True)
+            scp.put(local_path, remote_path=remote_path,recursive=recursive)
         else:
-            scp.put(local_path,recursive=True)
-    except Exception:
+            scp.put(local_path,recursive=recursive)
+    except Exception as e:
+        print(e)
         print("Error: Could not upload file.")
         return
     finally:
