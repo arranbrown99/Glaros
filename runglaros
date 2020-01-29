@@ -7,7 +7,16 @@ fi
 
 if [ "$1" != "" ]; then
     echo "Starting up the Driver..."
-    python3 Driver.py $1
+
+    if [ "$2" = "demo" ]; then # if the second argument is demo
+	    python3 Driver.py $1
+    else
+	    # does not output to screen but persists after session ends
+	    # append it onto a seperate file that is not transferred
+        # and also redirects errors to that output
+	    nohup python3 Driver.py $1 >> ../driver.out 2>&1 &
+    fi
+    
 else
     echo "Positional parameter 1 is empty. (Must be \"amzn\", \"msft\", \"from_amzn\" or \"from_msft\")"
 fi
