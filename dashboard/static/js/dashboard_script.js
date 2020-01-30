@@ -30,28 +30,81 @@ function drawChart() {
 }
 
 /* Stock Prices (Line Plot) code */
-const ctx = document.getElementById("stockPricesChart");
+const ctx = document.getElementById("stockPricesChart").getContext('2d');
+;
 console.log(ctx);
 var stock_prices_chart = null;
+var data_points = '10';
+var time_interval = '1d';
 
-function update_stock_prices() {
+function update_chart() {
+    let button = event.srcElement;
+    let name = button.getAttribute("name");
+
+    switch (name) {
+        case 'datapoints':
+            data_points = button.getAttribute("data-points");
+            break;
+        case 'intervals':
+            time_interval = button.getAttribute("data-interval");
+            break;
+    }
+
+    update_stock_prices(data_points, time_interval);
+}
+
+function update_stock_prices(points, interval) {
+    console.log(points, interval);
     $.ajax({
-        url: $("#update-stock-prices-btn").attr("data-ajaxurl"), // the url is provided by the button's attributes
+        url: $("#update-stock-prices").attr("data-ajaxurl"), // the url is provided by the button's attributes
         method: 'GET',
         dataType: 'json',
+        data: {
+            'points': points,
+            'interval': interval
+        },
         success: function (data) {
+            console.log(data.labels);
+            console.log(data.labels.map(x => new Date(Date.UTC(x.y, x.m - 1, x.d))));
+
+            // clear the canvas
+            if (stock_prices_chart) {
+                stock_prices_chart.destroy(); // destroy rather than clear so the hovers don't stay alive
+            }
+
             stock_prices_chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: data.labels,
+                    // dates come as json objects. javascript months are zero-indexed
+                    labels: data.labels.map(x => new Date(Date.UTC(x.y, x.m - 1, x.d))),
                     datasets: data.datasets,
                 },
-                // options: options
+                options: {
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    millisecond: 'MMM DD',
+                                    second: 'MMM DD',
+                                    minute: 'MMM DD',
+                                    hour: 'MMM DD',
+                                    day: 'MMM DD',
+                                    week: 'MMM YYYY',
+                                    month: 'MMM YYYY',
+                                    quarter: 'MMM YYYY',
+                                    year: 'MMM YYYY',
+                                }
+                            },
+                            ticks: {
+                                source: 'labels',
+                            },
+                        }],
+                    },
+                }
             });
         }
     });
-
-
 }
 
 // let stock_prices_chart = new Chart(ctx, {
@@ -82,7 +135,7 @@ $(document).ready(function () {
     /*
     Update the Stock Prices Chart for the first time
      */
-    update_stock_prices();
+    update_stock_prices(data_points, time_interval);
 
     /* Some code to ensure that the height of the stock prices chart
        matches the card on the left ("general information")*/
