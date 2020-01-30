@@ -28,6 +28,8 @@ import sys
 import threading
 import os
 import time
+import sqlite3
+from datetime import datetime
 
 from glaros_ssh import remote_process,vm_scp
 from cloud_service_providers.AwsCSP import AwsCSP
@@ -131,6 +133,24 @@ def migrate(stock_name,currently_on):
         print("Failed to run Driver.py on new VM.")
         return
 
+    # Log migration to database
+    try:
+        now = datetime.now()
+        connection = sqlite3.connect('../db.sqlite3')
+        print("The sqlite3 connection is established.")
+        cursor = connection.cursor()
+        insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
+            VALUES (%s, %s, %s)""" % (currently_on.get_stock_name(), moving_to.get_stock_name(),
+            now.strftime("%Y-%m-%d"))
+        count = cursor.execute(insert_query)
+        connection.commit()
+        cursor.close()
+    except sqlite3.Error as e:
+        print("sqlite3 Error: " + e)
+    finally:
+        if (connection):
+            connection.close()
+            print("The sqlite3 connection is now closed.")
 
 def after_migration(sender):
     # delete old driver on now remote vm
