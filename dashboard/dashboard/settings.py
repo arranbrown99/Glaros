@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
+import os, sys
+
+# Add the parent directory of the Django project as a path.
+# Useful for imports
+sys.path.append(os.path.abspath('../'))
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,9 +29,7 @@ SECRET_KEY = 'b&joi9vc9sna95my!d_-_g%kvsp5qx1i8&f3b8mg%l+&4vdac1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["100.76.145.219",
-                 "172.30.156.104",
-                 "127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 
 # Application definition

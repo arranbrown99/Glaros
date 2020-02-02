@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date
 from StockRetriever import get_N_last_stock_differences_for
+from .models import MigrationEntry
 
 
 def index(request):
@@ -11,7 +12,14 @@ def index(request):
     return render(request, 'dashboard_app/dashboard_base.html', context)
 
 
-@csrf_exempt
+# Helper Method
+def date_to_dict(date):
+    """Takes a datetime.date and returns its dictionary equivalent in the format:
+    {"d": day, "m": month, "y": year}
+    """
+    return {"d": date.day, "m": date.month, "y": date.year}
+
+
 def update_stock_prices(request):
     if request.method == 'GET':
         points = request.GET.get('points', None)
@@ -27,7 +35,7 @@ def update_stock_prices(request):
 
         # Then build the data object which will hold that data
         data = {
-            'labels': [{"d": date.day, "m": date.month, "y": date.year} for date in latest_stocks.get('dates')],
+            'labels': [date_to_dict(date) for date in latest_stocks.get('dates')],
             'datasets': [{"label": 'AWS',
                           'backgroundColor': 'rgb(255, 99, 132)',  # These should be stored in each CSP
                           'borderColor': 'rgb(255, 99, 132)',  # These should be stored in each CSP
@@ -43,6 +51,41 @@ def update_stock_prices(request):
                           'fill': False
                           }],
         }
+        return JsonResponse(data)
+    else:
+        # We ignore any other type of request (eg. GET, PUT etc.)
+        return JsonResponse({'error-message': 'No data could be retrieved from server'}, status=422)
+
+
+def update_migration_timeline(request):
+    if request.method == 'GET':
+        # First obtain the data that will populate the timeline
+        last_migrations = MigrationEntry.objects.all().order_by("-_date")[:10][::-1]
+
+        # Then build the data object which will hold that data
+        data = {'migrations': []}
+        for i in range(len(last_migrations)):
+            entry = last_migrations[i]
+
+            # Now we'll format the migration entries for the chart to accept them
+            entry_date = date_to_dict(entry._date)
+
+            # If we are on the last entry, the 'date_until' variable should be today's date.
+            # Meaning that since the last migration, the app is still running on that CSP until this day.
+            if i == len(last_migrations) - 1:
+                date_until = date.today()
+            else:
+                date_until = last_migrations[i + 1]._date  # until the next migration (i.e. next entry).
+
+            # Example: ['AWS', {'d': 30, 'm': 1, 'y': 2020}, {'d': 2, 'm': 2, 'y': 2020}]
+            structured_entry = [
+                entry._to,
+                entry_date,
+                date_to_dict(date_until)
+            ]
+
+            data.get('migrations', []).append(structured_entry)
+
         return JsonResponse(data)
     else:
         # We ignore any other type of request (eg. GET, PUT etc.)
