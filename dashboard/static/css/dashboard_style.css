@@ -18,6 +18,64 @@
 
 }
 
+#show-migrations-table {
+    height: 24px;
+    opacity: 0.6;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    opacity: 1;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100px;
+    background-color: rgb(27, 42, 73);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 140%;
+    left: 0%;
+    margin-left: -40px;
+
+    /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* -------------- */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+
+
+
+
+#show-migrations-table:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
 .font1 {
     font-family: 'Rubik', sans-serif;
 }
@@ -33,7 +91,7 @@
     padding-top: 3px;
 }
 
-#update-stock-prices div label.active{
+#update-stock-prices div label.active {
     background-color: rgb(0, 144, 158);
 }
 

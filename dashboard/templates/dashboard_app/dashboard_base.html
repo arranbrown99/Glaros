@@ -137,11 +137,16 @@
             <!-- Card Header - Dropdown -->
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 text-dark">Migration Timeline</h6>
+                <div class="tooltip">
+                    <img id="show-migrations-table" src="{% static 'img/expand-arrows-alt-solid.svg' %}" role="button">
+                    <span class="tooltiptext">Tooltip text</span>
+                </div>
             </div>
             <!-- Card Body -->
             <div class="card-body">
                 <div class="chart-area w-100">
-                    <div id="timeline" data-update-url="{% url 'ajax_update_migration_timeline' %}" style="height: 180px;"></div>
+                    <div id="timeline" data-update-url="{% url 'ajax_update_migration_timeline' %}"
+                         style="height: 180px;"></div>
                 </div>
             </div>
         </div>
