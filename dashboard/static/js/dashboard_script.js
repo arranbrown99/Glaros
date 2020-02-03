@@ -28,6 +28,8 @@ $(document).ready(function () {
         setHeight($('#right-card'), $('#left-card'));
     });
 
+    create_migrations_table();
+
 });
 
 /**
@@ -152,4 +154,23 @@ function update_stock_prices(points, interval) {
 function setHeight(elem1, elem2) {
     var height = elem2.height();
     elem1.css('height', height);
+}
+
+function create_migrations_table() {
+
+    //create Tabulator on DOM element with id "migrations-table"
+    var table = new Tabulator("#migrations-table", {
+        ajaxURL: document.getElementById("migrations-table").getAttribute("data-ajaxurl"), //ajax URL
+        ajaxProgressiveLoad: "scroll", //enable progressive loading
+        ajaxProgressiveLoadScrollMargin: 100, // triger next ajax load when scroll bar is 300px or less from the bottom of the table.
+        paginationSize: 10, // how many records per page
+        height: 500, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+        layout: "fitColumns", //fit columns to width of table (optional)
+        columns: [ //Define Table Columns
+            {title: "ID", field: "id", align: "center", width: 100},
+            {title: "Date of Migration", field: "date", align: "center", width: 260},
+            {title: "From Where", field: "from", align: "center", width: 200},
+            {title: "To Where", field: "to", align: "center", width: 200},
+        ],
+    });
 }

@@ -29,6 +29,7 @@
     position: relative;
     display: inline-block;
     opacity: 1;
+    z-index: 2;
 }
 
 .tooltip .tooltiptext {
@@ -40,7 +41,7 @@
     border-radius: 6px;
     padding: 5px 0;
     position: absolute;
-    z-index: 1;
+    z-index: 2;
     bottom: 140%;
     left: 0%;
     margin-left: -40px;

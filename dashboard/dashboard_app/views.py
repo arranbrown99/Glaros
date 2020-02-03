@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date
+from django.core.paginator import Paginator
 from StockRetriever import get_N_last_stock_differences_for
 from .models import MigrationEntry
 
@@ -86,6 +87,39 @@ def update_migration_timeline(request):
 
             data.get('migrations', []).append(structured_entry)
 
+        return JsonResponse(data)
+    else:
+        # We ignore any other type of request (eg. GET, PUT etc.)
+        return JsonResponse({'error-message': 'No data could be retrieved from server'}, status=422)
+
+
+def update_migration_table(request):
+    if request.method == 'GET':
+        # If page size isn't specified or not valid, default to 10
+        try:
+            page_size = int(request.GET['size'])
+        except:
+            page_size = 10
+
+        migrations_list = MigrationEntry.objects.all().order_by("-_date")
+        paginator = Paginator(migrations_list, page_size)
+        page = request.GET.get('page')
+
+        formatted_migrations = []
+        for m in paginator.get_page(page):
+            formatted_migrations.append(
+                {
+                    "id": m.id,
+                    "date": m._date,
+                    "from": m._from,
+                    "to": m._to,
+                }
+            )
+
+        data = {
+            "last_page": (MigrationEntry.objects.all().count() // page_size) + 1,
+            "data": formatted_migrations
+        }
         return JsonResponse(data)
     else:
         # We ignore any other type of request (eg. GET, PUT etc.)
