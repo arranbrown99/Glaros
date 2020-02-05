@@ -48,7 +48,7 @@ exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
 
 def event_loop(currently_on):
     current = currently_on.get_stock_name()
-    #    global counter
+#    global counter
     move = False
 
     # Logic to decide (using StockRetriever)
@@ -64,24 +64,22 @@ def event_loop(currently_on):
         print("Now migrating to " + best_stock)
         migrate(best_stock, currently_on)
 
-    #    elif counter == 10:
-    #        if current == 'amzn':
-    #            best_stock = 'msft'
-    #        else:
-    #            best_stock = 'amzn'
-    #
-    #        move = True
-    #        print("For demos sake took too long will 'migrate' any way")
-    #        print("Moving from " + current + " to " + best_stock)
-    #        migrate(best_stock,currently_on)
+#    elif counter == 10:
+#        if current == 'amzn':
+#            best_stock = 'msft'
+#        else:
+#            best_stock = 'amzn'
+#
+#        move = True
+#        print("For demos sake took too long will 'migrate' any way")
+#        print("Moving from " + current + " to " + best_stock)
+#        migrate(best_stock,currently_on)
 
     else:
         print("not now!")
         print()
         # If it's not time to move we start the Timer again.
         threading.Timer(check_every, event_loop, [currently_on]).start()
-
-
 #        counter += 1
 
 
@@ -93,7 +91,7 @@ def migrate(stock_name, currently_on):
         moving_to = AzureCSP()
     print("Moving to " + moving_to.get_stock_name())
     # start VM
-    if not moving_to.is_running():
+    if(moving_to.is_running() == False):
         try:
             print("Turning on " + moving_to.get_stock_name() + " vm.")
             moving_to.start_vm()
@@ -113,9 +111,31 @@ def migrate(stock_name, currently_on):
 
     print("Remote vm started up, ip address is " + moving_to.get_ip())
     # start sending entire directory of project
-    ignore(parent_dir,moving_to,remote_filepath)
+    files_to_upload = [f for f in os.listdir() if f not in exclude_files]
 
-
+    try:
+        #   parent_dir = os.path.dirname(os.path.realpath(__file__))
+        for _file in files_to_upload:
+            print("Uploading -> " + _file)
+            if os.path.isdir(_file):
+                recursive = True
+            else:
+                recursive = False
+            vm_scp.uploadFile(
+                os.path.join(
+                    parent_dir,
+                    _file),
+                moving_to.get_ip(),
+                moving_to.get_username(),
+                remote_path="~/" +
+                remote_filepath +
+                "/" +
+                _file,
+                recursive=recursive)
+    except Exception as e:
+        print(e)
+        print("Could not move directory")
+        return
 
     # run the Driver on newly made VM and send the current CSP provider
     try:
@@ -149,31 +169,6 @@ def after_migration(sender):
         print("Turning off " + sender.get_stock_name() + " vm.")
         sender.stop_vm()
 
-def ignore(parent_dir,moving_to,remote_filepath):
-    files_to_upload = [f for f in os.listdir() if f not in exclude_files]
-    try:
-        #   parent_dir = os.path.dirname(os.path.realpath(__file__))
-        for _file in files_to_upload:
-            print("Uploading -> " + _file)
-            if os.path.isdir(_file):
-                recursive = True
-            else:
-                recursive = False
-            vm_scp.upload_file(
-                os.path.join(
-                    parent_dir,
-                    _file),
-                moving_to.get_ip(),
-                moving_to.get_username(),
-                remote_path="~/" +
-                            remote_filepath +
-                            "/" +
-                            _file,
-                recursive=recursive)
-    except Exception as e:
-        print(e)
-        print("Could not move directory")
-        return
 
 def main():
     # First we need to identify on which CSP this Driver was created from

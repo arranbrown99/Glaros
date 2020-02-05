@@ -1,6 +1,8 @@
-from paramiko import SSHConfig, SSHClient, AutoAddPolicy, ssh_exception, RSAKey
-from scp import SCPClient, SCPException
+from paramiko import SSHConfig,SSHClient, AutoAddPolicy, ssh_exception,RSAKey
+from scp import SCPClient
 import os.path
+from io import StringIO
+import io
 
 
 def get_key_for_host(host):
@@ -15,60 +17,88 @@ def get_key_for_host(host):
     if 'identityfile' in user_config:
         path = os.path.expanduser(user_config['identityfile'][0])
         if not os.path.exists(path):
-            raise Exception(
-                "Specified IdentityFile " + path + " for " + host + " in ~/.ssh/config not existing anymore.")
+            raise Exception("Specified IdentityFile "+path + " for " + host + " in ~/.ssh/config not existing anymore.")
         else:
             return path
 
+def connection(ip_address,username,password=''):
 
-def connection(ip_address, username, password=''):
     # try to establish connection to remote virtual machine
     try:
         ssh = SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(AutoAddPolicy())
-        if password == '':
+        if(password==''):
             key = get_key_for_host(ip_address)
             ki = RSAKey.from_private_key_file(key)
-            ssh.connect(ip_address, username=username, pkey=ki)
+            ssh.connect(ip_address, username=username,pkey=ki)
         else:
             ssh.connect(ip_address, username=username, password=password)
         return ssh
-    except ssh_exception as e:
+    except Exception as e:
         print(e)
         print("Error: Could not connect.")
         return False
 
 
 def progress4(filename, size, sent, peername):
-    print("(%s:%s) %s\'s progress: %.2f%%   \r" % (peername[0], peername[1], filename, float(sent) / float(size) * 100))
+    print("(%s:%s) %s\'s progress: %.2f%%   \r" % (peername[0], peername[1], filename, float(sent)/float(size)*100) ) 
 
 
-def upload_file(local_path, ip_address, username, password='', remote_path='', recursive=False):
-    '''
-    Connect to the AWS virtual machine via SSH and copy a file to it. Optional
+def uploadFile(local_path, ip_address, username, password='', remote_path='',recursive=False):
+    '''Connect to the AWS virtual machine via SSH and copy a file to it. Optional
     remote_path specifies path to which file will be copied. Default is ~.
     '''
     local_path = str(local_path)
 
     # Check if local_path is valid
-    if not os.path.exists(local_path):
+    if os.path.exists(local_path) == False:
         print("Error: invalid local_path: " + local_path)
         return
-
-    ssh = connection(ip_address, username, password)
-    if not ssh:
+    
+    ssh = connection(ip_address,username,password)
+    if ssh == False:
         return
 
-    scp = SCPClient(ssh.get_transport(), progress4=progress4)
     # try to upload file
     try:
+        scp = SCPClient(ssh.get_transport(), progress4=progress4)
         if remote_path != '':
-            scp.put(local_path, remote_path=remote_path, recursive=recursive)
+            scp.put(local_path, remote_path=remote_path,recursive=recursive)
         else:
-            scp.put(local_path, recursive=recursive)
-    except SCPException as e:
+            scp.put(local_path,recursive=recursive)
+    except Exception as e:
         print(e)
+        print("Error: Could not upload file.")
+        return
+    finally:
+        scp.close()
+    return 1
+
+def downloadFile(remote_path, ip_address, username, password='',local_path=''):
+    '''Connect to AWS virtual machine via SSH and remotely copy a file from it to the
+    local machine. Optional local_path specifies path to which file will be saved on local
+    machine.
+    '''
+
+    remote_path = str(remote_path)
+
+    # Check if remote_path is valid
+    if os.path.exists(remote_path) == False:
+        print("Error: invalid remote_path: "+ remote_path)
+        return
+    ssh = connection(ip_address,username,password)
+    if ssh == False:
+        return
+
+    # try to download file
+    try:
+        scp = SCPClient(ssh.get_transport())
+        if local_path != '':
+            scp.get(remote_path, local_path=local_path) 
+        else:
+            scp.get(remote_path)
+    except Exception:
         print("Error: Could not upload file.")
         return
     finally:

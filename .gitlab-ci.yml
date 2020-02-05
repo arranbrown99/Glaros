@@ -1,39 +1,14 @@
 image: "python:3.7"
 
 before_script:
-
-- python3.7 --version
-- pip3.7 install -r requirements.txt --user
-- export AWS_DIR="~/.aws/"
-
-# Setup SSH deploy keys
-#- 'which ssh-agent || ( apt-get install -qq openssh-client )'
-#- eval $(ssh-agent -s)
-#- ssh-add <(echo "$AZURE_PRK")
-#- mkdir -p ~/.ssh
-#- '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
+  - python3.7 --version
+  - pip3.7 install -r requirements.txt --user
 
 stages:
-- test
-- expensive_test
-- deploy
+  - test
+  - deploy
 
 test:
   stage: test
   script:
-  - cd tests
-  - az login -u $AZURE_UN -p $AZURE_PW
-  - python3.7 test_stock_retriever.py
-  - touch test.txt
-  - python3.7 test_vm_scp.py
-  
-expensive_test:
-    stage: expensive_test
-    script:
-    - cd tests
-    - az login -u $AZURE_UN -p $AZURE_PW
-    - python3.7 test_azure.py
-    except:
-    - branches
-    
+  - python3.7 testStockRetriever.py

@@ -1,5 +1,5 @@
 import unittest
-import Driver
+from dns import change_ip
 
 
 class TestDNS(unittest.TestCase):
