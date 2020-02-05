@@ -86,9 +86,10 @@ def event_loop(currently_on):
 #        counter += 1
 
 # Write to logfile before migration starts
-def write_log_before(sender, target):
+migration_start_timestamp = datetime.now()
+def write_log_before(sender, target, timestamp):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+            migrations_log.write(migration_start_timestamp.strftime("%d/%m/%Y %H:%M:%S") +
                 " Starting migration from %s to %s...\n" % (sender, target))
 
 # Write to logfile once migration finishes
@@ -100,7 +101,7 @@ def write_log_after(sender, target):
 
 def migrate(stock_name,currently_on):
     # Write to logfile
-    write_log_before(currently_on, stock_name)
+    write_log_before(currently_on, stock_name, migration_start_timestamp)
     # create object for 'best' stock
     if stock_name == "amzn":
         moving_to = AwsCSP()
@@ -146,13 +147,12 @@ def migrate(stock_name,currently_on):
 
     # Log migration to database
     try:
-        now = datetime.now()
         connection = sqlite3.connect('../db.sqlite3')
         print("The sqlite3 connection is established.")
         cursor = connection.cursor()
         insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
             VALUES (%s, %s, %s)""" % (currently_on.get_stock_name(), moving_to.get_stock_name(),
-            now.strftime("%Y-%m-%d"))
+            migration_start_timestamp.strftime("%Y-%m-%d"))
         count = cursor.execute(insert_query)
         connection.commit()
         cursor.close()
