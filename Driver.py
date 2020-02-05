@@ -111,13 +111,8 @@ def create_stock_object(stock_name):
     return obj
 
 
-def migrate(stock_name, currently_on):
-    # Write to logfile
-    write_log_before(currently_on, stock_name)
-    # create object for 'best' stock
-    moving_to = create_stock_object(stock_name)
-    print("Moving to " + moving_to.get_stock_name())
-    # start VM
+# boot VM on another CSP / abstracted from migrate()
+def boot_vm(moving_to):
     if(moving_to.is_running() is False):
         try:
             print("Turning on " + moving_to.get_stock_name() + " vm.")
@@ -126,6 +121,30 @@ def migrate(stock_name, currently_on):
             print("Failed to start VM.")
             return
     time.sleep(30)
+
+
+# run Driver.py on VM / abstracted from migrate()
+def run_booted_vm(moving_to, currently_on):
+    try:
+        remote_process.remote_python(
+            moving_to.get_ip(),
+            moving_to.get_username(),
+            "runglaros from_" +
+            currently_on.get_stock_name())
+    except Exception as e:
+        print(e)
+        print("Failed to run Driver.py on new VM.")
+        return
+
+
+def migrate(stock_name, currently_on):
+    # Write to logfile
+    write_log_before(currently_on, stock_name)
+    # create object for 'best' stock
+    moving_to = create_stock_object(stock_name)
+    print("Moving to " + moving_to.get_stock_name())
+    # start VM
+    boot_vm(moving_to)
     parent_dir = os.path.abspath('.')
     remote_filepath = os.path.basename(parent_dir)
 
@@ -165,16 +184,7 @@ def migrate(stock_name, currently_on):
         return
 
     # run the Driver on newly started VM and send the current CSP provider
-    try:
-        remote_process.remote_python(
-            moving_to.get_ip(),
-            moving_to.get_username(),
-            "runglaros from_" +
-            currently_on.get_stock_name())
-    except Exception as e:
-        print(e)
-        print("Failed to run Driver.py on new VM.")
-        return
+    run_booted_vm(moving_to, currently_on)
 
 
 def after_migration(sender, currently_on):
