@@ -124,9 +124,9 @@ def migrate(stock_name,currently_on):
         remote_filepath)
 
     print("Remote vm started up, ip address is " + moving_to.get_ip())
-    # start sending entire directory of project
+    # files to be sent
     files_to_upload = [f for f in os.listdir() if f not in exclude_files]
-
+    # start sending entire directory of project
     try:
         #   parent_dir = os.path.dirname(os.path.realpath(__file__))
         for _file in files_to_upload:
@@ -151,7 +151,7 @@ def migrate(stock_name,currently_on):
         print("Could not move directory")
         return
 
-    # run the Driver on newly made VM and send the current CSP provider
+    # run the Driver on newly started VM and send the current CSP provider
     try:
         remote_process.remote_python(
             moving_to.get_ip(),
