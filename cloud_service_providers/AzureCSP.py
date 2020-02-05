@@ -21,6 +21,10 @@ from cloud_service_providers.AbstractCSP import AbstractCSP
 
 class AzureCSP(AbstractCSP):
 
+    # Static Variables
+    ui_colour = 'rgb(54,162,235)'
+    formal_name = 'Azure'
+
     def __init__(self):
 
         self.stock_name = "msft"
@@ -33,8 +37,6 @@ class AzureCSP(AbstractCSP):
         self.GROUP_NAME = 'cs27'
         self.VM_NAME = 'cs27VM2'
         self.username = 'glarosAzure'
-        self.ui_colour = 'rgb(54,162,235)'
-        self.formal_name = 'Azure'
 
     def identify(self):
         info = self.get_info()

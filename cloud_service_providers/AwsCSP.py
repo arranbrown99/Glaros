@@ -11,6 +11,10 @@ instance_id = "i-02d62ad8d9438ea4e"
 
 class AwsCSP(AbstractCSP):
 
+    # Static Variables
+    ui_colour = 'rgb(255,99,132)'
+    formal_name = 'Aws'
+
     def __init__(self):
         self.stock_name = "amzn"
         credentials = cp.CredentialsParser(os.path.join(AWS_DIR, 'credentials.csv'))
@@ -24,8 +28,6 @@ class AwsCSP(AbstractCSP):
         
         )
         self.username = "ec2-user"
-        self.ui_colour = 'rgb(255,99,132)'
-        self.formal_name = 'Aws'
 
     def identify(self):
         print("This was called from an AwsCSP instance.")

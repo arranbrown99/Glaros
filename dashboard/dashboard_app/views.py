@@ -8,6 +8,8 @@ from .models import MigrationEntry
 
 # Glaros non-Django imports
 from StockRetriever import get_N_last_stock_differences_for
+from cloud_service_providers.AwsCSP import AwsCSP
+from cloud_service_providers.AzureCSP import AzureCSP
 
 # file that stores the general information of the app provided by the Driver
 from settings import GENERAL_INFO_FILE
@@ -72,15 +74,15 @@ def update_stock_prices(request):
         data = {
             'labels': [date_to_dict(date) for date in latest_stocks.get('dates')],
             'datasets': [{"label": 'AWS',
-                          'backgroundColor': 'rgb(255, 99, 132)',  # These should be stored in each CSP
-                          'borderColor': 'rgb(255, 99, 132)',  # These should be stored in each CSP
+                          'backgroundColor': AwsCSP.ui_colour,  # These should be stored in each CSP
+                          'borderColor': AwsCSP.ui_colour,  # These should be stored in each CSP
                           # 'data': [73, -6, -99, 79, 93, -32, -99],
                           'data': latest_stocks.get('amzn', []),
                           'fill': False,
                           },
                          {'label': 'AZURE',
-                          'backgroundColor': 'rgb(54, 162, 235)',  # These should be stored in each CSP
-                          'borderColor': 'rgb(54, 162, 235)',  # These should be stored in each CSP
+                          'backgroundColor': AzureCSP.ui_colour,  # These should be stored in each CSP
+                          'borderColor': AzureCSP.ui_colour,  # These should be stored in each CSP
                           # 'data': [-98, -26, 23, -95, 1, -72, -14],
                           'data': latest_stocks.get('msft', []),
                           'fill': False
@@ -120,6 +122,11 @@ def update_migration_timeline(request):
             ]
 
             data.get('migrations', []).append(structured_entry)
+
+            # Provide the colour of each CSP
+            data['AWS_color'] = AwsCSP.ui_colour
+            data['AZURE_color'] = AzureCSP.ui_colour
+            data['GCP_color'] = "rgb(255, 205, 86)" # Dummy until GCP is implemented
 
         return JsonResponse(data)
     else:
