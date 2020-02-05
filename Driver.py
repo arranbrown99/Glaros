@@ -1,21 +1,25 @@
 """
 This class represents the main program that will be running on the current CSP.
-Every so often it will compare tbe stock prices of all available CSPs (through StockRetriever)
-and it will decide when it's time to move/migrate to another CSP.
+Every so often it will compare tbe stock prices of all available
+CSPs (through StockRetriever) and it will decide when it's time to
+move/migrate to another CSP.
 
 --- Event Loop ---
 
 Driver running on Azure VM.
-periodically check the StockReceiver - list of cloud providers, static String for the Stock Exchange name.
+Periodically check the StockReceiver - list of cloud providers, static String
+for the Stock Exchange name.
 Decide to move to AWS.
 Create the object for AWS.
 If vm not turned on:
 
 Start aws vm.
 
-Send using python scp script - the SSH keys are set up before hand and not handled by the script.
-Run the newly made driver on the remote VM with a flag for which VM we're currently on
-Old driver stops
+Send using python scp script - the SSH keys are set up before hand and
+not handled by the script.
+Run the newly made driver on the remote VM with a flag for which VM
+we're currently on.
+Old driver stops.
 
 Once the new driver successfully migrates.
 Delete old driver on the now remote vm
@@ -45,8 +49,8 @@ cloud_service_providers = [
 ]
 # Files not to be uploaded to receiving VMs
 exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
-# dictionary of stock objects
-stock_objs = {"amzn":AwsCSP(),"msft":AzureCSP()}
+# dictionary of stock objects - ca n be expanded to include "goog"
+stock_objs = {"amzn": AwsCSP(), "msft": AzureCSP()}
 
 
 def event_loop(currently_on):
@@ -84,33 +88,37 @@ def event_loop(currently_on):
         threading.Timer(check_every, event_loop, [currently_on]).start()
 #        counter += 1
 
+
 # Write to logfile before migration starts
 def write_log_before(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Starting migration from %s to %s...\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime(
+            "%d/%m/%Y %H:%M:%S")) + " Starting migration from %s to %s...\n" %
+                (sender, target))
+
 
 # Write to logfile once migration finishes
 def write_log_after(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Finished migration from %s to %s.\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime(
+            "%d/%m/%Y %H:%M:%S"))
+                + " Finished migration from %s to %s.\n" % (sender, target))
+
 
 # Create object for best stock
 def create_stock_object(stock_name):
-   
     obj = stock_objs.get(stock_name)
     return obj
 
 
-def migrate(stock_name,currently_on):
+def migrate(stock_name, currently_on):
     # Write to logfile
     write_log_before(currently_on, stock_name)
     # create object for 'best' stock
     moving_to = create_stock_object(stock_name)
     print("Moving to " + moving_to.get_stock_name())
     # start VM
-    if(moving_to.is_running() == False):
+    if(moving_to.is_running() is False):
         try:
             print("Turning on " + moving_to.get_stock_name() + " vm.")
             moving_to.start_vm()
@@ -168,6 +176,7 @@ def migrate(stock_name,currently_on):
         print("Failed to run Driver.py on new VM.")
         return
 
+
 def after_migration(sender, currently_on):
     # delete old driver on now remote vm
     parent_dir_path = os.path.abspath('.')
@@ -190,6 +199,7 @@ def after_migration(sender, currently_on):
 #    dns.change_ip(sender.get_ip())
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
+
 
 def main():
     # First we need to identify on which CSP this Driver was created from
