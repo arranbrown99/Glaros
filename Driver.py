@@ -45,6 +45,8 @@ cloud_service_providers = [
 ]
 # Files not to be uploaded to receiving VMs
 exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
+# dictionary of stock objects
+stock_objs = {"amzn":AwsCSP(),"msft":AzureCSP()}
 
 
 def event_loop(currently_on):
@@ -94,15 +96,18 @@ def write_log_after(sender, target):
             migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
                 " Finished migration from %s to %s.\n" % (sender, target))
 
+# Create object for best stock
+def create_stock_object(stock_name):
+   
+    obj = stock_objs.get(stock_name)
+    return obj
+
 
 def migrate(stock_name,currently_on):
     # Write to logfile
     write_log_before(currently_on, stock_name)
     # create object for 'best' stock
-    if stock_name == "amzn":
-        moving_to = AwsCSP()
-    elif stock_name == "msft":
-        moving_to = AzureCSP()
+    moving_to = create_stock_object(stock_name)
     print("Moving to " + moving_to.get_stock_name())
     # start VM
     if(moving_to.is_running() == False):
