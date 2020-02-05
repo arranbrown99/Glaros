@@ -77,7 +77,6 @@ class AwsCSP(AbstractCSP):
 
     def is_stopped(self):
         response = self.client.describe_instance_status(InstanceIds=[instance_id],IncludeAllInstances=True)
-        print(response)
         return response['InstanceStatuses'][0]['InstanceState']['Name'] == 'stopped'
 
     def get_ip(self):
