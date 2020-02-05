@@ -38,6 +38,9 @@ from cloud_service_providers.AzureCSP import AzureCSP
 from datetime import datetime
 import StockRetriever
 import dns
+
+sys.path.append(os.path.abspath('./dashboard/'))
+
 from dashboard.settings import GENERAL_INFO_FILE
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
@@ -187,7 +190,7 @@ def migrate(stock_name,currently_on):
         print("Failed to run Driver.py on new VM.")
         return
 
-def after_migration(sender):
+def after_migration(sender, currently_on):
     # delete old driver on now remote vm
     parent_dir_path = os.path.abspath('.')
     parent_dir = os.path.basename(parent_dir_path)
