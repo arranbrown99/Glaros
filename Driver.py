@@ -207,11 +207,7 @@ def main():
         print('Please enter either "amzn" or "msft"')
         return
 
-    if sys.argv[1] == "amzn":
-        currently_on = AwsCSP()
-    elif sys.argv[1] == "msft":
-        currently_on = AzureCSP()
-    elif sys.argv[1] == "from_msft":
+    if sys.argv[1] = "from_msft":
         from_msft = AzureCSP()
         currently_on = AwsCSP()
 
@@ -221,8 +217,10 @@ def main():
         currently_on = AzureCSP()
 
         after_migration(from_amzn, currently_on)
+    elif sys.argv[1] in stock_objs.keys():
+        currently_on = create_stock_object(sys.argv[1])
     else:
-        print("Please enter either amzn or msft")
+        print("Please enter msft or amzn...")
         return
 
     print("Currently on " + currently_on.get_stock_name())
