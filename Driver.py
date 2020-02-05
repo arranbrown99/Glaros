@@ -156,22 +156,10 @@ def migrate(stock_name,currently_on):
         print("Could not move directory")
         return
 
-    # run the Driver on newly made VM and send the current CSP provider
-    try:
-        remote_process.remote_python(
-            moving_to.get_ip(),
-            moving_to.get_username(),
-            "runglaros from_" +
-            currently_on.get_stock_name())
-    except Exception as e:
-        print(e)
-        print("Failed to run Driver.py on new VM.")
-        return
-
     # Log migration to database
     try:
         now = datetime.now()
-        connection = sqlite3.connect('../db.sqlite3')
+        connection = sqlite3.connect('./dashboard/db.sqlite3')
         print("The sqlite3 connection is established.")
         cursor = connection.cursor()
         insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
@@ -186,6 +174,18 @@ def migrate(stock_name,currently_on):
         if (connection):
             connection.close()
             print("The sqlite3 connection is now closed.")
+
+    # run the Driver on newly made VM and send the current CSP provider
+    try:
+        remote_process.remote_python(
+            moving_to.get_ip(),
+            moving_to.get_username(),
+            "runglaros from_" +
+            currently_on.get_stock_name())
+    except Exception as e:
+        print(e)
+        print("Failed to run Driver.py on new VM.")
+        return
 
 def after_migration(sender):
     # delete old driver on now remote vm
