@@ -43,11 +43,11 @@
                             <div class="row no-gutters align-items-center mb-4">
                                 <div class="col-6">
                                     <div class="font-weight-light font-italic text-info mb-1">Status:</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gla-success">Running</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gla-success">{{ current_status }}</div>
                                 </div>
                                 <div class="col-6">
                                     <div class="font-weight-light font-italic text-info mb-1">Currently on:</div>
-                                    <div class="h5 mb-0 font-weight-bold text-uppercase text-gla-aws">AWS</div>
+                                    <div class="h5 mb-0 font-weight-bold text-uppercase text-gla-aws">{{ currently_on }}</div>
                                 </div>
                             </div>
                         </div>
@@ -60,18 +60,18 @@
                                 <div class="col-6">
                                     <div class="mb-4">
                                         <div class="font-weight-light font-italic text-info mb-1">Last Migration:</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gla-secondary">30/11/2019</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gla-secondary">{{ last_migration }}</div>
                                     </div>
                                     <div>
                                         <div class="font-weight-light font-italic text-info mb-1">Current Date:</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gla-secondary">30/11/2019</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gla-secondary">{{ current_date }}</div>
                                     </div>
                                 </div>
 
                                 <div class="col-6">
                                     <div class="font-weight-light font-italic text-info mb-1">Current IP:</div>
                                     <div class="h5 mb-0 font-weight-bold text-uppercase text-gla-secondary">
-                                        192.168.0.1
+                                        {{ current_ip }}
                                     </div>
                                 </div>
                             </div>

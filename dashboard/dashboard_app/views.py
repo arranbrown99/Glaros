@@ -1,15 +1,45 @@
+import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from datetime import date
 from django.core.paginator import Paginator
-from StockRetriever import get_N_last_stock_differences_for
 from .models import MigrationEntry
+
+# Glaros non-Django imports
+from StockRetriever import get_N_last_stock_differences_for
+
+# file that stores the general information of the app provided by the Driver
+from settings import GENERAL_INFO_FILE
 
 
 def index(request):
     context = {}
+
+    # Get data to populate the General Information area:
+    with open(GENERAL_INFO_FILE, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    # Get Location
+    currently_on = data.get("GLAROS_CURRENTLY_ON")
+
+    # Get IP
+    current_ip = data.get("GLAROS_CURRENT_IP")
+
+    # Get Status
+    current_status = data.get("GLAROS_CURRENT_STATUS")
+
+    # Get Dates
+    date_format = "%d/%m/%Y"
+    last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
+    current_date = date.today().strftime(date_format)
+
+    # Add to context
+    context['currently_on'] = currently_on if currently_on in ["AWS", "AZURE"] else "..."
+    context['current_status'] = current_status if current_status in ["Running", "Migratingg"] else "..."
+    context['last_migration'] = last_migration
+    context['current_date'] = current_date
+    context['current_ip'] = current_ip
     return render(request, 'dashboard_app/dashboard_base.html', context)
 
 
