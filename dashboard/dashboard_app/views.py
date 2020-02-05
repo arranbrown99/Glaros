@@ -29,6 +29,9 @@ def index(request):
     # Get Status
     current_status = data.get("GLAROS_CURRENT_STATUS")
 
+    # Get Colour
+    currently_on_colour = data.get("GLAROS_CURRENTLY_ON_COLOUR", 'rgb(255,0,0)')
+
     # Get Dates
     date_format = "%d/%m/%Y"
     last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
@@ -40,6 +43,7 @@ def index(request):
     context['last_migration'] = last_migration
     context['current_date'] = current_date
     context['current_ip'] = current_ip
+    context['currently_on_colour'] = currently_on_colour
     return render(request, 'dashboard_app/dashboard_base.html', context)
 
 

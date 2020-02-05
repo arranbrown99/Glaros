@@ -5,6 +5,8 @@ from abc import ABC, abstractmethod
 class AbstractCSP(ABC):
     stock_name = ""
     username = ""
+    ui_colour = "rgb(0,0,0)"
+    formal_name = ""
 
     @abstractmethod
     def identify(self):

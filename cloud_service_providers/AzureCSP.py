@@ -33,6 +33,8 @@ class AzureCSP(AbstractCSP):
         self.GROUP_NAME = 'cs27'
         self.VM_NAME = 'cs27VM2'
         self.username = 'glarosAzure'
+        self.ui_colour = 'rgb(54,162,235)'
+        self.formal_name = 'Azure'
 
     def identify(self):
         info = self.get_info()

@@ -24,6 +24,8 @@ class AwsCSP(AbstractCSP):
         
         )
         self.username = "ec2-user"
+        self.ui_colour = 'rgb(255,99,132)'
+        self.formal_name = 'Aws'
 
     def identify(self):
         print("This was called from an AwsCSP instance.")

@@ -29,6 +29,7 @@ import threading
 import os
 import time
 import sqlite3
+import json
 from datetime import datetime
 
 from glaros_ssh import remote_process, vm_scp
@@ -37,6 +38,7 @@ from cloud_service_providers.AzureCSP import AzureCSP
 from datetime import datetime
 import StockRetriever
 import dns
+from dashboard.settings import GENERAL_INFO_FILE
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
@@ -113,6 +115,7 @@ def migrate(stock_name,currently_on):
             moving_to.start_vm()
         except BaseException:
             print("Failed to start VM.")
+
             return
     time.sleep(30)
     parent_dir = os.path.abspath('.')
@@ -207,6 +210,18 @@ def after_migration(sender):
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
 
+def update_general_info(file, currently_on):
+    with open(file, "r") as jsonFile: # Read whole file
+        data = json.load(jsonFile)
+
+    data["GLAROS_CURRENTLY_ON"] = currently_on.formal_name
+    data["GLAROS_CURRENT_STATUS"] = "Running"
+    data["GLAROS_CURRENT_IP"] = currently_on.get_ip()
+    data["GLAROS_CURRENTLY_ON_COLOUR"] = currently_on.ui_colour
+
+    with open(file, "w") as jsonFile:
+        json.dump(data, jsonFile)
+
 def main():
     # First we need to identify on which CSP this Driver was created from
     if len(sys.argv) < 1:
@@ -230,6 +245,9 @@ def main():
     else:
         print("Please enter either amzn or msft")
         return
+
+    # Update the General Information file
+    update_general_info(GENERAL_INFO_FILE, currently_on)
 
     print("Currently on " + currently_on.get_stock_name())
     print()
