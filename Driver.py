@@ -42,6 +42,7 @@ import dns
 sys.path.append(os.path.abspath('./dashboard/'))
 
 from dashboard.settings import GENERAL_INFO_FILE
+from dashboard_app.models import MigrationEntry
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
@@ -71,38 +72,41 @@ def event_loop(currently_on):
         print("Now migrating to " + best_stock)
         migrate(best_stock, currently_on)
 
-#    elif counter == 10:
-#        if current == 'amzn':
-#            best_stock = 'msft'
-#        else:
-#            best_stock = 'amzn'
-#
-#        move = True
-#        print("For demos sake took too long will 'migrate' any way")
-#        print("Moving from " + current + " to " + best_stock)
-#        migrate(best_stock,currently_on)
+    #    elif counter == 10:
+    #        if current == 'amzn':
+    #            best_stock = 'msft'
+    #        else:
+    #            best_stock = 'amzn'
+    #
+    #        move = True
+    #        print("For demos sake took too long will 'migrate' any way")
+    #        print("Moving from " + current + " to " + best_stock)
+    #        migrate(best_stock,currently_on)
 
     else:
         print("not now!")
         print()
         # If it's not time to move we start the Timer again.
         threading.Timer(check_every, event_loop, [currently_on]).start()
+
+
 #        counter += 1
 
 # Write to logfile before migration starts
 def write_log_before(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Starting migration from %s to %s...\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                             " Starting migration from %s to %s...\n" % (sender, target))
+
 
 # Write to logfile once migration finishes
 def write_log_after(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Finished migration from %s to %s.\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                             " Finished migration from %s to %s.\n" % (sender, target))
 
 
-def migrate(stock_name,currently_on):
+def migrate(stock_name, currently_on):
     # Write to logfile
     write_log_before(currently_on, stock_name)
     # create object for 'best' stock
@@ -112,7 +116,7 @@ def migrate(stock_name,currently_on):
         moving_to = AzureCSP()
     print("Moving to " + moving_to.get_stock_name())
     # start VM
-    if(moving_to.is_running() == False):
+    if (moving_to.is_running() == False):
         try:
             print("Turning on " + moving_to.get_stock_name() + " vm.")
             moving_to.start_vm()
@@ -150,9 +154,9 @@ def migrate(stock_name,currently_on):
                 moving_to.get_ip(),
                 moving_to.get_username(),
                 remote_path="~/" +
-                remote_filepath +
-                "/" +
-                _file,
+                            remote_filepath +
+                            "/" +
+                            _file,
                 recursive=recursive)
     except Exception as e:
         print(e)
@@ -160,23 +164,7 @@ def migrate(stock_name,currently_on):
         return
 
     # Log migration to database
-    try:
-        now = datetime.now()
-        connection = sqlite3.connect('./dashboard/db.sqlite3')
-        print("The sqlite3 connection is established.")
-        cursor = connection.cursor()
-        insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
-            VALUES (%s, %s, %s)""" % (currently_on.get_stock_name(), moving_to.get_stock_name(),
-            now.strftime("%Y-%m-%d"))
-        count = cursor.execute(insert_query)
-        connection.commit()
-        cursor.close()
-    except sqlite3.Error as e:
-        print("sqlite3 Error: " + e)
-    finally:
-        if (connection):
-            connection.close()
-            print("The sqlite3 connection is now closed.")
+    database_entry(currently_on, moving_to)
 
     # run the Driver on newly made VM and send the current CSP provider
     try:
@@ -189,6 +177,31 @@ def migrate(stock_name,currently_on):
         print(e)
         print("Failed to run Driver.py on new VM.")
         return
+
+def database_entry(_from,_to):
+    # Log migration to database
+    try:
+        # now = datetime.now()
+        # connection = sqlite3.connect('./dashboard/db.sqlite3')
+        # print("The sqlite3 connection is established.")
+        # cursor = connection.cursor()
+        # insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
+        #     VALUES (%s, %s, %s)""" % (currently_on.get_stock_name(), moving_to.get_stock_name(),
+        #                               now.strftime("%Y-%m-%d"))
+        # count = cursor.execute(insert_query)
+        # connection.commit()
+        # cursor.close()
+        now = datetime.now()
+        date = now.strftime("%Y-%m-%d")
+        me = MigrationEntry.objects.get_or_create(_date=date, _from=_from, _to=_to)[0]
+        me._date = date
+        me.save()
+    except sqlite3.Error as e:
+        print(e)
+    # finally:
+    #     if (connection):
+    #         connection.close()
+    #         print("The sqlite3 connection is now closed.")
 
 def after_migration(sender, currently_on):
     # delete old driver on now remote vm
@@ -209,12 +222,13 @@ def after_migration(sender, currently_on):
         print("Turning off " + sender.get_stock_name() + " vm.")
         sender.stop_vm()
     # update dns
-#    dns.change_ip(sender.get_ip())
+    #    dns.change_ip(sender.get_ip())
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
 
+
 def update_general_info(file, currently_on):
-    with open(file, "r") as jsonFile: # Read whole file
+    with open(file, "r") as jsonFile:  # Read whole file
         data = json.load(jsonFile)
 
     data["GLAROS_CURRENTLY_ON"] = currently_on.formal_name
@@ -224,6 +238,7 @@ def update_general_info(file, currently_on):
 
     with open(file, "w") as jsonFile:
         json.dump(data, jsonFile)
+
 
 def main():
     # First we need to identify on which CSP this Driver was created from
@@ -264,3 +279,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # currently_on = AwsCSP()
+    # moving_to = AzureCSP()
+    # database_entry(currently_on,moving_to)
