@@ -42,7 +42,6 @@ import dns
 sys.path.append(os.path.abspath('./dashboard/'))
 
 from dashboard.settings import GENERAL_INFO_FILE
-from dashboard_app.models import MigrationEntry
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
@@ -178,30 +177,28 @@ def migrate(stock_name, currently_on):
         print("Failed to run Driver.py on new VM.")
         return
 
-def database_entry(_from,_to):
+
+def database_entry(currently_on, moving_to):
     # Log migration to database
     try:
-        # now = datetime.now()
-        # connection = sqlite3.connect('./dashboard/db.sqlite3')
-        # print("The sqlite3 connection is established.")
-        # cursor = connection.cursor()
-        # insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
-        #     VALUES (%s, %s, %s)""" % (currently_on.get_stock_name(), moving_to.get_stock_name(),
-        #                               now.strftime("%Y-%m-%d"))
-        # count = cursor.execute(insert_query)
-        # connection.commit()
-        # cursor.close()
         now = datetime.now()
-        date = now.strftime("%Y-%m-%d")
-        me = MigrationEntry.objects.get_or_create(_date=date, _from=_from, _to=_to)[0]
-        me._date = date
-        me.save()
+        connection = sqlite3.connect('./dashboard/db.sqlite3')
+        print("The sqlite3 connection is established.")
+        cursor = connection.cursor()
+        insert_query = """ INSERT INTO dashboard_app_migrationentry (_from,_to,_date) VALUES ('%s', '%s', '%s')""" % (
+            currently_on.get_stock_name(), moving_to.get_stock_name(),
+            now.strftime("%Y-%m-%d"))
+        count = cursor.execute(insert_query)
+        connection.commit()
+        cursor.close()
+
     except sqlite3.Error as e:
         print(e)
-    # finally:
-    #     if (connection):
-    #         connection.close()
-    #         print("The sqlite3 connection is now closed.")
+    finally:
+        if (connection):
+            connection.close()
+            print("The sqlite3 connection is now closed.")
+
 
 def after_migration(sender, currently_on):
     # delete old driver on now remote vm
@@ -281,4 +278,4 @@ if __name__ == '__main__':
     main()
     # currently_on = AwsCSP()
     # moving_to = AzureCSP()
-    # database_entry(currently_on,moving_to)
+    # database_entry(currently_on, moving_to)
