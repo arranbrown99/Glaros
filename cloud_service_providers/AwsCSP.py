@@ -11,6 +11,10 @@ instance_id = "i-02d62ad8d9438ea4e"
 
 class AwsCSP(AbstractCSP):
 
+    # Static Variables
+    ui_colour = 'rgb(255,99,132)'
+    formal_name = 'Aws'
+
     def __init__(self):
         self.stock_name = "amzn"
         credentials = cp.CredentialsParser(os.path.join(AWS_DIR, 'credentials.csv'))

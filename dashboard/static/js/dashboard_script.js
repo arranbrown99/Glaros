@@ -68,8 +68,22 @@ function drawChart() {
                 ]]
             ));
 
+            // Assign each Cloud Service Provider to its color (provided by 'data' object)
+            var colors = [];
+            var colorMap = {
+                // should contain a map of category -> color for every category
+                AWS: data.AWS_color,
+                AZURE: data.AZURE_color,
+                GCP: data.GCP_color
+            };
+
+            // Generate the color array based on the above color map
+            for (let i = 0; i < dataTable.getNumberOfRows(); i++) {
+                colors.push(colorMap[dataTable.getValue(i, 0)]);
+            }
+
             var options = {
-                colors: ['#FF6384', '#36A2EB', '#FFCD56'],
+                colors: colors,
                 timeline: {
                     colorByRowLabel: true
                 }
