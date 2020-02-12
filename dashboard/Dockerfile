@@ -32,4 +32,3 @@ COPY . $APP_HOME
 RUN chown -R dashboard:dashboard $APP_HOME
 
 USER dashboard
-ENTRYPOINT ["/home/dashboard/web/entrypoint.prod.sh"]
