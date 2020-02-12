@@ -1,24 +1,32 @@
 import unittest
-import Driver
+import os
+import sys
 
-ip_address = "54.194.29.151"
-username = 'ec2-user'
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from glaros_ssh import remote_process
+from cloud_service_providers.AzureCSP import AzureCSP
 
 
 class TestRemoteProcess(unittest.TestCase):
 
     def test_remote(self):
+        # inputs
+        azure_vm = AzureCSP()
+        if azure_vm.is_running() is False:
+            azure_vm.start_vm()
+        ip_address = azure_vm.get_ip()
+        username = azure_vm.get_username()
+
         # Delete specified file or directory if it exists
-        self.assertTrue(
-            remote_process.remote_remove(ip_address, username, 'test.txt'))
-        self.assertTrue(
-            remote_process.remote_remove(ip_address, username, 'scp'))
-        self.assertTrue(
-            remote_process.remote_remove(ip_address, username, 'vm_scp.py'))
-        self.assertTrue(
-            remote_process.remote_remove(ip_address, username, 'nohup.out'))
-        self.assertTrue(
-            remote_process.remote_remove(ip_address, username, 'cs27-main'))
+        remote_process.remote_remove(ip_address, username, 'test.txt')
+        remote_process.remote_ls(ip_address, username, 'test.txt')
+
+        remote_process.remote_remove(ip_address, username, 'tests')
+        remote_process.remote_ls(ip_address, username, 'tests')
+
+        remote_process.remote_remove(ip_address, username, 'test_vm_scp.py')
+        remote_process.remote_ls(ip_address, username, 'test_vm_scp.py')
 
 
 if __name__ == '__main__':

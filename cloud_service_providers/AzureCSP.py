@@ -14,7 +14,8 @@ import os
 
 # on centOS ie amazon use these commands
 # sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-# sudo sh -c 'echo -e "[azure-cli] name=Azure CLI baseurl=https://packages.microsoft.com/yumrepos/azure-cli enabled=1 gpgcheck=1 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
+# sudo sh -c 'echo -e "[azure-cli] name=Azure CLI baseurl=https://packages.microsoft.com/yumrepos/azure-cli
+#  enabled=1 gpgcheck=1 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
 # sudo yum install azure-cli
 
 # then must first be logged in on command line use
@@ -41,7 +42,9 @@ class AzureCSP(AbstractCSP):
         return info[0]["id"]
 
     def get_info(self):
-        command = ["az", "vm", "list", "-d", "--output", "json", "--query", "[?name=='"+ self.VM_NAME + "']"]
+
+        command = ["az", "vm", "list", "-d", "--output", "json", "--query", "[?name=='" + self.VM_NAME + "']"]
+
         info = check_output(command)
         return json.loads(info)
 
@@ -71,11 +74,9 @@ class AzureCSP(AbstractCSP):
         print('\nStop VM')
         return self.execute_commands(["az", "vm", "deallocate", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
 
-    def execute_commands(self, commands):
+    @staticmethod
+    def execute_commands(commands):
         return call(commands)
-
-    def upload_file(self):
-        pass
 
     def login(self):
         # this logs in for 3 months
