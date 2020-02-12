@@ -39,7 +39,7 @@ coverage:
   stage: test
   script:
   - cd test
-  - coverage run --source="cs27-main" test.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
+  - coverage run --source="StockRetriever,dns" test.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
   - coverage report -m
   - coverage-badge
 
