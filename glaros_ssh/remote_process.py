@@ -1,9 +1,28 @@
 import os
 from glaros_ssh import vm_scp
 
+
+class Error(Exception):
+    '''
+    Base class for exceptions
+    '''
+    pass
+
+
+class RemoteProcessError(Error):
+    '''
+    Exception raised from errors in the remote command.
+
+    Attributes
+    ------
+        message -- explanation of the error from the remote machine
+    '''
+
+    def __init__(self, message):
+        self.message = message
+
+
 # given a command executes the cmd on a remote computer
-
-
 def remote_cmd(ip_address, username, cmd):
     ssh = vm_scp.connection(ip_address, username)
     if not ssh:
@@ -12,7 +31,11 @@ def remote_cmd(ip_address, username, cmd):
 
     try:
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
-        print(ssh_stderr.readlines())
+        # true if the command returns an error
+        read_error = ssh_stderr.readlines()
+        if len(read_error) > 5:
+            raise RemoteProcessError(read_error)
+
         return ssh_stdout.readlines()
     except BaseException:
         print("command failed")
@@ -42,8 +65,8 @@ def remote_ls(ip_address, username, arguments):
 
 
 def remote_remove(ip_address, username, remote_filepath):
-    #-r to delete directories
-    #-f to delete automatically without human confirmation
+    # -r to delete directories
+    # -f to delete automatically without human confirmation
     # this could be dangerous if we accidently delete important files but
     # everything should be backed up
     cmd = 'rm -r ' + remote_filepath

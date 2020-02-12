@@ -1,4 +1,3 @@
-import time
 from abc import ABC, abstractmethod
 
 
@@ -10,7 +9,7 @@ class AbstractCSP(ABC):
     def identify(self):
         pass
 
-    @abstractmethod    
+    @abstractmethod
     def get_ip(self):
         pass
 
@@ -27,10 +26,6 @@ class AbstractCSP(ABC):
         pass
 
     @abstractmethod
-    def upload_file(self):
-        pass
-
-    @abstractmethod
     def is_running(self):
         pass
 
@@ -39,7 +34,6 @@ class AbstractCSP(ABC):
         returns the username to needed to login used with ssh
         """
         return self.username
-
 
     def get_stock_name(self):
         """
