@@ -11,10 +11,23 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/dashboard/wheels -r 
 # FINAL #
 FROM python:3.8.0-alpine
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> server
 #RUN addgroup -S dashboard && adduser -S dashboard -G dashboard
 
 # ENV HOME=$(HOME)/cs27-main
 ENV APP_HOME=$(HOME)/cs27-main/dashboard/dashboard
+<<<<<<< HEAD
+=======
+=======
+RUN addgroup -S dashboard && adduser -S dashboard -G dashboard
+
+ENV HOME=$(HOME)/cs27-main
+ENV APP_HOME=$(HOME)/cs27-main/dashboard
+>>>>>>> server
+>>>>>>> server
 WORKDIR $APP_HOME
 
 RUN apk update && apk add libpq
@@ -25,6 +38,14 @@ RUN pip install --no-cache /wheels/*
 
 # COPY ./entrypoint.prod.sh $APP_HOME
 # COPY . $APP_HOME
+<<<<<<< HEAD
 RUN chown -R dashboard:dashboard $APP_HOME
+=======
+<<<<<<< HEAD
+# RUN chown -R dashboard:dashboard $APP_HOME
+=======
+RUN chown -R dashboard:dashboard $APP_HOME
+>>>>>>> server
+>>>>>>> server
 
 # USER dashboard
