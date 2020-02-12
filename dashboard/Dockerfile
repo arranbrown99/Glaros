@@ -12,18 +12,18 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requir
 # FINAL #
 FROM python:3.8.0-alpine
 
-RUN mkdir -p /home/app
+RUN mkdir -p /home/dashboard
 RUN addgroup -S app && adduser -S app -G app
 
-ENV HOME=/home/app
-ENV APP_HOME=/home/app/web
+ENV HOME=/home/dashboard
+ENV APP_HOME=/home/dashboard/web
 RUN mkdir $APP_HOME
 RUN mkdir $APP_HOME/staticfiles
 WORKDIR $APP_HOME
 
 RUN apk update && apk add libpq
-COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/requirements.txt .
+COPY --from=builder /usr/src/dashboard/wheels /wheels
+COPY --from=builder /usr/src/dashboard/requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
@@ -32,4 +32,4 @@ COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
 
 USER app
-ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
+ENTRYPOINT ["/home/dashboard/web/entrypoint.prod.sh"]

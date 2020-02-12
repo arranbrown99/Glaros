@@ -7,10 +7,10 @@ ENV PYTHONUNBUFFERED 1
 
 # install dependencies
 RUN pip install --upgrade pip
-COPY ./requirements.txt /usr/src/app/requirements.txt
+COPY ./requirements.txt /usr/src/dashboard/requirements.txt
 RUN pip install -r requirements.txt
 
-COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
-COPY . /usr/src/app/
+COPY ./entrypoint.sh /usr/src/dashboard/entrypoint.sh
+COPY . /usr/src/dashboard/
 
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+ENTRYPOINT ["/usr/src/dashboard/entrypoint.sh"]
