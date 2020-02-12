@@ -29,7 +29,6 @@ import threading
 import os
 import time
 import sqlite3
-from datetime import datetime
 
 from glaros_ssh import remote_process, vm_scp
 from cloud_service_providers.AwsCSP import AwsCSP
@@ -95,11 +94,11 @@ def write_log_before(sender, target, timestamp):
 # Write to logfile once migration finishes
 def write_log_after(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Finished migration from %s to %s.\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                             " Finished migration from %s to %s.\n" % (sender, target))
 
 
-def migrate(stock_name,currently_on):
+def migrate(stock_name, currently_on):
     # Write to logfile
     write_log_before(currently_on, stock_name, migration_start_timestamp)
     # create object for 'best' stock
@@ -129,9 +128,7 @@ def migrate(stock_name,currently_on):
 
     print("Remote vm started up, ip address is " + moving_to.get_ip())
     # start sending entire directory of project
-    ignore(parent_dir,moving_to,remote_filepath)
-
-
+    ignore(parent_dir, moving_to, remote_filepath)
 
     # run the Driver on newly made VM and send the current CSP provider
     try:
@@ -163,7 +160,8 @@ def migrate(stock_name,currently_on):
             connection.close()
             print("The sqlite3 connection is now closed.")
 
-def after_migration(sender):
+
+def after_migration(sender, currently_on):
     # delete old driver on now remote vm
     parent_dir_path = os.path.abspath('.')
     parent_dir = os.path.basename(parent_dir_path)
@@ -186,7 +184,8 @@ def after_migration(sender):
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
 
-def ignore(parent_dir,moving_to,remote_filepath):
+
+def ignore(parent_dir, moving_to, remote_filepath):
     files_to_upload = [f for f in os.listdir() if f not in exclude_files]
     try:
         #   parent_dir = os.path.dirname(os.path.realpath(__file__))
@@ -211,7 +210,6 @@ def ignore(parent_dir,moving_to,remote_filepath):
         print(e)
         print("Could not move directory")
         return
-    
 
 
 def main():

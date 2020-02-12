@@ -11,7 +11,6 @@ import json
 import configparser
 import ipaddress
 
-
 __config_file__ = 'config.ini'
 
 
@@ -138,7 +137,7 @@ def change_ip(passed_ip):
         api_key, api_secret = dns['key'], dns['secret']
         domain = dns['domain']
     except Exception as e:
-        #raise(DNSUpdateError(e, f'An error occured attempting to load configuration'))
+        # raise(DNSUpdateError(e, f'An error occured attempting to load configuration'))
         raise
 
     # Construct variables for requests
@@ -151,7 +150,7 @@ def change_ip(passed_ip):
 
     _update_ip(url, headers, ip.exploded)
     curr_dns_ip = _get_ip(url, headers)
-    if(ip.exploded == curr_dns_ip):
+    if (ip.exploded == curr_dns_ip):
         return
     else:
         # The IP has not updated
