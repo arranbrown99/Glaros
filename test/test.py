@@ -1,11 +1,14 @@
 import unittest
 import os
 import sys
+from unittest.mock import patch
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from glaros_ssh import remote_process
 from cloud_service_providers.AzureCSP import AzureCSP
+import configparser
+from dns import gen_config
 
 
 class TestRemoteProcess(unittest.TestCase):
@@ -28,20 +31,6 @@ class TestRemoteProcess(unittest.TestCase):
         remote_process.remote_remove(ip_address, username, 'test_vm_scp.py')
         remote_process.remote_ls(ip_address, username, 'test_vm_scp.py')
 
-
-if __name__ == '__main__':
-    unittest.main()
-import unittest
-from unittest.mock import patch
-import sys
-import os
-import configparser
-
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from dns import gen_config
-
-
 class TestDNS(unittest.TestCase):
     def test_config(self):
         __config_file__ = 'config.ini'
@@ -51,7 +40,7 @@ class TestDNS(unittest.TestCase):
         config = configparser.ConfigParser()
         config.read(__config_file__)
 
-        self.assertEqual(config['dns']['domain'],  f'{sys.argv[1]}')
+        self.assertEqual(config['dns']['domain'], f'{sys.argv[1]}')
         self.assertEqual(config['dns']['key'], f'{sys.argv[2]}')
         self.assertEqual(config['dns']['secret'], f'{sys.argv[3]}')
 
