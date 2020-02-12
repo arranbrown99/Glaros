@@ -28,6 +28,7 @@ test:
   - touch test.txt
   - python3.7 test_vm_scp.py
   - python3.7 test_remote_process.py
+  - cd args
   - python3.7 test_dns.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
   - cd ..
 
@@ -44,7 +45,7 @@ coverage:
   script:
 
   - coverage run --source="StockRetriever" test/*.py
-  - coverage run --source="dns" test/test_dns.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
+  - coverage run --source="dns" test/args/test_dns.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
   - coverage report -m
   - coverage-badge
 
