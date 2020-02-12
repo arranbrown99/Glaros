@@ -41,7 +41,7 @@ def index(request):
 
     # Add to context
     context['currently_on'] = currently_on if currently_on in ["AWS", "AZURE"] else "..."
-    context['current_status'] = current_status if current_status in ["Running", "Migratingg"] else "..."
+    context['current_status'] = current_status if current_status in ["Running", "Migrating"] else "..."
     context['last_migration'] = last_migration
     context['current_date'] = current_date
     context['current_ip'] = current_ip
