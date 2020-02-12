@@ -12,5 +12,3 @@ RUN pip install -r requirements.txt
 
 COPY ./entrypoint.sh /usr/src/dashboard/entrypoint.sh
 COPY . /usr/src/dashboard/
-
-ENTRYPOINT ["/usr/src/dashboard/entrypoint.sh"]
