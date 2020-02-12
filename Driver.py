@@ -1,21 +1,25 @@
 """
 This class represents the main program that will be running on the current CSP.
-Every so often it will compare tbe stock prices of all available CSPs (through StockRetriever)
-and it will decide when it's time to move/migrate to another CSP.
+Every so often it will compare tbe stock prices of all available
+CSPs (through StockRetriever) and it will decide when it's time to
+move/migrate to another CSP.
 
 --- Event Loop ---
 
 Driver running on Azure VM.
-periodically check the StockReceiver - list of cloud providers, static String for the Stock Exchange name.
+Periodically check the StockReceiver - list of cloud providers, static String
+for the Stock Exchange name.
 Decide to move to AWS.
 Create the object for AWS.
 If vm not turned on:
 
 Start aws vm.
 
-Send using python scp script - the SSH keys are set up before hand and not handled by the script.
-Run the newly made driver on the remote VM with a flag for which VM we're currently on
-Old driver stops
+Send using python scp script - the SSH keys are set up before hand and
+not handled by the script.
+Run the newly made driver on the remote VM with a flag for which VM
+we're currently on.
+Old driver stops.
 
 Once the new driver successfully migrates.
 Delete old driver on the now remote vm
@@ -52,11 +56,12 @@ cloud_service_providers = [
 ]
 # Files not to be uploaded to receiving VMs
 exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
+# dictionary of stock objects - ca n be expanded to include "goog"
+stock_objs = {"amzn": AwsCSP(), "msft": AzureCSP()}
 
 
 def event_loop(currently_on):
     current = currently_on.get_stock_name()
-    global counter
 
     # Logic to decide (using StockRetriever)
     best_stock = StockRetriever.best_stock(cloud_service_providers)
@@ -91,11 +96,14 @@ def event_loop(currently_on):
 
 #        counter += 1
 
+
 # Write to logfile before migration starts
-def write_log_before(sender, target):
+migration_start_timestamp = datetime.now()
+def write_log_before(sender, target, timestamp):
     with open('migrations.log', 'a') as migrations_log:
-        migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                             " Starting migration from %s to %s...\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime(
+            "%d/%m/%Y %H:%M:%S")) + " Starting migration from %s to %s...\n" %
+                (sender, target))
 
 
 # Write to logfile once migration finishes
@@ -105,25 +113,46 @@ def write_log_after(sender, target):
                              " Finished migration from %s to %s.\n" % (sender, target))
 
 
-def migrate(stock_name, currently_on):
-    # Write to logfile
-    write_log_before(currently_on, stock_name)
-    # create object for 'best' stock
-    if stock_name == "amzn":
-        moving_to = AwsCSP()
-    elif stock_name == "msft":
-        moving_to = AzureCSP()
-    print("Moving to " + moving_to.get_stock_name())
-    # start VM
-    if (moving_to.is_running() == False):
+# Create object for best stock
+def create_stock_object(stock_name):
+    obj = stock_objs.get(stock_name)
+    return obj
+
+
+# boot VM on another CSP / abstracted from migrate()
+def boot_vm(moving_to):
+    if(moving_to.is_running() is False):
         try:
             print("Turning on " + moving_to.get_stock_name() + " vm.")
             moving_to.start_vm()
         except BaseException:
             print("Failed to start VM.")
-
             return
     time.sleep(30)
+
+
+# run Driver.py on VM / abstracted from migrate()
+def run_booted_vm(moving_to, currently_on):
+    try:
+        remote_process.remote_python(
+            moving_to.get_ip(),
+            moving_to.get_username(),
+            "runglaros from_" +
+            currently_on.get_stock_name())
+    except Exception as e:
+        print(e)
+        print("Failed to run Driver.py on new VM.")
+        return
+
+
+def migrate(stock_name, currently_on):
+    # Write to logfile
+    write_log_before(currently_on, stock_name)
+    # create object for 'best' stock
+    moving_to = create_stock_object(stock_name)
+    print("Moving to " + moving_to.get_stock_name())
+    # start VM
+    boot_vm(moving_to)
     parent_dir = os.path.abspath('.')
     remote_filepath = os.path.basename(parent_dir)
 
@@ -135,9 +164,9 @@ def migrate(stock_name, currently_on):
         remote_filepath)
 
     print("Remote vm started up, ip address is " + moving_to.get_ip())
-    # start sending entire directory of project
+    # files to be sent
     files_to_upload = [f for f in os.listdir() if f not in exclude_files]
-
+    # start sending entire directory of project
     try:
         #   parent_dir = os.path.dirname(os.path.realpath(__file__))
         for _file in files_to_upload:
@@ -165,17 +194,8 @@ def migrate(stock_name, currently_on):
     # Log migration to database
     database_entry(currently_on, moving_to)
 
-    # run the Driver on newly made VM and send the current CSP provider
-    try:
-        remote_process.remote_python(
-            moving_to.get_ip(),
-            moving_to.get_username(),
-            "runglaros from_" +
-            currently_on.get_stock_name())
-    except Exception as e:
-        print(e)
-        print("Failed to run Driver.py on new VM.")
-        return
+    # run the Driver on newly started VM and send the current CSP provider
+    run_booted_vm(moving_to, currently_on)
 
 
 def database_entry(currently_on, moving_to):
@@ -218,8 +238,10 @@ def after_migration(sender, currently_on):
     if sender.is_running():
         print("Turning off " + sender.get_stock_name() + " vm.")
         sender.stop_vm()
+    
     # update dns
-    #    dns.change_ip(sender.get_ip())
+    dns.change_ip(sender.get_ip())
+    
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
 
@@ -237,17 +259,40 @@ def update_general_info(file, currently_on):
         json.dump(data, jsonFile)
 
 
+def ignore(parent_dir, moving_to, remote_filepath):
+    files_to_upload = [f for f in os.listdir() if f not in exclude_files]
+    try:
+        #   parent_dir = os.path.dirname(os.path.realpath(__file__))
+        for _file in files_to_upload:
+            print("Uploading -> " + _file)
+            if os.path.isdir(_file):
+                recursive = True
+            else:
+                recursive = False
+            vm_scp.upload_file(
+                os.path.join(
+                    parent_dir,
+                    _file),
+                moving_to.get_ip(),
+                moving_to.get_username(),
+                remote_path="~/" +
+                            remote_filepath +
+                            "/" +
+                            _file,
+                recursive=recursive)
+    except Exception as e:
+        print(e)
+        print("Could not move directory")
+        return
+
+
 def main():
     # First we need to identify on which CSP this Driver was created from
     if len(sys.argv) < 1:
         print('Please enter either "amzn" or "msft"')
         return
 
-    if sys.argv[1] == "amzn":
-        currently_on = AwsCSP()
-    elif sys.argv[1] == "msft":
-        currently_on = AzureCSP()
-    elif sys.argv[1] == "from_msft":
+    if sys.argv[1] = "from_msft":
         from_msft = AzureCSP()
         currently_on = AwsCSP()
 
@@ -257,8 +302,10 @@ def main():
         currently_on = AzureCSP()
 
         after_migration(from_amzn, currently_on)
+    elif sys.argv[1] in stock_objs.keys():
+        currently_on = create_stock_object(sys.argv[1])
     else:
-        print("Please enter either amzn or msft")
+        print("Please enter msft or amzn...")
         return
 
     # Update the General Information file
