@@ -4,6 +4,7 @@ import unittest
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from dashboard_app.models import MigrationEntry
+from django.urls import reverse
 import socket
 import time
 import datetime
@@ -15,45 +16,48 @@ from dashboard.settings import GENERAL_INFO_FILE
 def skip_test(self):
     pass
 
+# Decorator for printing the test's name
+def print_test_name(self):
+    print(self.__name__)
+    return self
+
 class GeneralInformationSimpleTests(unittest.TestCase):
     """Tests accuracy of information passed in context dictionary"""
-
-    response = None
 
     @classmethod
     def setUpClass(cls):
         # Every test needs a client.
         cls.client = Client()
 
-        # Issue a GET request.
-        response = cls.client.get('/dashboard/')
-
         # For this TestCase we only need one migration entry
         MigrationEntry.objects.create(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
+
+        # Issue a GET request.
+        cls.response = cls.client.get('/dashboard/')
 
     def setUp(self):
         pass
 
     def test_details(self):
         # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.__class__.response.status_code, 200)
 
     def test_last_migration(self):
         """Ensure last migration date is correct in context"""
-        entry = MigrationEntry.objects.get(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
-        self.assertEqual(response.context.get('last_migration', None), entry._date.strftime("%d/%m/%Y"))
+        entry = MigrationEntry.objects.last()
+        self.assertEqual(self.__class__.response.context.get('last_migration', None), entry._date.strftime("%d/%m/%Y"))
         print("Number of entries in database: " + str(MigrationEntry.objects.count()))
 
     def test_current_date(self):
         """Ensure current date is correct in context"""
-        self.assertEqual(reponse.context.get('current_date', None), datetime.date.today().strftime("%d/%m/%Y"))
+        self.assertEqual(self.__class__.response.context.get('current_date', None), datetime.date.today().strftime("%d/%m/%Y"))
 
     def test_current_ip(self):
         """Ensure current IP address is correct in context"""
         with open(GENERAL_INFO_FILE, "r") as jsonFile:
             general_info_json = json.load(jsonFile)
 
-        self.assertEqual(response.context.get('current_ip', None), general_info_json.get('GLAROS_CURRENT_IP'))
+        self.assertEqual(self.__class__.response.context.get('current_ip', None), general_info_json.get('GLAROS_CURRENT_IP'))
 
 # @skip_test
 class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
@@ -63,40 +67,59 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
     def setUpClass(cls):
         cls.host = socket.gethostbyname(socket.gethostname())
         super(GeneralInformationLiveServerTests, cls).setUpClass()
-
-    def setUp(self):
         chrome_options = webdriver.ChromeOptions()
         # chrome_options.add_argument('headless')
-        self.browser = webdriver.Chrome(chrome_options=chrome_options)
-        self.browser.implicitly_wait(3)
+        cls.browser = webdriver.Chrome(chrome_options=chrome_options)
+        cls.browser.implicitly_wait(5)
+
+    @classmethod
+    def tearDownClass(cls):
+        time.sleep(20)
+        cls.browser.quit()
+        super().tearDownClass()
+
+    def setUp(self):
         MigrationEntry.objects.create(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
 
-
     def tearDown(self):
-        self.browser.refresh()
-        self.browser.quit()
+        MigrationEntry.objects.all().delete()
+
+    def get_full_url(self, namespace):
+        return self.live_server_url + reverse(namespace)
+
+    @print_test_name
+    def test_there_is_a_general_info_section(self):
+        # Go to Dashboard page
+        self.browser.get(self.get_full_url('index'))
+
+        # Check if body now has General Information Area/Section
+        body = self.browser.find_element_by_tag_name('body')
+        self.assertIn("General Information".lower(), body.text.lower())
+        self.assertTrue(True)
+
+    @print_test_name
+    def test_current_date(self):
+        # Go to Dashboard page
+        self.browser.get(self.get_full_url('index'))
+
+        # Check if body now has General Information Area/Section
+        current_date_text = self.browser.find_element_by_id('current_date').text
+        print(current_date_text)
+        self.assertEqual(current_date_text, datetime.date.today().strftime("%d/%m/%Y"),
+                         "Current (today's) date on the dashboard is wrong.")
+
+    @print_test_name
+    def test_there_is_more_than_one_migration_entry(self):
+        print("There are these many entries in the database:", MigrationEntry.objects.count())
+        self.assertGreater(MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
 
     @skip_test
-    def test_there_is_a_general_info_section(self):
+    def test_check_last_migration(self):
         pass
 
     @skip_test
-    def test_current_date(self):
-        """Basic with setup"""
-        url = self.live_server_url
-        print("--->", url)
-        url = url.replace('localhost', '127.0.0.1')
-
-        self.browser.get(url + '/dashboard/')
-        # time.sleep(4)
-        # body = self.browser.find_element_by_tag_name('body')
-        # print(body)
-        # self.assertIn('General Information', body.text)
-
-    def test_there_is_more_than_one_migration_entry(self):
-        print(self)
-        print("There are these many entries in the database:",MigrationEntry.objects.count())
-        self.assertGreater( MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
+    def test_current_ip(self):
+        pass
 
     # THINGS TO CHECK
     # - there is a General Information section
@@ -104,17 +127,18 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
     # - check current date
     # - check current ip
 
-
-
+    @skip_test
     def test_there_is_more_than_one_migration_entr2y(self):
         print(self)
-        print("There are these many entries in the database:",MigrationEntry.objects.count())
-        self.assertGreater( MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
+        print("There are these many entries in the database:", MigrationEntry.objects.count())
+        self.assertGreater(MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
 
+    @skip_test
     def test_there_is_more_than_one_migration_entr3y(self):
         print(self)
-        print("There are these many entries in the database:",MigrationEntry.objects.count())
-        self.assertGreater( MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
+        print("There are these many entries in the database:", MigrationEntry.objects.count())
+        self.assertGreater(MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
+
 
 @skip_test
 class TestStockPricesSection(TestCase):
@@ -138,6 +162,7 @@ class TestStockPricesSection(TestCase):
         """Basic with setup"""
         assert self.a == 2
 
+
 @skip_test
 class TestMigrationTimeline(TestCase):
     """Tests the validity of the migration timeline"""
@@ -159,6 +184,7 @@ class TestMigrationTimeline(TestCase):
     def test_fail(self):
         """Basic with setup"""
         assert self.a == 2
+
 
 @skip_test
 class TestMigrationHistoryTable(TestCase):
