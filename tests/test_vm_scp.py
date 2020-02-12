@@ -1,12 +1,6 @@
 # tests for scp_aws
-
-import unittest
-import sys
-import os
 from scp import SCPException
 
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from glaros_ssh import vm_scp
 from cloud_service_providers.AzureCSP import AzureCSP
 
