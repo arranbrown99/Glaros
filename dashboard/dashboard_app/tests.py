@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase, Client
 import unittest
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -7,36 +8,52 @@ import socket
 import time
 import datetime
 
+# file that stores the general information of the app provided by the Driver
+from dashboard.settings import GENERAL_INFO_FILE
 
 # Decorator for skipping a test
 def skip_test(self):
     pass
 
+class GeneralInformationSimpleTests(unittest.TestCase):
+    """Tests accuracy of information passed in context dictionary"""
 
-class SimpleTest(unittest.TestCase):
+    response = None
 
     @classmethod
     def setUpClass(cls):
-        print(MigrationEntry.objects.count())
+        # Every test needs a client.
+        cls.client = Client()
+
+        # Issue a GET request.
+        response = cls.client.get('/dashboard/')
+
         # For this TestCase we only need one migration entry
         MigrationEntry.objects.create(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
-        print(MigrationEntry.objects.count())
 
     def setUp(self):
-        # Every test needs a client.
-        self.client = Client()
+        pass
 
     def test_details(self):
-        # Issue a GET request.
-        response = self.client.get('/dashboard/')
-
         # Check that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
 
-        # Check that the rendered context contains 5 customers.
-        print(response.context)
-        print(response.context['current_date'] == datetime.date.today().strftime("%d/%m/%Y"))
-        self.assertEqual(response.context['current_date'], datetime.date.today().strftime("%d/%m/%Y"))
+    def test_last_migration(self):
+        """Ensure last migration date is correct in context"""
+        entry = MigrationEntry.objects.get(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
+        self.assertEqual(response.context.get('last_migration', None), entry._date.strftime("%d/%m/%Y"))
+        print("Number of entries in database: " + str(MigrationEntry.objects.count()))
+
+    def test_current_date(self):
+        """Ensure current date is correct in context"""
+        self.assertEqual(reponse.context.get('current_date', None), datetime.date.today().strftime("%d/%m/%Y"))
+
+    def test_current_ip(self):
+        """Ensure current IP address is correct in context"""
+        with open(GENERAL_INFO_FILE, "r") as jsonFile:
+            general_info_json = json.load(jsonFile)
+
+        self.assertEqual(response.context.get('current_ip', None), general_info_json.get('GLAROS_CURRENT_IP'))
 
 # @skip_test
 class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
