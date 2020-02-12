@@ -25,6 +25,6 @@ RUN pip install --no-cache /wheels/*
 
 # COPY ./entrypoint.prod.sh $APP_HOME
 # COPY . $APP_HOME
-# RUN chown -R dashboard:dashboard $APP_HOME
+RUN chown -R dashboard:dashboard $APP_HOME
 
 # USER dashboard
