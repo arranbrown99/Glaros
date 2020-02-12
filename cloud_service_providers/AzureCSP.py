@@ -25,6 +25,10 @@ import os
 
 class AzureCSP(AbstractCSP):
 
+    # Static Variables
+    ui_colour = 'rgb(54,162,235)'
+    formal_name = 'Azure'
+
     def __init__(self):
 
         self.stock_name = "msft"
