@@ -42,8 +42,8 @@ coverage:
   stage: test
   script:
   - pwd
-  - coverage run tests/test_stock_retriever.py
-  - coverage report -m --include="/home/gitlab-runner/builds/AuXps1xA/0/tp3-2019-cs27/cs27-main/tests"
+  - coverage run tests/test_stock_retriever.py --source="."
+  - coverage report -m --include="."
   - coverage-badge
 
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
