@@ -4,6 +4,7 @@ before_script:
 - python3.7 --version
 - pip3.7 install -r requirements.txt
 - export AWS_DIR="~/.aws/"
+- touch test/test.txt
 
 # Setup SSH deploy keys
 #- 'which ssh-agent || ( apt-get install -qq openssh-client )'
@@ -21,7 +22,7 @@ stages:
 test:
   stage: test
   script:
-  - cd tests
+  - cd test
   - az login -u $AZURE_UN -p $AZURE_PW
   - python3.7 test_stock_retriever.py
   - touch test.txt
@@ -41,8 +42,9 @@ expensive_test:
 coverage:
   stage: test
   script:
-  - coverage run --source="StockRetriever" tests/test_stock_retriever.py
-  - coverage run --source="dns" tests/test_dns.py
+
+  - coverage run --source="StockRetriever" test/*.py
+  - coverage run --source="dns" test/test_dns.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
   - coverage report -m
   - coverage-badge
 
