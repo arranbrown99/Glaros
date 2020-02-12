@@ -41,8 +41,7 @@ expensive_test:
 coverage:
   stage: test
   script:
-  - pwd
-  - coverage run --source="StockRetriever.py" tests/test_stock_retriever.py
+  - coverage run --source="StockRetriever" tests/test_stock_retriever.py
   - coverage report -m
   - coverage-badge
 
