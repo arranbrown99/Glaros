@@ -185,5 +185,5 @@ def gen_config():
 
 if __name__ == "__main__":
     # For testing
-    # change_ip('1.1.1.8')
+    # change_ip('165.22.81.172')
     gen_config()
