@@ -24,22 +24,25 @@ test:
   script:
   - cd tests
   - az login -u $AZURE_UN -p $AZURE_PW
+  - python3.7 test_stock_retriever.py
   - touch test.txt
-  - python3 -m unittest discover -s test
+  - python3.7 test_vm_scp.py
+  - python3.7 test_remote_process.py
+  - python3.7 test_dns.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
   - cd ..
 
-#expensive_test:
-#  stage: expensive_test
-#  script:
-#  - az login -u $AZURE_UN -p $AZURE_PW
-#  - python3.7 test_azure.py
-#  except:
-#  - branches
+expensive_test:
+  stage: expensive_test
+  script:
+  - az login -u $AZURE_UN -p $AZURE_PW
+  - python3.7 test_azure.py
+  except:
+  - branches
 
 coverage:
   stage: test
   script:
-  - python3 -m unittest discover -s test
+  - python3 -m coverage run tests/*.py
   - coverage report -m
   - coverage-badge
 
