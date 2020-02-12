@@ -52,10 +52,6 @@ class TestStockRetrieverMethods(unittest.TestCase):
         self.assertIs(type(StockRetriever.best_stock(good_l)), str)
 
 
-if __name__ == '__main__':
-    unittest.main()
-
-
 class TestRemoteProcess(unittest.TestCase):
 
     def test_remote(self):
