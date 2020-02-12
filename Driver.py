@@ -292,7 +292,7 @@ def main():
         print('Please enter either "amzn" or "msft"')
         return
 
-    if sys.argv[1] = "from_msft":
+    if sys.argv[1] == "from_msft":
         from_msft = AzureCSP()
         currently_on = AwsCSP()
 
