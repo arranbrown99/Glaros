@@ -34,10 +34,8 @@ def connection(ip_address, username, password=''):
         else:
             ssh.connect(ip_address, username=username, password=password)
         return ssh
-    except ssh_exception as e:
-        print(e)
-        print("Error: Could not connect.")
-        return False
+    except:
+        pass
 
 
 def progress4(filename, size, sent, peername):
