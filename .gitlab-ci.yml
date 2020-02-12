@@ -41,7 +41,7 @@ expensive_test:
 coverage:
   stage: test
   script:
-  - coverage run --source="StockRetriever" tests/test_stock_retriever.py
+  - coverage run --source="cs27-main" tests/test_stock_retriever.py
   - coverage report -m
   - coverage-badge
 
