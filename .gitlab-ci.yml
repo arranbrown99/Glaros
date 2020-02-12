@@ -41,7 +41,6 @@ expensive_test:
 coverage:
   stage: test
   script:
-  - pip3.7 install -r requirements.txt
   - coverage run tests/test_stock_retriever.py
   - coverage report -m
   - coverage-badge
