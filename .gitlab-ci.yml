@@ -39,4 +39,12 @@ expensive_test:
     - python3.7 test_azure.py
     except:
     - branches
-    
+
+coverage:
+  stage: test
+  script:
+      - python -m unittest discover
+      - coverage report -m
+      - coverage-badge
+
+  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
