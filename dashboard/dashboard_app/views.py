@@ -12,7 +12,7 @@ from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
 
 # file that stores the general information of the app provided by the Driver
-from settings import GENERAL_INFO_FILE
+from dashboard.settings import GENERAL_INFO_FILE
 
 
 def index(request):
