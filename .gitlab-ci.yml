@@ -43,6 +43,7 @@ coverage:
   script:
   - pwd
   - coverage run --source="." tests/test_stock_retriever.py
+  - coverage report -m --include="."
   - coverage-badge
 
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
