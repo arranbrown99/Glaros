@@ -3,7 +3,7 @@ image: "python:3.7"
 before_script:
 
 - python3.7 --version
-- pip3.7 install -r requirements.txt --user
+- pip3.7 install -r requirements.txt
 - export AWS_DIR="~/.aws/"
 
 # Setup SSH deploy keys
