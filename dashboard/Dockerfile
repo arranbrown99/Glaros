@@ -1,7 +1,7 @@
 # BUILDER #
 FROM python:3.8.0-alpine as builder
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/dashboard
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -13,7 +13,7 @@ RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/dashboard/wheels -r 
 FROM python:3.8.0-alpine
 
 RUN mkdir -p /home/dashboard
-RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -S dashboard && adduser -S dashboard -G dashboard
 
 ENV HOME=/home/dashboard
 ENV APP_HOME=/home/dashboard/web
@@ -29,7 +29,7 @@ RUN pip install --no-cache /wheels/*
 
 COPY ./entrypoint.prod.sh $APP_HOME
 COPY . $APP_HOME
-RUN chown -R app:app $APP_HOME
+RUN chown -R dashboard:dashboard $APP_HOME
 
-USER app
+USER dashboard
 ENTRYPOINT ["/home/dashboard/web/entrypoint.prod.sh"]
