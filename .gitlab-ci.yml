@@ -34,6 +34,7 @@ test:
 expensive_test:
   stage: expensive_test
   script:
+  - cd tests
   - az login -u $AZURE_UN -p $AZURE_PW
   - python3.7 test_azure.py
   except:
@@ -42,7 +43,7 @@ expensive_test:
 coverage:
   stage: test
   script:
-  - python3 -m unittest discover -s test
+  - python3 -m unittest discover
   - coverage report -m
   - coverage-badge
 

@@ -1,6 +1,11 @@
+import unittest
 from unittest.mock import patch
+import sys
+import os
 import configparser
 
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from dns import gen_config
 
 
@@ -13,7 +18,7 @@ class TestDNS(unittest.TestCase):
         config = configparser.ConfigParser()
         config.read(__config_file__)
 
-        self.assertEqual(config['dns']['domain'], f'{sys.argv[1]}')
+        self.assertEqual(config['dns']['domain'],  f'{sys.argv[1]}')
         self.assertEqual(config['dns']['key'], f'{sys.argv[2]}')
         self.assertEqual(config['dns']['secret'], f'{sys.argv[3]}')
 
