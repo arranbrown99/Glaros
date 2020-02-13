@@ -12,14 +12,17 @@ import datetime
 # file that stores the general information of the app provided by the Driver
 from dashboard.settings import GENERAL_INFO_FILE
 
+
 # Decorator for skipping a test
 def skip_test(self):
     pass
+
 
 # Decorator for printing the test's name
 def print_test_name(self):
     print(self.__name__)
     return self
+
 
 class GeneralInformationSimpleTests(unittest.TestCase):
     """Tests accuracy of information passed in context dictionary"""
@@ -50,14 +53,17 @@ class GeneralInformationSimpleTests(unittest.TestCase):
 
     def test_current_date(self):
         """Ensure current date is correct in context"""
-        self.assertEqual(self.__class__.response.context.get('current_date', None), datetime.date.today().strftime("%d/%m/%Y"))
+        self.assertEqual(self.__class__.response.context.get('current_date', None),
+                         datetime.date.today().strftime("%d/%m/%Y"))
 
     def test_current_ip(self):
         """Ensure current IP address is correct in context"""
         with open(GENERAL_INFO_FILE, "r") as jsonFile:
             general_info_json = json.load(jsonFile)
 
-        self.assertEqual(self.__class__.response.context.get('current_ip', None), general_info_json.get('GLAROS_CURRENT_IP'))
+        self.assertEqual(self.__class__.response.context.get('current_ip', None),
+                         general_info_json.get('GLAROS_CURRENT_IP'))
+
 
 # @skip_test
 class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
@@ -74,7 +80,7 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        time.sleep(20)
+        time.sleep(2)
         cls.browser.quit()
         super().tearDownClass()
 
@@ -89,55 +95,46 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
 
     @print_test_name
     def test_there_is_a_general_info_section(self):
+        """Ensure there is a General Information section in the rendered dashboard"""
         # Go to Dashboard page
         self.browser.get(self.get_full_url('index'))
 
         # Check if body now has General Information Area/Section
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn("General Information".lower(), body.text.lower())
-        self.assertTrue(True)
 
     @print_test_name
     def test_current_date(self):
+        """Ensure current (today's) date is correct in the rendered dashboard"""
         # Go to Dashboard page
         self.browser.get(self.get_full_url('index'))
 
-        # Check if body now has General Information Area/Section
+        # Check if the current date is correct
         current_date_text = self.browser.find_element_by_id('current_date').text
-        print(current_date_text)
         self.assertEqual(current_date_text, datetime.date.today().strftime("%d/%m/%Y"),
                          "Current (today's) date on the dashboard is wrong.")
 
     @print_test_name
-    def test_there_is_more_than_one_migration_entry(self):
-        print("There are these many entries in the database:", MigrationEntry.objects.count())
-        self.assertGreater(MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
-
-    @skip_test
     def test_check_last_migration(self):
-        pass
+        """Ensure last migration date is correct in the rendered dashboard"""
+        # Go to Dashboard page
+        self.browser.get(self.get_full_url('index'))
 
-    @skip_test
+        # Check if the last migration mathes that of the last MigrationEntry
+        last_migration_text = self.browser.find_element_by_id('last_migration').text
+        self.assertEqual(last_migration_text, MigrationEntry.objects.last()._date.strftime("%d/%m/%Y"),
+                         "Last Migration date on the dashboard is wrong.")
+
+    @print_test_name
     def test_current_ip(self):
-        pass
+        """Ensure current IP address is correct in the rendered dashboard"""
+        with open(GENERAL_INFO_FILE, "r") as jsonFile:
+            general_info_json = json.load(jsonFile)
 
-    # THINGS TO CHECK
-    # - there is a General Information section
-    # - check last migration
-    # - check current date
-    # - check current ip
-
-    @skip_test
-    def test_there_is_more_than_one_migration_entr2y(self):
-        print(self)
-        print("There are these many entries in the database:", MigrationEntry.objects.count())
-        self.assertGreater(MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
-
-    @skip_test
-    def test_there_is_more_than_one_migration_entr3y(self):
-        print(self)
-        print("There are these many entries in the database:", MigrationEntry.objects.count())
-        self.assertGreater(MigrationEntry.objects.count(), 0, "Migration model should have at least one entry")
+        # Check if the current date is correct
+        current_ip_text = self.browser.find_element_by_id('current_ip').text
+        self.assertEqual(current_ip_text, general_info_json.get('GLAROS_CURRENT_IP'),
+                         "Current ip on the dashboard is wrong.")
 
 
 @skip_test
