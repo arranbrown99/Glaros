@@ -97,13 +97,11 @@ def event_loop(currently_on):
 #        counter += 1
 
 
-# Write to logfile before migration starts
-migration_start_timestamp = datetime.now()
-def write_log_before(sender, target, timestamp):
+def write_log_before(sender, target):
     with open('migrations.log', 'a') as migrations_log:
         migrations_log.write(str(datetime.now().strftime(
             "%d/%m/%Y %H:%M:%S")) + " Starting migration from %s to %s...\n" %
-                (sender, target))
+                             (sender, target))
 
 
 # Write to logfile once migration finishes
@@ -121,7 +119,7 @@ def create_stock_object(stock_name):
 
 # boot VM on another CSP / abstracted from migrate()
 def boot_vm(moving_to):
-    if(moving_to.is_running() is False):
+    if (moving_to.is_running() is False):
         try:
             print("Turning on " + moving_to.get_stock_name() + " vm.")
             moving_to.start_vm()
@@ -151,6 +149,8 @@ def migrate(stock_name, currently_on):
     # create object for 'best' stock
     moving_to = create_stock_object(stock_name)
     print("Moving to " + moving_to.get_stock_name())
+    # Log migration to database
+    database_entry(currently_on, moving_to)
     # start VM
     boot_vm(moving_to)
     parent_dir = os.path.abspath('.')
@@ -175,7 +175,7 @@ def migrate(stock_name, currently_on):
                 recursive = True
             else:
                 recursive = False
-            vm_scp.uploadFile(
+            vm_scp.upload_file(
                 os.path.join(
                     parent_dir,
                     _file),
@@ -191,9 +191,6 @@ def migrate(stock_name, currently_on):
         print("Could not move directory")
         return
 
-    # Log migration to database
-    database_entry(currently_on, moving_to)
-
     # run the Driver on newly started VM and send the current CSP provider
     run_booted_vm(moving_to, currently_on)
 
@@ -206,7 +203,7 @@ def database_entry(currently_on, moving_to):
         print("The sqlite3 connection is established.")
         cursor = connection.cursor()
         insert_query = """ INSERT INTO dashboard_app_migrationentry (_from,_to,_date) VALUES ('%s', '%s', '%s')""" % (
-            currently_on.get_stock_name(), moving_to.get_stock_name(),
+            currently_on.get_formal_name(), moving_to.get_formal_name(),
             now.strftime("%Y-%m-%d"))
         count = cursor.execute(insert_query)
         connection.commit()
@@ -238,10 +235,10 @@ def after_migration(sender, currently_on):
     if sender.is_running():
         print("Turning off " + sender.get_stock_name() + " vm.")
         sender.stop_vm()
-    
+
     # update dns
     dns.change_ip(sender.get_ip())
-    
+
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
 
@@ -292,7 +289,7 @@ def main():
         print('Please enter either "amzn" or "msft"')
         return
 
-    if sys.argv[1] = "from_msft":
+    if sys.argv[1] == "from_msft":
         from_msft = AzureCSP()
         currently_on = AwsCSP()
 
