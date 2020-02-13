@@ -106,7 +106,8 @@ class TestVMSCP(unittest.TestCase):
         """ tests function uploadFile behaves as desired.
         """
         # invalid local_path, default remote_path
-        self.assertRaises(SCPException, vm_scp.upload_file('doesnt_exist.txt', ip, un, pw))
+        with self.assertRaises(SCPException):
+            vm_scp.upload_file('doesnt_exist.txt', ip, un, pw)
         # valid local_path, default remote_path
         vm_scp.upload_file('test.txt', ip, un, pw)
         # invalid local_path, invalid remote_path
