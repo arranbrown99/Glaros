@@ -69,8 +69,8 @@ class TestRemoteProcess(unittest.TestCase):
         remote_process.remote_remove(ip_address, username, 'test')
         remote_process.remote_ls(ip_address, username, 'test')
 
-        remote_process.remote_remove(ip_address, username, 'test_vm_scp.py')
-        remote_process.remote_ls(ip_address, username, 'test_vm_scp.py')
+        remote_process.remote_remove(ip_address, username, 'test.py')
+        remote_process.remote_ls(ip_address, username, 'test.py')
 
 
 class TestDNS(unittest.TestCase):
