@@ -62,8 +62,6 @@ def upload_file(local_path, ip_address, username, remote_path='', recursive=Fals
         else:
             scp.put(local_path, recursive=recursive)
     except Exception as e:
-        print(e)
-        print("Error: Could not upload file.")
-        return
+        raise SCPException(e)
     finally:
         scp.close()
