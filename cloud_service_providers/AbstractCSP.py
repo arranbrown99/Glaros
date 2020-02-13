@@ -44,6 +44,12 @@ class AbstractCSP(ABC):
         """
         return self.stock_name
 
+    def get_formal_name(self):
+        """
+        Returns the formal name for CSP instance (eg. "Azure", "Aws", "Google").
+        """
+        return self.formal_name
+
     # @staticmethod
     # def wait_until(condition):
     #     while condition:
