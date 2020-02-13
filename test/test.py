@@ -111,11 +111,11 @@ class TestVMSCP(unittest.TestCase):
         # valid local_path, default remote_path
         vm_scp.upload_file('test.txt', ip, un)
         # invalid local_path, invalid remote_path
-        self.assertRaises(SCPException,
-                          vm_scp.upload_file('doesnt_exist.txt', ip, un, 'doesnt_exist/'))
+        with self.assertRaises(SCPException):
+            vm_scp.upload_file('doesnt_exist.txt', ip, un, 'doesnt_exist/')
         # valid local_path, invalid remote_path
-        self.assertRaises(SCPException,
-                          vm_scp.upload_file('test.txt', ip, un, 'doesnt_exist/'))
+        with self.assertRaises(SCPException):
+            vm_scp.upload_file('test.txt', ip, un, 'doesnt_exist/')
         # sending itself
         vm_scp.upload_file('test.py', ip, un)
         scp_base_dir = os.path.dirname(os.path.realpath(__file__))

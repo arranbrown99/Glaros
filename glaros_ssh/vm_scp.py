@@ -48,12 +48,11 @@ def upload_file(local_path, ip_address, username, remote_path='', recursive=Fals
 
     # Check if local_path is valid
     if not os.path.exists(local_path):
-        print("Error: invalid local_path: " + local_path)
-        raise SCPException
+        raise SCPException("Error: invalid local_path: " + local_path)
 
     ssh = connection(ip_address, username)
     if not ssh:
-        raise SCPException
+        raise SCPException("SSH connection refused")
 
     scp = SCPClient(ssh.get_transport(), progress4=progress4)
     # try to upload file
