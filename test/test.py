@@ -66,8 +66,8 @@ class TestRemoteProcess(unittest.TestCase):
         remote_process.remote_remove(ip_address, username, 'test.txt')
         remote_process.remote_ls(ip_address, username, 'test.txt')
 
-        remote_process.remote_remove(ip_address, username, 'tests')
-        remote_process.remote_ls(ip_address, username, 'tests')
+        remote_process.remote_remove(ip_address, username, 'test')
+        remote_process.remote_ls(ip_address, username, 'test')
 
         remote_process.remote_remove(ip_address, username, 'test_vm_scp.py')
         remote_process.remote_ls(ip_address, username, 'test_vm_scp.py')
@@ -105,8 +105,6 @@ class TestVMSCP(unittest.TestCase):
 
         """ tests function uploadFile behaves as desired.
         """
-        print(ip)
-        print(un)
         # invalid local_path, default remote_path
         self.assertRaises(SCPException, vm_scp.upload_file('doesnt_exist.txt', ip, un, pw))
         # valid local_path, default remote_path
