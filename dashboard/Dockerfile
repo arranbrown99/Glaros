@@ -1,7 +1,7 @@
 # BUILDER #
 FROM python:3.8.0-alpine as builder
 
-WORKDIR $(HOME)/cs27-main/dashboard
+WORKDIR /usr/src/dashboard
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
