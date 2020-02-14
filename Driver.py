@@ -48,6 +48,9 @@ cloud_service_providers = [
 # Files not to be uploaded to receiving VMs
 exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
 
+# To add to the django-docker python path
+os.environ["GLAROS_DRIVER_DIR"] = os.getcwd()
+
 
 def event_loop(currently_on):
     current = currently_on.get_stock_name()
@@ -85,19 +88,23 @@ def event_loop(currently_on):
 #        counter += 1
 
 # Write to logfile before migration starts
+
+
 def write_log_before(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Starting migration from %s to %s...\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                             " Starting migration from %s to %s...\n" % (sender, target))
 
 # Write to logfile once migration finishes
+
+
 def write_log_after(sender, target):
     with open('migrations.log', 'a') as migrations_log:
-            migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
-                " Finished migration from %s to %s.\n" % (sender, target))
+        migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
+                             " Finished migration from %s to %s.\n" % (sender, target))
 
 
-def migrate(stock_name,currently_on):
+def migrate(stock_name, currently_on):
     # Write to logfile
     write_log_before(currently_on, stock_name)
     # create object for 'best' stock
@@ -173,7 +180,7 @@ def migrate(stock_name,currently_on):
         cursor = connection.cursor()
         insert_query = """ INSERT INTO dashboard_app_migrationentry (_from, _to, _date)
             VALUES (%s, %s, %s)""" % (currently_on.get_stock_name(), moving_to.get_stock_name(),
-            now.strftime("%Y-%m-%d"))
+                                      now.strftime("%Y-%m-%d"))
         count = cursor.execute(insert_query)
         connection.commit()
         cursor.close()
@@ -183,6 +190,7 @@ def migrate(stock_name,currently_on):
         if (connection):
             connection.close()
             print("The sqlite3 connection is now closed.")
+
 
 def after_migration(sender):
     # delete old driver on now remote vm
@@ -206,6 +214,7 @@ def after_migration(sender):
 #    dns.change_ip(sender.get_ip())
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
+
 
 def main():
     # First we need to identify on which CSP this Driver was created from
