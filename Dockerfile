@@ -1,1 +1,0 @@
-ENV PYTHONPATH "${PYTHONPATH}:${pwd}"
