@@ -237,7 +237,7 @@ def after_migration(sender, currently_on):
         sender.stop_vm()
 
     # update dns
-    dns.change_ip(sender.get_ip())
+    dns.change_ip(currently_on.get_ip())
 
     # Update logfile
     write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
