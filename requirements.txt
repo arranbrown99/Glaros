@@ -16,3 +16,4 @@ paramiko==2.6.0
 django==3.0.2
 coverage
 coverage-badge
+gunicorn
