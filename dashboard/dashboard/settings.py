@@ -29,9 +29,9 @@ GENERAL_INFO_FILE = os.path.join(BASE_DIR, "general_info.json")
 SECRET_KEY = 'b&joi9vc9sna95my!d_-_g%kvsp5qx1i8&f3b8mg%l+&4vdac1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DASHBOARD_DEBUG", default=0))
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["glaros.uk"]
 
 
 # Application definition
