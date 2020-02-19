@@ -2,6 +2,7 @@
 
 pwd=$(pwd)
 [ -d logs ] || mkdir logs
+[ -d run ] || mkdir run
 
 ############
 # GUNICORN #
@@ -18,7 +19,7 @@ gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.
 # Install dependencies
 apt-get -y install nginx
 # Set up
-mkdir -p nginx
+[ -d nginx ] || mkdir nginx
 touch nginx/dashboard.conf
 
 
