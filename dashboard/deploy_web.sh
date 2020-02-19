@@ -2,6 +2,7 @@
 
 pwd=$(pwd)
 [ -d logs ] || mkdir logs
+[ -d run ] || mkdir run
 
 ############
 # GUNICORN #
