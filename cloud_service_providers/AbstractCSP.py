@@ -1,16 +1,17 @@
-import time
 from abc import ABC, abstractmethod
 
 
 class AbstractCSP(ABC):
     stock_name = ""
     username = ""
+    ui_colour = "rgb(0,0,0)"
+    formal_name = ""
 
     @abstractmethod
     def identify(self):
         pass
 
-    @abstractmethod    
+    @abstractmethod
     def get_ip(self):
         pass
 
@@ -27,10 +28,6 @@ class AbstractCSP(ABC):
         pass
 
     @abstractmethod
-    def upload_file(self):
-        pass
-
-    @abstractmethod
     def is_running(self):
         pass
 
@@ -40,13 +37,18 @@ class AbstractCSP(ABC):
         """
         return self.username
 
-
     def get_stock_name(self):
         """
         Returns the short (stock) name for CSP instance (eg. "amzn", "msft", "goog").
         The stock_name field is set once a derived class is instantiated.
         """
         return self.stock_name
+
+    def get_formal_name(self):
+        """
+        Returns the formal name for CSP instance (eg. "Azure", "Aws", "Google").
+        """
+        return self.formal_name
 
     # @staticmethod
     # def wait_until(condition):

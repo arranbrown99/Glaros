@@ -13,3 +13,7 @@ wincertstore==0.2
 yahoo-fin==0.8.4
 scp==0.13.2
 paramiko==2.6.0
+django==3.0.2
+coverage
+coverage-badge
+gunicorn

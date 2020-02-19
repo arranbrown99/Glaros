@@ -1,14 +1,46 @@
 image: "python:3.7"
 
 before_script:
-  - python3.7 --version
-  - pip3.7 install -r requirements.txt --user
+- python3.7 --version
+- pip3.7 install -r requirements.txt
+- export AWS_DIR="~/.aws/"
+- touch test/test.txt
+
+# Setup SSH deploy keys
+#- 'which ssh-agent || ( apt-get install -qq openssh-client )'
+#- eval $(ssh-agent -s)
+#- ssh-add <(echo "$AZURE_PRK")
+#- mkdir -p ~/.ssh
+#- '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
 
 stages:
-  - test
-  - deploy
+- test
+- expensive_test
+- deploy
 
 test:
   stage: test
   script:
-  - python3.7 testStockRetriever.py
+  - cd test
+  - az login -u $AZURE_UN -p $AZURE_PW
+  - python3.7 test.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
+  - cd ..
+
+expensive_test:
+  stage: expensive_test
+  script:
+  - az login -u $AZURE_UN -p $AZURE_PW
+  - python3.7 test_azure.py
+  except:
+  - branches
+
+coverage:
+  stage: test
+  script:
+  - cd test
+  - coverage run --source="StockRetriever,dns,Driver,glaros_ssh,cloud_service_providers" test.py $DNS_API_DOMAIN $DNS_API_KEY $DNS_API_SECRET
+  - coverage report -m
+  - coverage-badge
+
+  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'

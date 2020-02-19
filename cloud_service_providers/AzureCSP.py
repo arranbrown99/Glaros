@@ -3,15 +3,19 @@ import time
 from subprocess import call, check_output
 import json
 from cloud_service_providers.AbstractCSP import AbstractCSP
+import os
+
 
 # uses subprocesses to call the azure cli
 
 # install this first on ubuntu
+
 # curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # on centOS ie amazon use these commands
 # sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-# sudo sh -c 'echo -e "[azure-cli] name=Azure CLI baseurl=https://packages.microsoft.com/yumrepos/azure-cli enabled=1 gpgcheck=1 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
+# sudo sh -c 'echo -e "[azure-cli] name=Azure CLI baseurl=https://packages.microsoft.com/yumrepos/azure-cli
+#  enabled=1 gpgcheck=1 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
 # sudo yum install azure-cli
 
 # then must first be logged in on command line use
@@ -21,29 +25,33 @@ from cloud_service_providers.AbstractCSP import AbstractCSP
 
 class AzureCSP(AbstractCSP):
 
+    # Static Variables
+    ui_colour = 'rgb(54,162,235)'
+    formal_name = 'Azure'
+
     def __init__(self):
 
         self.stock_name = "msft"
 
         # Here we need to configure all the things necessary to connect
         # to the Azure instance.
-        self.TENANT_ID = '6e725c29-763a-4f50-81f2-2e254f0133c8'
 
-        self.LOCATION = 'eastus'
-        self.GROUP_NAME = 'cs27'
-        self.VM_NAME = 'cs27VM2'
-        self.username = 'glarosAzure'
+        self.LOCATION = os.environ['AZURE_LOCATION']
+        self.GROUP_NAME = os.environ['AZURE_GROUP_NAME']
+        self.VM_NAME = os.environ['AZURE_VM_NAME']
+        self.username = os.environ['AZURE_USERNAME']
 
     def identify(self):
         info = self.get_info()
         return info[0]["id"]
-        
 
     def get_info(self):
-        command = ["az", "vm", "list","-d", "--output","json","--query", "[?name=='cs27VM2']"]
+
+        command = ["az", "vm", "list", "-d", "--output", "json", "--query", "[?name=='" + self.VM_NAME + "']"]
+
         info = check_output(command)
         return json.loads(info)
-    
+
     def get_ip(self):
         info = self.get_info()
         ip = info[0]["publicIps"]
@@ -61,7 +69,7 @@ class AzureCSP(AbstractCSP):
         # Start the VM
         print('\nStart VM')
         output = self.execute_commands(["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
-        time.sleep(2*60)  # mins
+        time.sleep(2 * 60)  # mins
         return output
 
     def stop_vm(self):
@@ -70,11 +78,9 @@ class AzureCSP(AbstractCSP):
         print('\nStop VM')
         return self.execute_commands(["az", "vm", "deallocate", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
 
-    def execute_commands(self, commands):
+    @staticmethod
+    def execute_commands(commands):
         return call(commands)
-
-    def upload_file(self):
-        pass
 
     def login(self):
         # this logs in for 3 months
@@ -92,6 +98,7 @@ def main():
 
     print(azure_vm.get_ip())
     print(azure_vm.get_username())
+
 
 if __name__ == '__main__':
     main()

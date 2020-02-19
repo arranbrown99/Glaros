@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard_style.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Rubik:400,500&display=swap" rel="stylesheet">
+    {% block head_imports %}{% endblock %}
+</head>
+<body>
+<main class="gla-light pb-5">
+    <nav class="navbar navbar-dark gla-secondary">
+        <div class="container">
+            <a class="navbar-brand font1" href="#"><img src="{% static 'img/glaros_logo.svg' %}"></a>
+
+            <div class="justify-content-end" id="dashboard-navbar">
+                <button id="logout_btn" type="button" class="btn pl-4 pr-4">Logout</button>
+            </div>
+        </div>
+    </nav>
+    <div class="container mb-4">
+        <div class="d-flex flex-row mt-4">
+            <div id="dashboard-icon" class="square d-flex align-items-center justify-content-center ml-3 ">
+                <div><img src="{% static 'img/dashboard_symbol.png' %}"></div>
+            </div>
+            <h3 class="ml-2 mt-2 text-dark">Dashboard</h3>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6 col-lg-6 rounded-circle">
+                <div id="left-card" class="card shadow mb-4">
+                    <!-- Card Header -->
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 text-dark">General Information</h6>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body text-center">
+                        <!-- Status and Currently on -->
+                        <div class="container-fluid mt-3">
+                            <div class="row no-gutters align-items-center mb-4">
+                                <div class="col-6">
+                                    <div class="font-weight-light font-italic text-info mb-1">Status:</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gla-success">{{ current_status }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="font-weight-light font-italic text-info mb-1">Currently on:</div>
+                                    <div class="h5 mb-0 font-weight-bold text-uppercase" style="color: {{ currently_on_colour }}">{{ currently_on }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Spacer -->
+                        <div class="rounded gla-secondary ml-5 mr-5 mb-4" style="height: 2px; opacity: 50%"></div>
+
+                        <!-- Migration Dates and Current IP -->
+                        <div class="container-fluid mb-3">
+                            <div class="row no-gutters align-items-center mb-4">
+                                <div class="col-6">
+                                    <div class="mb-4">
+                                        <div class="font-weight-light font-italic text-info mb-1">Last Migration:</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gla-secondary">{{ last_migration }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="font-weight-light font-italic text-info mb-1">Current Date:</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gla-secondary">{{ current_date }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-6">
+                                    <div class="font-weight-light font-italic text-info mb-1">Current IP:</div>
+                                    <div class="h5 mb-0 font-weight-bold text-uppercase text-gla-secondary">
+                                        {{ current_ip }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Prices Plot -->
+            <div class="col-xl-6 col-lg-6">
+                <div id="right-card" class="card shadow mb-4">
+                    <!-- Card Header -->
+                    <div class="card-header py-2 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 text-dark" style="width: min-content">Stock Prices</h6>
+                        <div id="update-stock-prices" class="btn-toolbar m-0 " role="toolbar"
+                             data-ajaxurl="{% url 'ajax_update_stock_prices' %}"
+                             aria-label="Toolbar with button groups">
+
+                            <!-- Chart Options -->
+                            <div class="btn-group btn-group-toggle shadow-sm" data-toggle="buttons" role="group"
+                                 aria-label="Data points group">
+                                <label class="btn gla-secondary text-gla-light active">
+                                    <input type="radio" name="datapoints" data-points="10" onclick="update_chart()"
+                                           autocomplete="off" checked> 10
+                                </label>
+                                <label class="btn gla-secondary text-gla-light">
+                                    <input type="radio" name="datapoints" data-points="20" onclick="update_chart()"
+                                           autocomplete="off"> 20
+                                </label>
+                                <label class="btn gla-secondary text-gla-light">
+                                    <input type="radio" name="datapoints" data-points="30" onclick="update_chart()"
+                                           autocomplete="off"> 30
+                                </label>
+                            </div>
+                            <div class="btn-group btn-group-toggle ml-2" data-toggle="buttons" role="group"
+                                 aria-label="Time intervals group">
+                                <label class="btn gla-secondary text-gla-light active">
+                                    <input type="radio" name="intervals" data-interval="1d" onclick="update_chart()"
+                                           autocomplete="off" checked> Day
+                                </label>
+                                <label class="btn gla-secondary text-gla-light">
+                                    <input type="radio" name="intervals" data-interval="1wk" onclick="update_chart()"
+                                           autocomplete="off"> Week
+                                </label>
+                                <label class="btn gla-secondary text-gla-light">
+                                    <input type="radio" name="intervals" data-interval="1mo" onclick="update_chart()"
+                                           autocomplete="off"> Month
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <canvas id="stockPricesChart" class="h-100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="card shadow mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 text-dark">Migration Timeline</h6>
+                <!-- Modal Button -->
+                <div class="tooltip" data-toggle="modal" data-target=".bd-example-modal-lg">
+                    <img id="show-migrations-table" src="{% static 'img/expand-arrows-alt-solid.svg' %}" role="button">
+                    <span class="tooltiptext">Tooltip text</span>
+                </div>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <div class="chart-area w-100">
+                    <div id="timeline" data-update-url="{% url 'ajax_update_migration_timeline' %}"
+                         style="height: 180px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+         aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content p-2 shadow">
+                <h2 class="m-4 text-center">Migrations History</h2>
+                <div id="migrations-table" data-ajaxurl="{% url 'ajax_update_migration_table' %}" class="mt-0 mb-0"></div>
+            </div>
+        </div>
+    </div>
+    {% block main_body %}{% endblock %}
+</main>
+<!-- Chart imports -->
+<script type="text/javascript" src="{% static 'js/moment.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/loader.js' %}"></script>
+<script src="{% static 'js/Chart.min.js' %}"></script>
+<!-- Tabulator import -->
+<link href="{% static 'css/tabulator_semantic-ui.min.css' %}" rel="stylesheet">
+<script type="text/javascript" src="{% static 'js/tabulator.min.js' %}"></script>
+<!-- JQuery & Bootstrap -->
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!-- Custom Dashboard scripts -->
+<script src="{% static 'js/dashboard_script.js' %}"></script>
+</body>
+</html>

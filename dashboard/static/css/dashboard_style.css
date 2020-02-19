@@ -1,0 +1,167 @@
+#dashboard-navbar {
+    margin-left: 10em;
+}
+
+.navbar-brand img {
+    height: 25px;
+}
+
+#logout_btn {
+    border-radius: 17px;
+    border-color: rgb(238, 238, 238);
+    color: rgb(238, 238, 238);
+}
+
+#logout_btn:hover {
+    border-color: rgb(0, 144, 158);
+    background-color: rgb(0, 144, 158);
+
+}
+
+#show-migrations-table {
+    height: 24px;
+    opacity: 0.6;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    opacity: 1;
+    z-index: 2;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100px;
+    background-color: rgb(27, 42, 73);
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 2;
+    bottom: 140%;
+    left: 0%;
+    margin-left: -40px;
+
+    /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+    opacity: 0;
+    transition: opacity 1s;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* -------------- */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+
+
+
+
+#show-migrations-table:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.font1 {
+    font-family: 'Rubik', sans-serif;
+}
+
+#dashboard-icon {
+    border-radius: 15px;
+    background-color: rgb(70, 88, 129);
+}
+
+.square {
+    width: 50px;
+    height: 50px;
+    padding-top: 3px;
+}
+
+#update-stock-prices div label.active {
+    background-color: rgb(0, 144, 158);
+}
+
+/* Glaros Colour Palette */
+.gla-primary {
+    background-color: rgb(0, 144, 158)
+}
+
+.text-gla-primary {
+    color: rgb(0, 144, 158)
+}
+
+.gla-secondary {
+    background-color: rgb(27, 42, 73)
+}
+
+.text-gla-secondary {
+    color: rgb(27, 42, 73)
+}
+
+.gla-success {
+    background-color: rgb(38, 194, 100)
+}
+
+.text-gla-success {
+    color: rgb(38, 194, 100)
+}
+
+.gla-failure {
+    background-color: rgb(194, 38, 74)
+}
+
+.text-gla-failure {
+    color: rgb(194, 38, 74)
+}
+
+.gla-light {
+    background-color: rgb(238, 238, 238)
+}
+
+.text-gla-light {
+    color: rgb(238, 238, 238)
+}
+
+/* Cloud Service Providers */
+.gla-aws {
+    background-color: rgb(255, 99, 132)
+}
+
+.text-gla-aws {
+    color: rgb(255, 99, 132)
+}
+
+.gla-azure {
+    background-color: rgb(54, 162, 235)
+}
+
+.text-gla-azure {
+    color: rgb(54, 162, 235)
+}
+
+.gla-google {
+    background-color: rgb(255, 205, 86)
+}
+
+.text-gla-google {
+    color: rgb(255, 205, 86)
+}
+
+.heighttest {
+    height: 100px;
+}

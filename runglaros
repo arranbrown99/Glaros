@@ -7,7 +7,7 @@ fi
 
 if [ "$1" != "" ]; then
     echo "Starting up the Driver..."
-
+    python3 -m pip3 install -r ./requirements.txt
     if [ "$2" = "demo" ]; then # if the second argument is demo
 	    python3 Driver.py $1
     else
@@ -15,6 +15,8 @@ if [ "$1" != "" ]; then
 	    # append it onto a seperate file that is not transferred
         # and also redirects errors to that output
 	    nohup python3 Driver.py $1 >> ../driver.out 2>&1 &
+        cd dashboard
+        nohup ./deploy_web.sh >> ../deploy_web.out &
     fi
     
 else
