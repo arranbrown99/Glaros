@@ -1,14 +1,14 @@
+from dashboard_app.models import MigrationEntry
+import django
 import os
 from datetime import date
 from collections import namedtuple
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 
-import django
 
 django.setup()
 
-from dashboard_app.models import MigrationEntry
 
 ME = namedtuple('MigrationEntry', 'Date From To')
 
@@ -167,7 +167,8 @@ def populate():
 
 
 def add_migration_entry(_date, _from, _to):
-    me = MigrationEntry.objects.get_or_create(_date=_date, _from=_from, _to=_to)[0]
+    me = MigrationEntry.objects.get_or_create(
+        _date=_date, _from=_from, _to=_to)[0]
     me._date = _date
     me.save()
     return me

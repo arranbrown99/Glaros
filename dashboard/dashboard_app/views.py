@@ -32,7 +32,8 @@ def index(request):
     current_status = data.get("GLAROS_CURRENT_STATUS")
 
     # Get Colour
-    currently_on_colour = data.get("GLAROS_CURRENTLY_ON_COLOUR", 'rgb(255,0,0)')
+    currently_on_colour = data.get(
+        "GLAROS_CURRENTLY_ON_COLOUR", 'rgb(255,0,0)')
 
     # Get Dates
     date_format = "%d/%m/%Y"
@@ -40,8 +41,10 @@ def index(request):
     current_date = date.today().strftime(date_format)
 
     # Add to context
-    context['currently_on'] = currently_on if currently_on in ["AWS", "AZURE"] else "..."
-    context['current_status'] = current_status if current_status in ["Running", "Migrating"] else "..."
+    context['currently_on'] = currently_on if currently_on in [
+        "AWS", "AZURE"] else "..."
+    context['current_status'] = current_status if current_status in [
+        "Running", "Migrating"] else "..."
     context['last_migration'] = last_migration
     context['current_date'] = current_date
     context['current_ip'] = current_ip
@@ -68,7 +71,8 @@ def update_stock_prices(request):
             return JsonResponse({'error-message': 'Invalid parameters requested from server'}, status=422)
 
         # First obtain the data that will populate the graph
-        latest_stocks = get_N_last_stock_differences_for(['amzn', 'msft'], N=int(points), interval=interval)
+        latest_stocks = get_N_last_stock_differences_for(
+            ['amzn', 'msft'], N=int(points), interval=interval)
 
         # Then build the data object which will hold that data
         data = {
@@ -97,7 +101,8 @@ def update_stock_prices(request):
 def update_migration_timeline(request):
     if request.method == 'GET':
         # First obtain the data that will populate the timeline
-        last_migrations = MigrationEntry.objects.all().order_by("-_date")[:10][::-1]
+        last_migrations = MigrationEntry.objects.all().order_by(
+            "-_date")[:10][::-1]
 
         # Then build the data object which will hold that data
         data = {'migrations': []}
@@ -112,7 +117,8 @@ def update_migration_timeline(request):
             if i == len(last_migrations) - 1:
                 date_until = date.today()
             else:
-                date_until = last_migrations[i + 1]._date  # until the next migration (i.e. next entry).
+                # until the next migration (i.e. next entry).
+                date_until = last_migrations[i + 1]._date
 
             # Example: ['AWS', {'d': 30, 'm': 1, 'y': 2020}, {'d': 2, 'm': 2, 'y': 2020}]
             structured_entry = [
@@ -126,7 +132,8 @@ def update_migration_timeline(request):
             # Provide the colour of each CSP
             data['AWS_color'] = AwsCSP.ui_colour
             data['AZURE_color'] = AzureCSP.ui_colour
-            data['GCP_color'] = "rgb(255, 205, 86)" # Dummy until GCP is implemented
+            # Dummy until GCP is implemented
+            data['GCP_color'] = "rgb(255, 205, 86)"
 
         return JsonResponse(data)
     else:
