@@ -10,7 +10,7 @@ class CredentialsParser:
     @classmethod
     def parse_csv(cls, filename):
         if type(filename) != str:
-            raise ValueError("Input must be a string")
+            raise TypeError("Input must be a string")
 
         credentials = {}
 
@@ -20,17 +20,15 @@ class CredentialsParser:
                 line_count = 0
                 for row in csv_reader:
                     if line_count == 0:
-                       # print(f'Column names are {", ".join(row)}')
                         line_count += 1
                     username = row.pop("User name")
                     credentials[username] = row
                     line_count += 1
-               # print(f' {line_count} lines.')
+
         except Exception as e:
-            print(e)
-            raise TypeError("%s must be a csv file" % filename)
+            raise ValueError("%s must be a csv file" % filename)
 
         return credentials
 
     def get(self, key):
-        return self.dictionary.get(key,None)
+        return self.dictionary.get(key, None)
