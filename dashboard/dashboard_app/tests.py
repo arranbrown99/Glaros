@@ -24,6 +24,7 @@ def print_test_name(self):
     return self
 
 
+@skip_test
 class GeneralInformationSimpleTests(unittest.TestCase):
     """Tests accuracy of information passed in context dictionary"""
 
@@ -65,7 +66,6 @@ class GeneralInformationSimpleTests(unittest.TestCase):
                          general_info_json.get('GLAROS_CURRENT_IP'))
 
 
-# @skip_test
 class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
     """Tests the validity of information displayed on the general information section"""
 
@@ -93,7 +93,6 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
     def get_full_url(self, namespace):
         return self.live_server_url + reverse(namespace)
 
-    @print_test_name
     def test_there_is_a_general_info_section(self):
         """Ensure there is a General Information section in the rendered dashboard"""
         # Go to Dashboard page
@@ -103,7 +102,6 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn("General Information".lower(), body.text.lower())
 
-    @print_test_name
     def test_current_date(self):
         """Ensure current (today's) date is correct in the rendered dashboard"""
         # Go to Dashboard page
@@ -114,7 +112,6 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
         self.assertEqual(current_date_text, datetime.date.today().strftime("%d/%m/%Y"),
                          "Current (today's) date on the dashboard is wrong.")
 
-    @print_test_name
     def test_check_last_migration(self):
         """Ensure last migration date is correct in the rendered dashboard"""
         # Go to Dashboard page
@@ -125,7 +122,6 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
         self.assertEqual(last_migration_text, MigrationEntry.objects.last()._date.strftime("%d/%m/%Y"),
                          "Last Migration date on the dashboard is wrong.")
 
-    @print_test_name
     def test_current_ip(self):
         """Ensure current IP address is correct in the rendered dashboard"""
         with open(GENERAL_INFO_FILE, "r") as jsonFile:
@@ -137,9 +133,19 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
                          "Current ip on the dashboard is wrong.")
 
 
-@skip_test
-class TestStockPricesSection(TestCase):
+class TestStockPricesSection(unittest.TestCase):
     """Tests the validity of the stocks graph"""
+
+    @classmethod
+    def setUpClass(cls):
+        # Every test needs a client.
+        cls.client = Client()
+
+        # For this TestCase we only need one migration entry
+        MigrationEntry.objects.create(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
+
+        # Issue a GET request.
+        cls.response = cls.client.get('/dashboard/')
 
     def setUp(self):
         self.a = 1
@@ -147,17 +153,21 @@ class TestStockPricesSection(TestCase):
     def tearDown(self):
         del self.a
 
-    def test_basic1(self):
-        """Basic with setup"""
-        self.assertNotEqual(self.a, 2)
+    def get_N_stock_entries(self, N):
+        """Helper method to get stock prices from server via ajax calls"""
+        request_data = {
+            'points': N,
+            'interval': '1d',  # daily interval (not important for this test)
+        }
+        response = self.client.get(reverse('ajax_update_stock_prices'), request_data)
+        return response
 
-    def test_basic2(self):
-        """Basic with setup"""
-        assert self.a != 2
-
-    def test_fail(self):
-        """Basic with setup"""
-        assert self.a == 2
+    def test_ajax_for_stocks_returns_10_entries(self):
+        response = self.get_N_stock_entries(10)
+        response_data = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        for dataset in response_data.get('datasets', {'data': []}):  # in case no datasets are returned -> fail the test
+            self.assertTrue(len(dataset['data']), 10)
 
 
 @skip_test
