@@ -16,8 +16,6 @@ gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.
 # NGINX #
 #########
 
-# Install dependencies
-apt-get -y install nginx
 # Set up
 [ -d nginx ] || mkdir nginx
 touch nginx/dashboard.conf

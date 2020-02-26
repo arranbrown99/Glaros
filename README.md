@@ -71,6 +71,7 @@ Transfer or register a domain on your GoDaddy account and in [developer.godaddy.
 1. Clone the repo on *one* of the virtual machines.
 ```sh
 git clone https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main.git
+```
 
 2. Set network firewall rules to accept web and ssh traffic on all virtual machines
 
