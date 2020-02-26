@@ -37,7 +37,11 @@ def index(request):
 
     # Get Dates
     date_format = "%d/%m/%Y"
-    last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
+    try:
+        last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
+    except AttributeError:
+        last_migration = "No migration history"
+
     current_date = date.today().strftime(date_format)
 
     # Add to context
