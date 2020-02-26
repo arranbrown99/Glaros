@@ -24,12 +24,12 @@ def print_test_name(self):
     return self
 
 
-@skip_test
-class GeneralInformationSimpleTests(unittest.TestCase):
+class GeneralInformationSimpleTests(TestCase):
     """Tests accuracy of information passed in context dictionary"""
 
     @classmethod
     def setUpClass(cls):
+        super(GeneralInformationSimpleTests, cls).setUpClass()
         # Every test needs a client.
         cls.client = Client()
 
@@ -65,7 +65,7 @@ class GeneralInformationSimpleTests(unittest.TestCase):
         self.assertEqual(self.__class__.response.context.get('current_ip', None),
                          general_info_json.get('GLAROS_CURRENT_IP'))
 
-
+# @skip_test
 class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
     """Tests the validity of information displayed on the general information section"""
 
@@ -133,11 +133,12 @@ class GeneralInformationLiveServerTests(StaticLiveServerTestCase):
                          "Current ip on the dashboard is wrong.")
 
 
-class TestStockPricesSection(unittest.TestCase):
+class TestStockPricesSection(TestCase):
     """Tests the validity of the stocks graph"""
 
     @classmethod
     def setUpClass(cls):
+        super(TestStockPricesSection, cls).setUpClass()
         # Every test needs a client.
         cls.client = Client()
 
@@ -148,10 +149,10 @@ class TestStockPricesSection(unittest.TestCase):
         cls.response = cls.client.get('/dashboard/')
 
     def setUp(self):
-        self.a = 1
+        pass
 
     def tearDown(self):
-        del self.a
+        pass
 
     def get_N_stock_entries(self, N):
         """Helper method to get stock prices from server via ajax calls"""
@@ -184,27 +185,31 @@ class TestStockPricesSection(unittest.TestCase):
             self.assertTrue(len(dataset['data']), 20)
 
 
-@skip_test
+# @skip_test
 class TestMigrationTimeline(TestCase):
     """Tests the validity of the migration timeline"""
 
+    @classmethod
+    def setUpClass(cls):
+        super(TestMigrationTimeline, cls).setUpClass()
+        # Every test needs a client.
+        cls.client = Client()
+
+        # For this TestCase we only need one migration entry
+        MigrationEntry.objects.create(_to="AWS", _from="AZURE", _date=datetime.date(year=2020, month=2, day=3))
+
+        # Issue a GET request.
+        cls.response = cls.client.get('/dashboard/')
+
     def setUp(self):
-        self.a = 1
+        pass
 
     def tearDown(self):
-        del self.a
+        pass
 
-    def test_basic1(self):
-        """Basic with setup"""
-        self.assertNotEqual(self.a, 2)
-
-    def test_basic2(self):
-        """Basic with setup"""
-        assert self.a != 2
-
-    def test_fail(self):
-        """Basic with setup"""
-        assert self.a == 2
+    def test_ajax_for_migration_timeline_entries(self):
+        """Checks that the ajax call returns data to populate the timeline"""
+        pass
 
 
 @skip_test
@@ -212,19 +217,12 @@ class TestMigrationHistoryTable(TestCase):
     """Tests the validity of information provided by the migration table"""
 
     def setUp(self):
-        self.a = 1
+        pass
 
     def tearDown(self):
-        del self.a
+        pass
 
-    def test_basic1(self):
+    def test_ajax_for_migration_table_responds(self):
         """Basic with setup"""
-        self.assertNotEqual(self.a, 2)
+        pass
 
-    def test_basic2(self):
-        """Basic with setup"""
-        assert self.a != 2
-
-    def test_fail(self):
-        """Basic with setup"""
-        assert self.a == 2
