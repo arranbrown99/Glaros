@@ -39,6 +39,7 @@ from datetime import datetime
 from glaros_ssh import remote_process, vm_scp
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
+from cloud_service_providers.GoogleCSP import GoogleCSP
 from datetime import datetime
 import StockRetriever
 import dns
@@ -52,12 +53,12 @@ check_every = 15 * 60  # seconds
 cloud_service_providers = [
     'amzn',  # Amazon (AWS)
     'msft',  # Microsoft (Azure)
-    # 'goog',  # Google (GCP)
+    'goog',  # Google (GCP)
 ]
 # Files not to be uploaded to receiving VMs
 exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
 # dictionary of stock objects - ca n be expanded to include "goog"
-stock_objs = {"amzn": AwsCSP(), "msft": AzureCSP()}
+stock_objs = {"amzn": AwsCSP(), "msft": AzureCSP(),"goog": GoogleCSP()}
 
 
 def event_loop(currently_on):
@@ -299,6 +300,11 @@ def main():
         currently_on = AzureCSP()
 
         after_migration(from_amzn, currently_on)
+
+    elif sys.argv[1] == "from_goog":
+        from_goog = GoogleCSP()
+        #to_do
+
     elif sys.argv[1] in stock_objs.keys():
         currently_on = create_stock_object(sys.argv[1])
     else:
@@ -320,6 +326,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # currently_on = AwsCSP()
-    # moving_to = AzureCSP()
-    # database_entry(currently_on, moving_to)
