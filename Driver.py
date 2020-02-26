@@ -254,8 +254,7 @@ def main():
             raise AbstractCSP.InvalidCSPError(sys.argv,
                                               "Please enter a valid CSP stock name")
     except AbstractCSP.InvalidCSPError as e:
-        print(e.message + e.expression)
-        return
+        return e.message + e.expression
 
     # Update the General Information file
     update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
@@ -271,4 +270,4 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
