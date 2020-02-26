@@ -125,7 +125,7 @@ def run_booted_vm(moving_to, currently_on):
             moving_to.get_ip(),
             moving_to.get_username(),
             "runglaros " +
-            currently_on.get_stock_name() + " ")
+            currently_on.get_stock_name() + " " + moving_to.get_stock_name())
     except Exception as e:
         raise MigrationError(e)
 
