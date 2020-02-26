@@ -3,26 +3,26 @@
 -->
 [![coverage report](https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main/badges/master/coverage.svg)](https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main/commits/master)
 
-
-
-<!-- PROJECT LOGO -->
-<br />
+<!-- <img src="https://i.imgur.com/Q23c2CU.png" width="300" height="234"> -->
+<div align="center">
 <p align="center">
-  <a href="https://i.imgur.com/Q23c2CU.png">
-    <img src="images/logo.png" alt="Logo" width="100" height="78">
+  <a href="">
+    <img src="https://i.imgur.com/Q23c2CU.png" alt="Logo" width="300" height="234">
   </a>
 
   <h3 align="center">GLAROS</h3>
 
   <p align="center">
-    Multi-cloud dynamic service, or cloud as a platform, Glaros will migrate itself & payload throughout AWS, Azure and GCP instances.
+    A Multi-cloud dynamic service, or cloud as a platform, Glaros will migrate itself & payload throughout AWS, Azure and GCP instances.
     <br />
-    <a href="https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main/-/wikis/home"><strong>Our Wiki</strong></a>
-    <br />
-    <br />
+    <div>
+    <a href="https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main/-/wikis/home"><strong>Read our Wiki</strong></a>
     <a href="http://glaros.uk">View Glaros live</a>
+    </div>
   </p>
 </p>
+
+</div>
 
 
 
@@ -45,7 +45,12 @@
 ## About The Project
 
 [![Product Name Screen Shot][product-screenshot]](https://i.imgur.com/rZ8xFGH.png)
-A dashboard payload
+Glaros is designed to achieve three primary goals, namely
+* Avoiding cloud service provider lock-in
+* Get the best price for computation
+* Move automonously with no human input
+
+Glaros uses stock market data from yahoo_fin about the respective cloud providers in order to determine which service is priced best. When a more optimal platform is detected, Glaros is able to autonomously boot a virtual machine with that provider. It will then begin to SCP itself on that virtual machine, whilst updating the DNS to reflect it's new home on the internet. When it has succesfully transferred itself, it will remotely disable the old virtual machine - not leaving any remnants of itself.
 
 ### Built With
 
@@ -63,7 +68,11 @@ To configure a Glaros, follow these instructions.
 ### Prerequisites
 
 Accounts for Google Cloud Platform, Amazon Web Services, Microsoft Azure and GoDaddy.
+
+
 Create a linux virtual machine on each of these cloud service providers (henceforth: CSP), preferably with a LTS Ubuntu image.
+
+
 Transfer or register a domain on your GoDaddy account and in [developer.godaddy.com](https://developer.godaddy.com/key) create production API keys to manage your chosen domain.
 
 ### Installation
@@ -85,8 +94,10 @@ Install cloud sdk (google) and auth it
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-To do
-
+If correctly configured, the app is truly autonomous and will require no administration. On your first instance in the project root, simply
+```sh
+./runglaros
+```
 
 
 
