@@ -169,6 +169,20 @@ class TestStockPricesSection(unittest.TestCase):
         for dataset in response_data.get('datasets', {'data': []}):  # in case no datasets are returned -> fail the test
             self.assertTrue(len(dataset['data']), 10)
 
+    def test_ajax_for_stocks_returns_20_entries(self):
+        response = self.get_N_stock_entries(20)
+        response_data = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        for dataset in response_data.get('datasets', {'data': []}):  # in case no datasets are returned -> fail the test
+            self.assertTrue(len(dataset['data']), 20)
+
+    def test_ajax_for_stocks_returns_30_entries(self):
+        response = self.get_N_stock_entries(20)
+        response_data = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        for dataset in response_data.get('datasets', {'data': []}):  # in case no datasets are returned -> fail the test
+            self.assertTrue(len(dataset['data']), 20)
+
 
 @skip_test
 class TestMigrationTimeline(TestCase):
