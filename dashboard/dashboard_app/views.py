@@ -8,8 +8,10 @@ from .models import MigrationEntry
 
 # Glaros non-Django imports
 from StockRetriever import get_N_last_stock_differences_for
+from cloud_service_providers.AbstractCSP import AbstractCSP
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
+from cloud_service_providers.GoogleCSP import GoogleCSP
 
 # file that stores the general information of the app provided by the Driver
 from dashboard.settings import GENERAL_INFO_FILE
@@ -74,28 +76,48 @@ def update_stock_prices(request):
             # If 'None' or any other invalid value return an error
             return JsonResponse({'error-message': 'Invalid parameters requested from server'}, status=422)
 
+        # Obtain the stock names of all available CSPs
+        all_stock_names = AbstractCSP.get_stock_names()
+
+        print(len(all_stock_names))
+        for stock in all_stock_names:
+            print(">>>>>>>>", stock)
+
         # First obtain the data that will populate the graph
         latest_stocks = get_N_last_stock_differences_for(
-            ['amzn', 'msft'], N=int(points), interval=interval)
+            all_stock_names, N=int(points), interval=interval)
 
         # Then build the data object which will hold that data
         data = {
             'labels': [date_to_dict(date) for date in latest_stocks.get('dates')],
-            'datasets': [{"label": 'AWS',
-                          'backgroundColor': AwsCSP.ui_colour,  # These should be stored in each CSP
-                          'borderColor': AwsCSP.ui_colour,  # These should be stored in each CSP
-                          # 'data': [73, -6, -99, 79, 93, -32, -99],
-                          'data': latest_stocks.get('amzn', []),
-                          'fill': False,
-                          },
-                         {'label': 'AZURE',
-                          'backgroundColor': AzureCSP.ui_colour,  # These should be stored in each CSP
-                          'borderColor': AzureCSP.ui_colour,  # These should be stored in each CSP
-                          # 'data': [-98, -26, 23, -95, 1, -72, -14],
-                          'data': latest_stocks.get('msft', []),
-                          'fill': False
-                          }],
+            'datasets': [],
+            # 'datasets': [{"label": 'AWS',
+            #               'backgroundColor': AwsCSP.ui_colour,  # These should be stored in each CSP
+            #               'borderColor': AwsCSP.ui_colour,  # These should be stored in each CSP
+            #               # 'data': [73, -6, -99, 79, 93, -32, -99],
+            #               'data': latest_stocks.get('amzn', []),
+            #               'fill': False,
+            #               },
+            #              {'label': 'AZURE',
+            #               'backgroundColor': AzureCSP.ui_colour,  # These should be stored in each CSP
+            #               'borderColor': AzureCSP.ui_colour,  # These should be stored in each CSP
+            #               # 'data': [-98, -26, 23, -95, 1, -72, -14],
+            #               'data': latest_stocks.get('msft', []),
+            #               'fill': False
+            #               }],
         }
+
+        # Create a dataset for each available CSP
+        for stock in all_stock_names:
+            csp = AbstractCSP.get_csp(stock)  # get the class reference
+            obj = {"label": str(csp.get_formal_name()),
+                   'backgroundColor': str(csp.ui_colour),
+                   'borderColor': str(csp.ui_colour),
+                   'data': latest_stocks.get(stock, []),
+                   'fill': False,
+                   }
+            data['datasets'].append(obj)
+
         return JsonResponse(data)
     else:
         # We ignore any other type of request (eg. GET, PUT etc.)

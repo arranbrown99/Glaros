@@ -8,7 +8,7 @@ from cloud_service_providers.AbstractCSP import AbstractCSP
 class GoogleCSP(AbstractCSP):
     stock_name = "goog"
     username =  os.environ['GOOGLE_USERNAME']
-    ui_colour = "rgb(0,0,0)"
+    ui_colour = "rgb(255,205,86)"
     formal_name = "Google"
 
     def __init__(self):
