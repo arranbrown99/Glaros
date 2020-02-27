@@ -15,7 +15,7 @@ import sys
 import environ
 
 env = environ.Env()
-environ.Env.read_env(env.str('ENV_PATH', os.path.expanduser('~')))
+environ.Env.read_env(env.str('ENV_PATH',  os.path.expanduser('~/.env')))
 # Add the parent directory of the Django project as a path.
 # Useful for imports
 sys.path.append(os.path.abspath('../'))
