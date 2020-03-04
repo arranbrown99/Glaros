@@ -38,7 +38,6 @@ class AbstractCSP(ABC):
     @classmethod
     def get_stock_names(cls, ):
         types = cls.__subclasses__()
-        print(types)
         all_stock_names = []
         for concrete in types:
             stock_name = concrete.stock_name
