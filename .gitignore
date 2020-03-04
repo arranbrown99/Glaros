@@ -1,5 +1,8 @@
 .idea/
+google-credentials.json
+dashboard/dashboard_app/migrations/
 nohup.out
+deploy_web.out
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -36,6 +39,8 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+
+dashboard.conf
 
 # Installer logs
 pip-log.txt
