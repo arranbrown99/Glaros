@@ -19,7 +19,7 @@ from dashboard.settings import GENERAL_INFO_FILE
 
 def index(request):
     """
-    Server as the 'main' view for the dashboard. The homepage.
+    Serves as the 'main' view for the dashboard. The homepage.
 
     Parameters
     ------
@@ -108,6 +108,25 @@ def date_to_dict(date):
 
 
 def update_stock_prices(request):
+    """
+    Is the endpoint for an AJAX request which
+    is used to render the stock prices chart.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the ajax request with parameters 'points' and 'interval'
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    response: JsonResponse
+        returns a json object which stores the stock prices
+        for all available CSPs
+    """
     if request.method == 'GET':
         points = request.GET.get('points', None)
         interval = request.GET.get('interval', None)
