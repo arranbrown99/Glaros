@@ -42,7 +42,6 @@ from glaros_ssh import remote_process, vm_scp
 from cloud_service_providers.AbstractCSP import AbstractCSP
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
-from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.GoogleCSP import GoogleCSP
 import StockRetriever
 
