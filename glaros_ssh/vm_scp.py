@@ -1,9 +1,10 @@
+import paramiko
 from paramiko import SSHConfig, SSHClient, AutoAddPolicy, ssh_exception, RSAKey
 from scp import SCPClient, SCPException
 import os.path
 
 
-def get_key_for_host(host):
+def get_key_for_host(host,index):
     '''returns the path that is the private key for a given host by looking at ~/.ssh/config
     important this only works if there is 1 private key in the config file for a given host'''
     ssh_config = SSHConfig()
@@ -13,7 +14,7 @@ def get_key_for_host(host):
             ssh_config.parse(f)
     user_config = ssh_config.lookup(host)
     if 'identityfile' in user_config:
-        path = os.path.expanduser(user_config['identityfile'][0])
+        path = os.path.expanduser(user_config['identityfile'][index])
         if not os.path.exists(path):
             raise Exception(
                 "Specified IdentityFile " + path + " for " + host + " in ~/.ssh/config not existing anymore.")
@@ -24,14 +25,21 @@ def get_key_for_host(host):
 def connection(ip_address, username):
     # try to establish connection to remote virtual machine
     try:
+        paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)
         ssh = SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(AutoAddPolicy())
-        key = get_key_for_host(ip_address)
-        ki = RSAKey.from_private_key_file(key)
-        ssh.connect(ip_address, username=username, pkey=ki)
-        return ssh
-    except:
+        num_lines = sum(1 for line in open("~/.ssh/config"))
+        for index in num_lines:
+	    key = get_key_for_host(ip_address,index)
+            ki = RSAKey.from_private_key_file(key)
+            try:
+                ssh.connect(ip_address, username=username,pkey=ki)
+                return ssh
+            except:
+                continue
+    except Exception as e:
+        print(e)
         pass
 
 
