@@ -4,6 +4,15 @@ pwd=$(pwd)
 [ -d logs ] || mkdir logs
 [ -d run ] || mkdir run
 
+
+############
+#  DJANGO  #
+############
+
+python3 manage.py makemigrations --no-input
+python3 manage.py migrate
+python3 manage.py collectstatic --no-input --clear
+
 ############
 # GUNICORN #
 ############
@@ -12,9 +21,9 @@ python3 -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('$(pwd)/ru
 touch logs/gunicorn.log
 gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
 
-#########
-# NGINX #
-#########
+###########
+#  NGINX  #
+###########
 
 # Set up
 [ -d nginx ] || mkdir nginx
