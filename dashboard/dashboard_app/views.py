@@ -18,6 +18,26 @@ from dashboard.settings import GENERAL_INFO_FILE
 
 
 def index(request):
+    """
+    Server as the 'main' view for the dashboard. The homepage.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the request received by the client
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    rendered response: HttpRequest
+        Combines the base template with a given context dictionary
+        and returns an HttpResponse object with that rendered text.
+        In this case the homepage renders the General information area,
+        while the other sections are being send via AJAX requests.
+    """
     context = {}
 
     # Get data to populate the General Information area:
