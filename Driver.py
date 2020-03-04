@@ -136,42 +136,46 @@ def run_booted_vm(moving_to, currently_on):
 
 
 def migrate(stock_name, currently_on):
-    try:
-        update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
+    retry_counter = 20
+    while retry_counter > 0:
+        try:
+            update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
 
-        moving_to = AbstractCSP.get_csp(stock_name)
-        # Write to logfile
-        write_log_before(currently_on, moving_to)
-        print("Moving to " + moving_to.get_stock_name())
-        # Log migration to database
-        database_entry(currently_on, moving_to)
-        # start VM
-        boot_vm(moving_to)
-        parent_dir = os.path.abspath('.')
-        remote_filepath = os.path.basename(parent_dir)
+            moving_to = AbstractCSP.get_csp(stock_name)
+            # Write to logfile
+            write_log_before(currently_on, moving_to)
+            print("Moving to " + moving_to.get_stock_name())
+            # Log migration to database
+            database_entry(currently_on, moving_to)
+            # start VM
+            boot_vm(moving_to)
+            parent_dir = os.path.abspath('.')
+            remote_filepath = os.path.basename(parent_dir)
 
-        # guarantees the folder exists on the remote vm, as scp does not create
-        # this directory
-        remote_process.remote_mkdir(
-            moving_to.get_ip(),
-            moving_to.get_username(),
-            remote_filepath)
+            # guarantees the folder exists on the remote vm, as scp does not create
+            # this directory
+            remote_process.remote_mkdir(
+                moving_to.get_ip(),
+                moving_to.get_username(),
+                remote_filepath)
 
-        print("Remote vm started up, ip address is " + moving_to.get_ip())
-        # files to be sent
-        # start sending entire directory of project
-        ignore(parent_dir, moving_to, remote_filepath)
+            print("Remote vm started up, ip address is " + moving_to.get_ip())
+            # files to be sent
+            # start sending entire directory of project
+            ignore(parent_dir, moving_to, remote_filepath)
 
-        # run the Driver on newly started VM and send the current CSP provider
-        run_booted_vm(moving_to, currently_on)
-    except MigrationError as e:
-        print(e)
-        update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-        event_loop(currently_on)
-    except sqlite3.Error as e:
-        print(e)
-        update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-        event_loop(currently_on)
+            # run the Driver on newly started VM and send the current CSP provider
+            run_booted_vm(moving_to, currently_on)
+            break
+        except MigrationError as e:
+            print(e)
+            update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
+
+        except sqlite3.Error as e:
+            print(e)
+            update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
+        retry_counter -= 1
+        time.sleep(30)
 
 
 def database_entry(currently_on, moving_to):
