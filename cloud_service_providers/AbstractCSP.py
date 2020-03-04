@@ -24,7 +24,7 @@ class AbstractCSP(ABC):
 
     stock_name = ""
     username = ""
-    ui_colour = "rgb(0,0,0)"
+    ui_colour = "rgb(153,153,153)"
     formal_name = ""
 
     @classmethod

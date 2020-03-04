@@ -79,28 +79,34 @@ def update_stock_prices(request):
             # If 'None' or any other invalid value return an error
             return JsonResponse({'error-message': 'Invalid parameters requested from server'}, status=422)
 
+        # Obtain the stock names of all available CSPs
+        all_stock_names = AbstractCSP.get_stock_names()
+
+        print(len(all_stock_names))
+        for stock in all_stock_names:
+            print(">>>>>>>>", stock)
+
         # First obtain the data that will populate the graph
         latest_stocks = get_N_last_stock_differences_for(
-            ['amzn', 'msft'], N=int(points), interval=interval)
+            all_stock_names, N=int(points), interval=interval)
 
         # Then build the data object which will hold that data
         data = {
             'labels': [date_to_dict(date) for date in latest_stocks.get('dates')],
-            'datasets': [{"label": 'AWS',
-                          'backgroundColor': AwsCSP.ui_colour,  # These should be stored in each CSP
-                          'borderColor': AwsCSP.ui_colour,  # These should be stored in each CSP
-                          # 'data': [73, -6, -99, 79, 93, -32, -99],
-                          'data': latest_stocks.get('amzn', []),
-                          'fill': False,
-                          },
-                         {'label': 'AZURE',
-                          'backgroundColor': AzureCSP.ui_colour,  # These should be stored in each CSP
-                          'borderColor': AzureCSP.ui_colour,  # These should be stored in each CSP
-                          # 'data': [-98, -26, 23, -95, 1, -72, -14],
-                          'data': latest_stocks.get('msft', []),
-                          'fill': False
-                          }],
+            'datasets': [],
         }
+
+        # Create a dataset for each available CSP
+        for stock in all_stock_names:
+            csp = AbstractCSP.get_csp(stock)  # get the class reference
+            obj = {"label": str(csp.get_formal_name()),
+                   'backgroundColor': str(csp.ui_colour),
+                   'borderColor': str(csp.ui_colour),
+                   'data': latest_stocks.get(stock, []),
+                   'fill': False,
+                   }
+            data['datasets'].append(obj)
+
         return JsonResponse(data)
     else:
         # We ignore any other type of request (eg. GET, PUT etc.)
@@ -113,8 +119,12 @@ def update_migration_timeline(request):
         last_migrations = MigrationEntry.objects.all().order_by(
             "-_date")[:10][::-1]
 
-        # Then build the data object which will hold that data
-        data = {'migrations': []}
+        # Then build the data object which will hold that data and colors
+        data = {'migrations': [], }
+
+        # List to store the row order in which CSP will appear on the timeline
+        chart_row_ordering = []
+
         for i in range(len(last_migrations)):
             entry = last_migrations[i]
 
@@ -138,11 +148,24 @@ def update_migration_timeline(request):
 
             data.get('migrations', []).append(structured_entry)
 
-            # Provide the colour of each CSP
-            data['AWS_color'] = AwsCSP.ui_colour
-            data['AZURE_color'] = AzureCSP.ui_colour
-            # Dummy until GCP is implemented
-            data['GCP_color'] = "rgb(255, 205, 86)"
+            # Capture the order the database entry appeared in
+            if entry._to not in chart_row_ordering:
+                chart_row_ordering.append(entry._to)
+
+        # Reference to all CSP needed to choose row colours
+        all_csps = [AbstractCSP.get_csp(name) for name in AbstractCSP.get_stock_names()]
+        colors_list = []
+
+        # Loop through all CSPs to find the correct colour
+        for row_name in chart_row_ordering:
+            chosen_color = AbstractCSP.ui_colour  # in case we don't find a matching CSP class
+            for csp in all_csps:
+                if csp.get_formal_name() == row_name:
+                    chosen_color = csp.ui_colour  # if found, update it
+                    break
+            colors_list.append(chosen_color)
+
+        data['colors_list'] = colors_list
 
         return JsonResponse(data)
     else:
