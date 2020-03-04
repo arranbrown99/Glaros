@@ -83,8 +83,26 @@ def index(request):
 
 # Helper Method
 def date_to_dict(date):
-    """Takes a datetime.date and returns its dictionary equivalent in the format:
+    """
+    Takes a datetime.date and returns its dictionary equivalent in the format:
     {"d": day, "m": month, "y": year}
+
+    Needed for keeping consistency across timezones. Also, keeps
+    consistency between the client side and server side
+
+    Parameters
+    ------
+    data : date
+        a python datetime.date object
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    date : dict
+        the date has this format: {"d": day, "m": month, "y": year}
     """
     return {"d": date.day, "m": date.month, "y": date.year}
 
