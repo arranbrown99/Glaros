@@ -1,7 +1,8 @@
 .idea/
 google-credentials.json
-
+dashboard/dashboard_app/migrations/
 nohup.out
+deploy_web.out
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

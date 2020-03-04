@@ -38,7 +38,12 @@ from datetime import datetime
 import dns
 
 from glaros_ssh import remote_process, vm_scp
+
 from cloud_service_providers.AbstractCSP import AbstractCSP
+from cloud_service_providers.AwsCSP import AwsCSP
+from cloud_service_providers.AzureCSP import AzureCSP
+from cloud_service_providers.AwsCSP import AwsCSP
+from cloud_service_providers.GoogleCSP import GoogleCSP
 import StockRetriever
 
 sys.path.append(os.path.abspath('./dashboard/'))
@@ -133,10 +138,10 @@ def run_booted_vm(moving_to, currently_on):
 def migrate(stock_name, currently_on):
     try:
         update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
-        # Write to logfile
-        write_log_before(currently_on, stock_name)
-        # create object for 'best' stock
+
         moving_to = AbstractCSP.get_csp(stock_name)
+        # Write to logfile
+        write_log_before(currently_on, moving_to)
         print("Moving to " + moving_to.get_stock_name())
         # Log migration to database
         database_entry(currently_on, moving_to)
@@ -208,7 +213,7 @@ def after_migration(sender, currently_on):
         sender.stop_vm()
 
     # Update logfile
-    write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
+    write_log_after(sender, currently_on)
 
 
 def update_general_info(file, currently_on, status):
@@ -243,6 +248,7 @@ def main():
     # First we need to identify on which CSP this Driver was created from
     try:
         if len(sys.argv) == 2:
+            print(AbstractCSP.get_stock_names())
             currently_on = AbstractCSP.get_csp(sys.argv[1])
 
         elif len(sys.argv) == 3:
