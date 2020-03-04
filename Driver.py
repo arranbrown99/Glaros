@@ -91,7 +91,11 @@ def event_loop(currently_on):
         print("Moving from " + current + " to " + best_stock)
         # Start migration process
         print("Now migrating to " + best_stock)
-        migrate(best_stock, currently_on)
+        try:
+            migrate(best_stock, currently_on)
+        except MigrationError as e:
+            raise e
+
 
     else:
         print("not now!")
@@ -166,7 +170,7 @@ def migrate(stock_name, currently_on):
 
             # run the Driver on newly started VM and send the current CSP provider
             run_booted_vm(moving_to, currently_on)
-            break
+            return
         except MigrationError as e:
             print(e)
             update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
@@ -176,6 +180,8 @@ def migrate(stock_name, currently_on):
             update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
         retry_counter -= 1
         time.sleep(30)
+    raise MigrationError("Failed to migrate")
+
 
 
 def database_entry(currently_on, moving_to):
@@ -276,7 +282,11 @@ def main():
     dns.change_ip(currently_on.get_ip())
 
     # Start checking the stock prices and decide when to migrate
-    event_loop(currently_on)
+    try:
+        event_loop(currently_on)
+    except MigrationError as e:
+        return e
+        
     return 0
 
 if __name__ == '__main__':
