@@ -115,8 +115,10 @@ def update_stock_prices(request):
     Parameters
     ------
     request : HttpRequest
-        the ajax request with parameters 'points' and 'interval'
-
+        the ajax request with parameters 'points' and 'interval'.
+        These specifies how many points to have on teh x-axis and
+        what the interval between the displayed stock prices should be.
+        (ie. daily, weekly, monthly)
     Raises
     ------
     Exception
@@ -165,6 +167,28 @@ def update_stock_prices(request):
 
 
 def update_migration_timeline(request):
+    """
+    Is the endpoint for an AJAX request which
+    is used to render the migration time-line.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the ajax request
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    response: JsonResponse
+        returns a json object which stores the 'migrations' list
+        and a list of colours ('colors_list') for each displayed row.
+        The migrations list stores 10 entries of this format:
+        [ CSP_name, from_when_date, until_when_date ]
+        The colours list stores the colours for each CSP in the
+        order they appear in the migrations list.
+    """
     if request.method == 'GET':
         # First obtain the data that will populate the timeline
         last_migrations = MigrationEntry.objects.all().order_by(
