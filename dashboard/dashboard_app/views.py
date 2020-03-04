@@ -8,8 +8,10 @@ from .models import MigrationEntry
 
 # Glaros non-Django imports
 from StockRetriever import get_N_last_stock_differences_for
+from cloud_service_providers.AbstractCSP import AbstractCSP
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
+from cloud_service_providers.GoogleCSP import GoogleCSP
 
 # file that stores the general information of the app provided by the Driver
 from dashboard.settings import GENERAL_INFO_FILE
@@ -45,8 +47,11 @@ def index(request):
     current_date = date.today().strftime(date_format)
 
     # Add to context
-    context['currently_on'] = currently_on if currently_on in [
-        "AWS", "AZURE"] else "..."
+    csp_stock_list = AbstractCSP.get_stock_names()
+    csp_list = []
+    for name in csp_stock_list:
+        csp_list.append(AbstractCSP.get_csp(name).get_formal_name())
+    context['currently_on'] = currently_on if currently_on in csp_list else "..."
     context['current_status'] = current_status if current_status in [
         "Running", "Migrating"] else "..."
     context['last_migration'] = last_migration

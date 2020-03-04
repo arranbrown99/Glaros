@@ -38,7 +38,11 @@ from datetime import datetime
 import dns
 
 from glaros_ssh import remote_process, vm_scp
+
 from cloud_service_providers.AbstractCSP import AbstractCSP
+from cloud_service_providers.AwsCSP import AwsCSP
+from cloud_service_providers.AzureCSP import AzureCSP
+from cloud_service_providers.GoogleCSP import GoogleCSP
 import StockRetriever
 
 sys.path.append(os.path.abspath('./dashboard/'))
@@ -86,7 +90,11 @@ def event_loop(currently_on):
         print("Moving from " + current + " to " + best_stock)
         # Start migration process
         print("Now migrating to " + best_stock)
-        migrate(best_stock, currently_on)
+        try:
+            migrate(best_stock, currently_on)
+        except MigrationError as e:
+            raise e
+
 
     else:
         print("not now!")
@@ -131,42 +139,47 @@ def run_booted_vm(moving_to, currently_on):
 
 
 def migrate(stock_name, currently_on):
-    try:
-        update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
-        # Write to logfile
-        write_log_before(currently_on, stock_name)
-        # create object for 'best' stock
-        moving_to = AbstractCSP.get_csp(stock_name)
-        print("Moving to " + moving_to.get_stock_name())
-        # Log migration to database
-        database_entry(currently_on, moving_to)
-        # start VM
-        boot_vm(moving_to)
-        parent_dir = os.path.abspath('.')
-        remote_filepath = os.path.basename(parent_dir)
+    retry_counter = 20
+    while retry_counter > 0:
+        try:
+            update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
 
-        # guarantees the folder exists on the remote vm, as scp does not create
-        # this directory
-        remote_process.remote_mkdir(
-            moving_to.get_ip(),
-            moving_to.get_username(),
-            remote_filepath)
+            moving_to = AbstractCSP.get_csp(stock_name)
+            # Write to logfile
+            write_log_before(currently_on, moving_to)
+            print("Moving to " + moving_to.get_stock_name())
+            # Log migration to database
+            database_entry(currently_on, moving_to)
+            # start VM
+            boot_vm(moving_to)
+            parent_dir = os.path.abspath('.')
+            remote_filepath = os.path.basename(parent_dir)
 
-        print("Remote vm started up, ip address is " + moving_to.get_ip())
-        # files to be sent
-        # start sending entire directory of project
-        ignore(parent_dir, moving_to, remote_filepath)
+            # guarantees the folder exists on the remote vm, as scp does not create
+            # this directory
+            remote_process.remote_mkdir(
+                moving_to.get_ip(),
+                moving_to.get_username(),
+                remote_filepath)
 
-        # run the Driver on newly started VM and send the current CSP provider
-        run_booted_vm(moving_to, currently_on)
-    except MigrationError as e:
-        print(e)
-        update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-        event_loop(currently_on)
-    except sqlite3.Error as e:
-        print(e)
-        update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-        event_loop(currently_on)
+            print("Remote vm started up, ip address is " + moving_to.get_ip())
+            # files to be sent
+            # start sending entire directory of project
+            ignore(parent_dir, moving_to, remote_filepath)
+
+            # run the Driver on newly started VM and send the current CSP provider
+            run_booted_vm(moving_to, currently_on)
+            return
+        except MigrationError as e:
+            print(e)
+            update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
+
+        except sqlite3.Error as e:
+            print(e)
+            update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
+        retry_counter -= 1
+        time.sleep(30)
+    raise MigrationError("Failed to migrate")
 
 
 def database_entry(currently_on, moving_to):
@@ -208,7 +221,7 @@ def after_migration(sender, currently_on):
         sender.stop_vm()
 
     # Update logfile
-    write_log_after(sender.get_stock_name(), currently_on.get_stock_name())
+    write_log_after(sender, currently_on)
 
 
 def update_general_info(file, currently_on, status):
@@ -243,6 +256,7 @@ def main():
     # First we need to identify on which CSP this Driver was created from
     try:
         if len(sys.argv) == 2:
+            print(AbstractCSP.get_stock_names())
             currently_on = AbstractCSP.get_csp(sys.argv[1])
 
         elif len(sys.argv) == 3:
@@ -266,8 +280,13 @@ def main():
     dns.change_ip(currently_on.get_ip())
 
     # Start checking the stock prices and decide when to migrate
-    event_loop(currently_on)
+    try:
+        event_loop(currently_on)
+    except MigrationError as e:
+        return e
+
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
