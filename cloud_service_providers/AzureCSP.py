@@ -28,9 +28,10 @@ class AzureCSP(AbstractCSP):
     # Static Variables
     ui_colour = 'rgb(54,162,235)'
     formal_name = 'Azure'
-    stock_name = "msft"
 
     def __init__(self):
+
+        self.stock_name = "msft"
 
         # Here we need to configure all the things necessary to connect
         # to the Azure instance.

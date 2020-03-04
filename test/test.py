@@ -12,7 +12,6 @@ from dns import gen_config
 import StockRetriever
 from glaros_ssh import vm_scp
 from cloud_service_providers.AzureCSP import AzureCSP
-import cloud_service_providers.CredentialsParser as cp
 
 # list for good test input
 good_l = ['amzn', 'goog', 'msft', ]
@@ -73,10 +72,6 @@ class TestRemoteProcess(unittest.TestCase):
         remote_process.remote_remove(ip_address, username, 'test.py')
         remote_process.remote_ls(ip_address, username, 'test.py')
 
-        remote_process.remote_python(ip_address, username, 'test/create_file.py')
-        remote_process.remote_ls(ip_address, username, '~/cs27-main/test/test_remote.txt')
-        remote_process.remote_remove(ip_address, username, '~/cs27-main/test/test_remote.txt')
-
 
 class TestDNS(unittest.TestCase):
     def test_config(self):
@@ -95,7 +90,7 @@ class TestDNS(unittest.TestCase):
 # tests for scp_aws
 class TestVMSCP(unittest.TestCase):
 
-    def test_upload_file(self):
+    def test_uploadFile(self):
         # inputs
         azure_vm = AzureCSP()
         if azure_vm.is_running() is False:
@@ -125,21 +120,6 @@ class TestVMSCP(unittest.TestCase):
         vm_scp.upload_file('test.py', ip, un)
         scp_base_dir = os.path.dirname(os.path.realpath(__file__))
         vm_scp.upload_file(scp_base_dir, ip, un, recursive=True)
-
-
-# tests for CredentialsParser
-class TestCredentialsParser(unittest.TestCase):
-
-    def test_parse_csv(self):
-        aws_dir = os.path.expanduser(os.environ['AWS_DIR'])
-        credentials = cp.CredentialsParser(os.path.join(aws_dir, 'credentials.csv'))
-        credentials.get("PythonManager").get("Access key ID")
-
-    def test_parse_csv_fail(self):
-        with self.assertRaises(ValueError):
-            cp.CredentialsParser("doesn't_exist.txt")
-        with self.assertRaises(TypeError):
-            cp.CredentialsParser(3)
 
 
 if __name__ == '__main__':

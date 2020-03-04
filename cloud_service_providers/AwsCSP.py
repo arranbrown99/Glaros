@@ -14,9 +14,9 @@ class AwsCSP(AbstractCSP):
     # Static Variables
     ui_colour = 'rgb(255,99,132)'
     formal_name = 'Aws'
-    stock_name = "amzn"
 
     def __init__(self):
+        self.stock_name = "amzn"
         credentials = cp.CredentialsParser(os.path.join(AWS_DIR, 'credentials.csv'))
         self.client = boto3.client(
             'ec2',
