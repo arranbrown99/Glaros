@@ -29,16 +29,18 @@ def connection(ip_address, username):
         ssh = SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(AutoAddPolicy())
-        num_lines = sum(1 for line in open("~/.ssh/config"))
-        for index in num_lines:
-	    key = get_key_for_host(ip_address,index)
+        #loop over all of the private keys in config and see if we can connect with any of them
+        num_lines = sum(1 for line in open(os.path.expanduser("~/.ssh/config")))
+        for index in range(0,num_lines):
+            key = get_key_for_host(ip_address,index)
             ki = RSAKey.from_private_key_file(key)
             try:
                 ssh.connect(ip_address, username=username,pkey=ki)
                 return ssh
             except:
                 continue
-    except Exception as e:
+         raise SCPException("No valid private key in ~/.ssh/config")
+    except SCPException as e:
         print(e)
         pass
 
