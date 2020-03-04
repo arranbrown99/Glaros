@@ -232,6 +232,27 @@ def update_migration_timeline(request):
 
 
 def update_migration_table(request):
+    """
+    Is the endpoint for an AJAX request which
+    is used to render the migratios (modal) table.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the ajax request with GET parameters 'size' of each page
+        (default=10) and 'page' the number of the requested page.
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    response: JsonResponse
+        returns a json object the stores the entries for the page requested
+        in 'data', as well as a 'last_page' int that indicates how many pages
+        are available.
+    """
     if request.method == 'GET':
         # If page size isn't specified or not valid, default to 10
         try:
