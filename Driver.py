@@ -182,7 +182,6 @@ def migrate(stock_name, currently_on):
     raise MigrationError("Failed to migrate")
 
 
-
 def database_entry(currently_on, moving_to):
     # Log migration to database
     connection = None
@@ -285,8 +284,9 @@ def main():
         event_loop(currently_on)
     except MigrationError as e:
         return e
-        
+
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
