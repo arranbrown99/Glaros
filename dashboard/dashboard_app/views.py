@@ -47,7 +47,10 @@ def index(request):
     current_date = date.today().strftime(date_format)
 
     # Add to context
-    csp_list = AbstractCSP.get_stock_names()
+    csp_stock_list = AbstractCSP.get_stock_names()
+    csp_list = []
+    for name in csp_stock_list:
+        csp_list.append(AbstractCSP.get_csp(name).get_formal_name())
     context['currently_on'] = currently_on if currently_on in csp_list else "..."
     context['current_status'] = current_status if current_status in [
         "Running", "Migrating"] else "..."
