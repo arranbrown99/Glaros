@@ -1,5 +1,13 @@
 #!/bin/bash
 
+echo "Beginning Django configuration..."
+
+python3 manage.py makemigrations --no-input
+python3 manage.py migrate
+python3 manage.py collectstatic --no-input --clear
+
+echo "Django configuration complete"
+
 pwd=$(pwd)
 my_ip=$(curl --silent http://checkip.amazonaws.com)
 domain_ip=$(dig glaros.uk +short)
