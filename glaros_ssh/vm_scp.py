@@ -23,8 +23,6 @@ def get_key_for_host(host,index):
 
 
 def connection(ip_address, username):
-    print(ip_address)
-    print(username)
     # try to establish connection to remote virtual machine
     ssh = SSHClient()
     ssh.load_system_host_keys()
