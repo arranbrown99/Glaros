@@ -18,6 +18,26 @@ from dashboard.settings import GENERAL_INFO_FILE
 
 
 def index(request):
+    """
+    Serves as the 'main' view for the dashboard. The homepage.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the request received by the client
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    rendered response: HttpRequest
+        Combines the base template with a given context dictionary
+        and returns an HttpResponse object with that rendered text.
+        In this case the homepage renders the General information area,
+        while the other sections are being send via AJAX requests.
+    """
     context = {}
 
     # Get data to populate the General Information area:
@@ -63,13 +83,52 @@ def index(request):
 
 # Helper Method
 def date_to_dict(date):
-    """Takes a datetime.date and returns its dictionary equivalent in the format:
+    """
+    Takes a datetime.date and returns its dictionary equivalent in the format:
     {"d": day, "m": month, "y": year}
+
+    Needed for keeping consistency across timezones. Also, keeps
+    consistency between the client side and server side
+
+    Parameters
+    ------
+    data : date
+        a python datetime.date object
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    date : dict
+        the date has this format: {"d": day, "m": month, "y": year}
     """
     return {"d": date.day, "m": date.month, "y": date.year}
 
 
 def update_stock_prices(request):
+    """
+    Is the endpoint for an AJAX request which
+    is used to render the stock prices chart.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the ajax request with parameters 'points' and 'interval'.
+        These specifies how many points to have on teh x-axis and
+        what the interval between the displayed stock prices should be.
+        (ie. daily, weekly, monthly)
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    response: JsonResponse
+        returns a json object which stores the stock prices
+        for all available CSPs
+    """
     if request.method == 'GET':
         points = request.GET.get('points', None)
         interval = request.GET.get('interval', None)
@@ -114,6 +173,28 @@ def update_stock_prices(request):
 
 
 def update_migration_timeline(request):
+    """
+    Is the endpoint for an AJAX request which
+    is used to render the migration time-line.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the ajax request
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    response: JsonResponse
+        returns a json object which stores the 'migrations' list
+        and a list of colours ('colors_list') for each displayed row.
+        The migrations list stores 10 entries of this format:
+        [ CSP_name, from_when_date, until_when_date ]
+        The colours list stores the colours for each CSP in the
+        order they appear in the migrations list.
+    """
     if request.method == 'GET':
         # First obtain the data that will populate the timeline
         last_migrations = MigrationEntry.objects.all().order_by(
@@ -174,6 +255,27 @@ def update_migration_timeline(request):
 
 
 def update_migration_table(request):
+    """
+    Is the endpoint for an AJAX request which
+    is used to render the migratios (modal) table.
+
+    Parameters
+    ------
+    request : HttpRequest
+        the ajax request with GET parameters 'size' of each page
+        (default=10) and 'page' the number of the requested page.
+
+    Raises
+    ------
+    Exception
+
+    Returns
+    -------
+    response: JsonResponse
+        returns a json object the stores the entries for the page requested
+        in 'data', as well as a 'last_page' int that indicates how many pages
+        are available.
+    """
     if request.method == 'GET':
         # If page size isn't specified or not valid, default to 10
         try:
