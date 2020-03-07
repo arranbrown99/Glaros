@@ -261,7 +261,6 @@ def main():
     # First we need to identify on which CSP this Driver was created from
     try:
         if len(sys.argv) == 2:
-            print(AbstractCSP.get_stock_names())
             currently_on = AbstractCSP.get_csp(sys.argv[1])
 
         elif len(sys.argv) == 3:
