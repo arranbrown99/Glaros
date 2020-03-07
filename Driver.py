@@ -52,7 +52,7 @@ from dashboard.settings import GENERAL_INFO_FILE
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
 # Files not to be uploaded to receiving VMs
-exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__']
+exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__', '.sock']
 
 
 class Error(Exception):
@@ -152,20 +152,10 @@ def migrate(stock_name, currently_on):
             database_entry(currently_on, moving_to)
             # start VM
             boot_vm(moving_to)
-            parent_dir = os.path.abspath('.')
-            remote_filepath = os.path.basename(parent_dir)
-
-            # guarantees the folder exists on the remote vm, as scp does not create
-            # this directory
-            remote_process.remote_mkdir(
-                moving_to.get_ip(),
-                moving_to.get_username(),
-                remote_filepath)
-
             print("Remote vm started up, ip address is " + moving_to.get_ip())
             # files to be sent
             # start sending entire directory of project
-            ignore(parent_dir, moving_to, remote_filepath)
+            ignore(moving_to)
 
             # run the Driver on newly started VM and send the current CSP provider
             run_booted_vm(moving_to, currently_on)
@@ -234,20 +224,35 @@ def update_general_info(file, currently_on, status):
         json.dump(data, jsonFile)
 
 
-def ignore(parent_dir, moving_to, remote_filepath):
+def ignore(moving_to):
+    parent_dir = os.path.abspath('.')
+    remote_filepath = os.path.basename(parent_dir)
+    try:
+        ignore_helper(parent_dir, moving_to, remote_filepath)
+    except Exception as e:
+        raise MigrationError(e)
+
+
+def ignore_helper(parent_dir, moving_to, remote_filepath):
+    # helper function for ignore
+    # guarantees the folder exists on the remote vm, as scp does not create
+    # this directory
+    remote_process.remote_mkdir(
+        moving_to.get_ip(),
+        moving_to.get_username(),
+        remote_filepath)
     files_to_upload = [f for f in os.listdir(path='.') if f not in exclude_files]
     try:
         for _file in files_to_upload:
             print("Uploading -> " + _file)
             if os.path.isdir(_file):
-                recursive = True
+                ignore_helper(parent_dir, moving_to, remote_filepath + "/" + _file)
             else:
-                recursive = False
-            vm_scp.upload_file(os.path.join(parent_dir, _file),
-                               moving_to.get_ip(),
-                               moving_to.get_username(),
-                               remote_path="~/" + remote_filepath + "/" + _file,
-                               recursive=recursive)
+                vm_scp.upload_file(os.path.join(parent_dir, _file),
+                                   moving_to.get_ip(),
+                                   moving_to.get_username(),
+                                   remote_path="~/" + remote_filepath + "/" + _file,
+                                   recursive=False)
     except Exception as e:
         raise MigrationError(e)
 
