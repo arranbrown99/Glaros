@@ -16,7 +16,7 @@ if [ "$1" != "" ]; then
         # and also redirects errors to that output
 	    sudo -E nohup python3 Driver.py $1 >> ../driver.out 2>&1 &
         cd dashboard
-        nohup ./deploy_web.sh >> ../deploy_web.out 2>&1 &
+        sudo -E nohup ./deploy_web.sh >> ../deploy_web.out 2>&1 &
     fi
     
 else
