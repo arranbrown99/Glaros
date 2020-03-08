@@ -52,7 +52,7 @@ from dashboard.settings import GENERAL_INFO_FILE
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
 # Files not to be uploaded to receiving VMs
-exclude_files = ['.git', '.gitlab-ci.yml', '__pycache__', '.sock']
+exclude_files = ['.git', 'gunicorn.sock','admin']
 
 
 class Error(Exception):
@@ -123,6 +123,7 @@ def boot_vm(moving_to):
     if moving_to.is_running() is False:
         print("Turning on " + moving_to.get_stock_name() + " vm.")
         moving_to.start_vm()
+    # wait 30 seconds so as to let the remote vm start up
     time.sleep(30)
 
 
@@ -237,8 +238,6 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     # helper function for ignore
     # guarantees the folder exists on the remote vm, as scp does not create
     # this directory
-    print(parent_dir)
-    print(remote_filepath)
     remote_process.remote_mkdir(
         moving_to.get_ip(),
         moving_to.get_username(),
@@ -251,7 +250,7 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
             if os.path.isdir(path_to_file):
                 ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath,_file))
             else:
-                vm_scp.upload_file(os.path.join(path_to_file,
+                vm_scp.upload_file(path_to_file,
                                    moving_to.get_ip(),
                                    moving_to.get_username(),
                                    remote_path="~/" + remote_filepath + "/" + _file,
