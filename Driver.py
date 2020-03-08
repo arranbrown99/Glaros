@@ -237,18 +237,21 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     # helper function for ignore
     # guarantees the folder exists on the remote vm, as scp does not create
     # this directory
+    print(parent_dir)
+    print(remote_filepath)
     remote_process.remote_mkdir(
         moving_to.get_ip(),
         moving_to.get_username(),
         remote_filepath)
-    files_to_upload = [f for f in os.listdir(path='.') if f not in exclude_files]
+    files_to_upload = [f for f in os.listdir(parent_dir) if f not in exclude_files]
     try:
         for _file in files_to_upload:
             print("Uploading -> " + _file)
-            if os.path.isdir(_file):
-                ignore_helper(parent_dir, moving_to, remote_filepath + "/" + _file)
+            path_to_file = os.path.join(parent_dir,_file)
+            if os.path.isdir(path_to_file):
+                ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath,_file))
             else:
-                vm_scp.upload_file(os.path.join(parent_dir, _file),
+                vm_scp.upload_file(os.path.join(path_to_file,
                                    moving_to.get_ip(),
                                    moving_to.get_username(),
                                    remote_path="~/" + remote_filepath + "/" + _file,
