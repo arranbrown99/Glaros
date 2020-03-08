@@ -1,10 +1,14 @@
 #!/bin/bash
 
+############
+#  DJANGO  #
+############
+
 echo "Beginning Django configuration..."
 
 python3 manage.py makemigrations --no-input
 python3 manage.py migrate
-python3 manage.py collectstatic --no-input --clear
+python3 manage.py collectstatic --no-input
 
 echo "Django configuration complete"
 
@@ -29,17 +33,6 @@ echo "Initialising required directory structure..."
 [ -d run ] || mkdir run
 [ -d nginx ] || mkdir nginx
 
-############
-#  DJANGO  #
-############
-
-echo "Beginning Django configuration..."
-
-python3 manage.py makemigrations --no-input
-python3 manage.py migrate
-python3 manage.py collectstatic --no-input --clear
-
-echo "Django configuration complete"
 
 ############
 # GUNICORN #
