@@ -262,6 +262,7 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
 def main():
     # First we need to identify on which CSP this Driver was created from
     try:
+
         if len(sys.argv) == 2:
             currently_on = AbstractCSP.get_csp(sys.argv[1])
 
@@ -278,7 +279,7 @@ def main():
 
     # Update the General Information file
     update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-
+    database_entry(currently_on,currently_on)
     print("Currently on " + currently_on.get_stock_name())
     print()
     # update dns
