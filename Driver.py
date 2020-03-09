@@ -134,7 +134,7 @@ def run_booted_vm(moving_to, currently_on):
             moving_to.get_ip(),
             moving_to.get_username(),
             "runglaros " +
-            currently_on.get_stock_name() + " " + moving_to.get_stock_name())
+            moving_to.get_stock_name()+" " + currently_on.get_stock_name())
     except Exception as e:
         raise MigrationError(e)
 
@@ -266,8 +266,9 @@ def main():
         if len(sys.argv) == 2:
             currently_on = AbstractCSP.get_csp(sys.argv[1])
         elif len(sys.argv) == 3:
-            came_from = AbstractCSP.get_csp(sys.argv[1])
-            currently_on = AbstractCSP.get_csp(sys.argv[2])
+            currently_on = AbstractCSP.get_csp(sys.argv[1])
+            came_from = AbstractCSP.get_csp(sys.argv[2])
+
             update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
             after_migration(came_from, currently_on)
         else:

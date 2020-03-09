@@ -7,7 +7,6 @@ fi
 
 if [ "$1" != "" ]; then
     echo "Starting up the Driver..."
-    python3 -m pip install -r requirements.txt
     if [ "$2" = "demo" ]; then # if the second argument is demo
 	    sudo -E python3 Driver.py $1
     else
@@ -16,7 +15,7 @@ if [ "$1" != "" ]; then
         # and also redirects errors to that output
 	    sudo -E nohup python3 Driver.py $1 >> ../driver.out 2>&1 &
         cd dashboard
-        sudo -E nohup ./deploy_web.sh >> ../deploy_web.out 2>&1 &
+        sudo -E nohup ./deploy_web.sh $1 >> ../deploy_web.out 2>&1 &
     fi
     
 else
