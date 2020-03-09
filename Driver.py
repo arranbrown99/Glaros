@@ -52,7 +52,7 @@ from dashboard.settings import GENERAL_INFO_FILE
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
 # Files not to be uploaded to receiving VMs
-exclude_files = ['.git', 'gunicorn.sock','admin']
+exclude_files = ['.git', 'gunicorn.sock','admin','__pycache__']
 
 
 class Error(Exception):
@@ -265,7 +265,6 @@ def main():
 
         if len(sys.argv) == 2:
             currently_on = AbstractCSP.get_csp(sys.argv[1])
-
         elif len(sys.argv) == 3:
             came_from = AbstractCSP.get_csp(sys.argv[1])
             currently_on = AbstractCSP.get_csp(sys.argv[2])
@@ -279,7 +278,6 @@ def main():
 
     # Update the General Information file
     update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-    database_entry(currently_on,currently_on)
     print("Currently on " + currently_on.get_stock_name())
     print()
     # update dns
