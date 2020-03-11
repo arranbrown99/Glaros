@@ -1,7 +1,9 @@
 # Class used to parse AWS's "credentials.csv".
 import csv
 
-
+"""
+reads credentials from a csv file used in AwsCSP
+"""
 class CredentialsParser:
 
     def __init__(self, filename):
