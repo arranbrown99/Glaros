@@ -1,10 +1,7 @@
-'''
+"""
 Update the DNS server to reflect the migration between hosts
 Call change_ip()
-'''
-
-# To do
-# Requesst timeouts, retries
+"""
 
 import requests
 import json
@@ -15,21 +12,21 @@ __config_file__ = 'config.ini'
 
 
 class Error(Exception):
-    '''
+    """
     Base class for exceptions
-    '''
+    """
     pass
 
 
 class DNSUpdateError(Error):
-    '''
+    """
     Exception raised for errors in the input.
 
     Attributes
     ------
         expression -- input expression in which the error occurred
         message -- explanation of the error
-    '''
+    """
 
     def __init__(self, expression, message):
         self.expression = expression
@@ -37,7 +34,7 @@ class DNSUpdateError(Error):
 
 
 def _get_ip(url, headers):
-    '''
+    """
     Retrieves the currently set IP address in the DNS A-Record
 
     Parameters
@@ -56,7 +53,7 @@ def _get_ip(url, headers):
     -------
     ip
         the IPv4 address of the A-record in dotted decimal form 'x.x.x.x'
-    '''
+    """
 
     try:
         response = requests.get(url, headers=headers)
@@ -64,11 +61,11 @@ def _get_ip(url, headers):
         response.raise_for_status()
         return ip
     except Exception as e:
-        raise
+        raise e
 
 
 def _update_ip(url, headers, ip):
-    '''
+    """
     Updates the DNS server records to reflect the new IP
 
     Parameters
@@ -85,7 +82,7 @@ def _update_ip(url, headers, ip):
     Raises
     ------
     Exception
-    '''
+    """
 
     payload = json.dumps(
         [{'data': f'{ip}', 'ttl': 600}])
@@ -97,11 +94,11 @@ def _update_ip(url, headers, ip):
     # except requests.exceptions`.HTTPError as e:
     #     raise DNSUpdateError(f"{e}")
     except Exception as e:
-        raise
+        raise e
 
 
 def change_ip(passed_ip):
-    '''
+    """
     Handles DNS update for service change
 
     Parameters
@@ -116,20 +113,20 @@ def change_ip(passed_ip):
 
     Returns
     ------
-    '''
+    """
 
     try:
         ip = ipaddress.IPv4Address(passed_ip)
     except ipaddress.AddressValueError as e:
         # raise(DNSUpdateError(e))
-        raise
+        raise e
 
     try:
         config = configparser.ConfigParser()
         config.read(__config_file__)
     except Exception as e:
         # raise(DNSUpdateError( e, f"Could not read configuration file {__config_file__}"))
-        raise
+        raise e
 
     try:
         # Read data from config
@@ -138,7 +135,7 @@ def change_ip(passed_ip):
         domain = dns['domain']
     except Exception as e:
         # raise(DNSUpdateError(e, f'An error occured attempting to load configuration'))
-        raise
+        raise e
 
     # Construct variables for requests
     headers = {'Authorization': f'sso-key {api_key}:{api_secret}',
@@ -150,7 +147,7 @@ def change_ip(passed_ip):
 
     _update_ip(url, headers, ip.exploded)
     curr_dns_ip = _get_ip(url, headers)
-    if (ip.exploded == curr_dns_ip):
+    if ip.exploded == curr_dns_ip:
         return
     else:
         # The IP has not updated
@@ -159,9 +156,9 @@ def change_ip(passed_ip):
 
 
 def gen_config():
-    '''
+    """
     Creates a config.ini, if it already exists: truncates it
-    '''
+    """
     while True:
         try:
             print("You are required to provide the following information")

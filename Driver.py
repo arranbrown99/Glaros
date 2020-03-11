@@ -56,20 +56,20 @@ exclude_files = ['.git', 'gunicorn.sock', 'admin', '__pycache__']
 
 
 class Error(Exception):
-    '''
+    """
     Base class for exceptions
-    '''
+    """
     pass
 
 
 class MigrationError(Error):
-    '''
+    """
     Exception raised for errors in the migration.
 
     Attributes
     ------
         message -- explanation of the error
-    '''
+    """
 
     def __init__(self, message):
         self.message = message
@@ -101,7 +101,6 @@ def event_loop(currently_on):
             migrate(best_stock, currently_on)
         except MigrationError as e:
             raise e
-
 
     else:
         print("not now!")
