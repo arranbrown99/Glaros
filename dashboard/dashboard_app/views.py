@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
-from datetime import date
+from datetime import datetime
 from django.core.paginator import Paginator
 from .models import MigrationEntry
 
@@ -38,13 +38,13 @@ def index(request):
         "GLAROS_CURRENTLY_ON_COLOUR", 'rgb(255,0,0)')
 
     # Get Dates
-    date_format = "%d/%m/%Y"
+    date_format = "%Y-%m-%d, %H:%M:%S"
     try:
         last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
     except AttributeError:
         last_migration = "No migration history"
 
-    current_date = date.today().strftime(date_format)
+    current_date = datetime.today().strftime(date_format)
 
     # Add to context
     csp_stock_list = AbstractCSP.get_stock_names()
@@ -82,17 +82,13 @@ def update_stock_prices(request):
         # Obtain the stock names of all available CSPs
         all_stock_names = AbstractCSP.get_stock_names()
 
-        print(len(all_stock_names))
-        for stock in all_stock_names:
-            print(">>>>>>>>", stock)
-
         # First obtain the data that will populate the graph
         latest_stocks = get_N_last_stock_differences_for(
             all_stock_names, N=int(points), interval=interval)
 
         # Then build the data object which will hold that data
         data = {
-            'labels': [date_to_dict(date) for date in latest_stocks.get('dates')],
+            'labels': [datetime_to_dict(date) for date in latest_stocks.get('dates')],
             'datasets': [],
         }
 
@@ -129,12 +125,12 @@ def update_migration_timeline(request):
             entry = last_migrations[i]
 
             # Now we'll format the migration entries for the chart to accept them
-            entry_date = date_to_dict(entry._date)
+            entry_date = datetime_to_dict(entry._date)
 
             # If we are on the last entry, the 'date_until' variable should be today's date.
             # Meaning that since the last migration, the app is still running on that CSP until this day.
             if i == len(last_migrations) - 1:
-                date_until = date.today()
+                date_until = datetime.today()
             else:
                 # until the next migration (i.e. next entry).
                 date_until = last_migrations[i + 1]._date
@@ -143,7 +139,7 @@ def update_migration_timeline(request):
             structured_entry = [
                 entry._to,
                 entry_date,
-                date_to_dict(date_until)
+                datetime_to_dict(date_until)
             ]
 
             data.get('migrations', []).append(structured_entry)
