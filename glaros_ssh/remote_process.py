@@ -33,6 +33,7 @@ def remote_cmd(ip_address, username, cmd):
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd)
         # true if the command returns an error
         read_error = ssh_stderr.readlines()
+        ssh.close()
         if len(read_error) > 5:
             raise RemoteProcessError(read_error)
 
@@ -69,5 +70,5 @@ def remote_remove(ip_address, username, remote_filepath):
     # -f to delete automatically without human confirmation
     # this could be dangerous if we accidently delete important files but
     # everything should be backed up
-    cmd = 'rm -r ' + remote_filepath
+    cmd = 'sudo rm -r ' + remote_filepath
     return remote_cmd(ip_address, username, cmd)

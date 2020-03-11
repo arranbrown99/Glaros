@@ -13,7 +13,7 @@ if [ "$1" != "" ]; then
 	    # does not output to screen but persists after session ends
 	    # append it onto a seperate file that is not transferred
         # and also redirects errors to that output
-	    sudo -E nohup python3 Driver.py $1 >> ../driver.out 2>&1 &
+	    sudo -E nohup python3 Driver.py $1 $2 >> ../driver.out 2>&1 &
         cd dashboard
         sudo -E nohup ./deploy_web.sh $1 >> ../deploy_web.out 2>&1 &
     fi
