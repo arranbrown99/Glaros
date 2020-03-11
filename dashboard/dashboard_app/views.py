@@ -62,11 +62,11 @@ def index(request):
 
 
 # Helper Method
-def date_to_dict(date):
-    """Takes a datetime.date and returns its dictionary equivalent in the format:
-    {"d": day, "m": month, "y": year}
+def datetime_to_dict(dt):
+    """Takes a datetime.datetime and returns its dictionary equivalent in the format:
+    {"y": year, "m": month, "d": day, "h": hours, "m": minutes, "s": seconds}
     """
-    return {"d": date.day, "m": date.month, "y": date.year}
+    return {"y": dt.year, "m": dt.month, "d": dt.day, "h": dt.hour, "min": dt.minute, "s": dt.second}
 
 
 def update_stock_prices(request):
