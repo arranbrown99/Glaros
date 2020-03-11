@@ -1,65 +1,27 @@
 #!/bin/bash
 
-############
-#  DJANGO  #
-############
-
-echo "Beginning Django configuration..."
-
-python3 manage.py makemigrations --no-input
-python3 manage.py migrate
-python3 manage.py collectstatic --no-input
-
-echo "Django configuration complete"
-
 pwd=$(pwd)
-my_ip=$(curl --silent http://checkip.amazonaws.com)
-domain_ip=$(dig glaros.uk +short)
-
-echo "Machine IP: $my_ip Domain IP: $domain_ip"
-while [ $my_ip != $domain_ip ]
-do
-    echo "Waiting for DNS propagation..."
-    sleep 10
-    domain_ip=$(dig glaros.uk +short)
-    echo "machine IP: $my_ip domain IP: $domain_ip"
-done
-
-echo "Domain propagated, beginning web configuration process..."
-
-echo "Initialising required directory structure..."
-
 [ -d logs ] || mkdir logs
 [ -d run ] || mkdir run
-[ -d nginx ] || mkdir nginx
-
 
 ############
 # GUNICORN #
 ############
 
-echo "Beginning Gunicorn configuration..."
-
 python3 -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('$(pwd)/run/gunicorn.sock')"
 touch logs/gunicorn.log
-if [ $1 == "amzn" ]
-then
-        gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
-else
-        gunicorn3 dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
-fi
+gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
 
-echo "Gunicorn configuration complete"
+#########
+# NGINX #
+#########
 
-###########
-#  NGINX  #
-###########
-
-echo "Beginning NGINX configuration..."
-
+# Install dependencies
+apt-get -y install nginx
 # Set up
 [ -d nginx ] || mkdir nginx
 touch nginx/dashboard.conf
+
 
 # This is done dynamically to accomodate different paths
 cat > nginx/dashboard.conf << EOF
@@ -192,8 +154,3 @@ EOF
 
 # Reloading nginx
 service nginx restart
-
-echo "NGINX configuration complete"
-echo "Successfully deployed"
-
-exit 0

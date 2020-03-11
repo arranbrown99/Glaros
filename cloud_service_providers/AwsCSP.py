@@ -10,15 +10,13 @@ instance_id = "i-02d62ad8d9438ea4e"
 
 
 class AwsCSP(AbstractCSP):
+
     # Static Variables
     ui_colour = 'rgb(255,99,132)'
     formal_name = 'Aws'
-    stock_name = "amzn"
 
     def __init__(self):
-        """
-        Reads from a csv file the credentials used to access the VM
-        """
+        self.stock_name = "amzn"
         credentials = cp.CredentialsParser(os.path.join(AWS_DIR, 'credentials.csv'))
         self.client = boto3.client(
             'ec2',
@@ -79,12 +77,6 @@ class AwsCSP(AbstractCSP):
         return response['InstanceStatuses'][0]['InstanceState']['Name'] == 'running'
 
     def is_stopped(self):
-        """
-
-        Returns
-        -------
-        True if vm is stopped
-        """
         response = self.client.describe_instance_status(InstanceIds=[instance_id], IncludeAllInstances=True)
         return response['InstanceStatuses'][0]['InstanceState']['Name'] == 'stopped'
 
