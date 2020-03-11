@@ -89,10 +89,6 @@ def _update_ip(url, headers, ip):
     try:
         response = requests.put(url, data=payload, headers=headers)
         response.raise_for_status()
-    # except requests.exceptions.RequestException as e:
-    #     raise DNSUpdateError(f"{e}, {response.json()['fields']}")
-    # except requests.exceptions`.HTTPError as e:
-    #     raise DNSUpdateError(f"{e}")
     except Exception as e:
         raise e
 
@@ -118,14 +114,12 @@ def change_ip(passed_ip):
     try:
         ip = ipaddress.IPv4Address(passed_ip)
     except ipaddress.AddressValueError as e:
-        # raise(DNSUpdateError(e))
         raise e
 
     try:
         config = configparser.ConfigParser()
         config.read(__config_file__)
     except Exception as e:
-        # raise(DNSUpdateError( e, f"Could not read configuration file {__config_file__}"))
         raise e
 
     try:
@@ -134,16 +128,12 @@ def change_ip(passed_ip):
         api_key, api_secret = dns['key'], dns['secret']
         domain = dns['domain']
     except Exception as e:
-        # raise(DNSUpdateError(e, f'An error occured attempting to load configuration'))
         raise e
 
     # Construct variables for requests
     headers = {'Authorization': f'sso-key {api_key}:{api_secret}',
                'content-type': 'application/json', 'Accept-Charset': 'UTF-8'}
     url = f'https://api.godaddy.com/v1/domains/{domain}/records/A/@'
-
-    # dns_session = requests.Session()
-    # dns_session.headers.update(headers)
 
     _update_ip(url, headers, ip.exploded)
     curr_dns_ip = _get_ip(url, headers)
@@ -180,6 +170,4 @@ def gen_config():
 
 
 if __name__ == "__main__":
-    # For testing
-    # change_ip('1.1.1.8')
     gen_config()
