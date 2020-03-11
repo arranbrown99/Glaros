@@ -70,3 +70,4 @@ def upload_file(local_path, ip_address, username, remote_path='', recursive=Fals
         raise SCPException(e)
     finally:
         scp.close()
+        ssh.close()
