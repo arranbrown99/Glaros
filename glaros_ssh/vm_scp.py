@@ -1,10 +1,9 @@
-import paramiko
 from paramiko import SSHConfig, SSHClient, AutoAddPolicy, ssh_exception, RSAKey
 from scp import SCPClient, SCPException
 import os.path
 
 
-def get_key_for_host(host,index):
+def get_key_for_host(host):
     '''returns the path that is the private key for a given host by looking at ~/.ssh/config
     important this only works if there is 1 private key in the config file for a given host'''
     ssh_config = SSHConfig()
@@ -14,7 +13,7 @@ def get_key_for_host(host,index):
             ssh_config.parse(f)
     user_config = ssh_config.lookup(host)
     if 'identityfile' in user_config:
-        path = os.path.expanduser(user_config['identityfile'][index])
+        path = os.path.expanduser(user_config['identityfile'][0])
         if not os.path.exists(path):
             raise Exception(
                 "Specified IdentityFile " + path + " for " + host + " in ~/.ssh/config not existing anymore.")
@@ -24,21 +23,17 @@ def get_key_for_host(host,index):
 
 def connection(ip_address, username):
     # try to establish connection to remote virtual machine
-    ssh = SSHClient()
-    ssh.load_system_host_keys()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
-        #loop over all of the private keys in config and see if we can connect with any of them
-    num_lines = sum(1 for line in open(os.path.expanduser("~/.ssh/config")))
-    for index in range(0,num_lines):
-        key = get_key_for_host(ip_address,index)
+    try:
+        ssh = SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(AutoAddPolicy())
+        key = get_key_for_host(ip_address)
         ki = RSAKey.from_private_key_file(key)
-        try:
-            ssh.connect(ip_address, username=username,pkey=ki,banner_timeout=6000000)
-            return ssh
-        except:
-            continue
-    raise SCPException("No valid private key in ~/.ssh/config")
-    
+        ssh.connect(ip_address, username=username, pkey=ki)
+        return ssh
+    except:
+        pass
+
 
 def progress4(filename, size, sent, peername):
     print("(%s:%s) %s\'s progress: %.2f%%   \r" % (peername[0], peername[1], filename, float(sent) / float(size) * 100))
@@ -70,4 +65,3 @@ def upload_file(local_path, ip_address, username, remote_path='', recursive=Fals
         raise SCPException(e)
     finally:
         scp.close()
-        ssh.close()
