@@ -243,7 +243,7 @@ def database_entry(currently_on, moving_to):
         cursor = connection.cursor()
         insert_query = """ INSERT INTO dashboard_app_migrationentry (_from,_to,_date) VALUES ('%s', '%s', '%s')""" \
                        % (currently_on.get_formal_name(), moving_to.get_formal_name(),
-                          now.strftime("%Y-%m-%d"))
+                          now.strftime("%Y-%m-%d, %H:%M:%S"))
         cursor.execute(insert_query)
         connection.commit()
         cursor.close()
