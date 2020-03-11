@@ -7,7 +7,7 @@
 <div align="center">
 <p align="center">
   <a href="">
-    <img src="https://i.imgur.com/Q23c2CU.png" alt="Logo" width="300" height="234">
+    <img src="https://i.imgur.com/Nk9D55F.png" alt="Logo" width="300" height="234">
   </a>
 
   <h3 align="center">GLAROS</h3>
