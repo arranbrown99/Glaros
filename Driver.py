@@ -51,7 +51,7 @@ from dashboard.settings import GENERAL_INFO_FILE
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
-# Files not to be uploaded to receiving VMs
+# Files not to be uploaded to receiving VMs ie the blacklist
 exclude_files = ['.git', 'gunicorn.sock', 'admin', '__pycache__']
 
 
