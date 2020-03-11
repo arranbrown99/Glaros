@@ -165,5 +165,5 @@ def get_N_last_stock_differences_for(stock_names, N=10, interval='1d'):
                 raise Exception("The returned dates from each Cloud Service Provider don't match.")
 
     # Convert Pandas.Timestamp to datetime.date objects because they are Serializable by JavaScript
-    output['dates'] = [timestamp.date() for timestamp in current_date_list]
+    output['dates'] = [timestamp.to_pydatetime() for timestamp in current_date_list]
     return output

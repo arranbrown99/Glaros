@@ -39,7 +39,7 @@ $(document).ready(function () {
  * @returns {Date}
  */
 function json_to_date(date) {
-    return new Date(Date.UTC(date.y, date.m - 1, date.d))
+    return new Date(Date.UTC(date.y, date.m - 1, date.d, date.h, date.min, date.s))
 }
 
 /**

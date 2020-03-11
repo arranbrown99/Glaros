@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
-from datetime import date
+from datetime import datetime
 from django.core.paginator import Paginator
 from .models import MigrationEntry
 
@@ -15,6 +15,9 @@ from cloud_service_providers.GoogleCSP import GoogleCSP
 
 # file that stores the general information of the app provided by the Driver
 from dashboard.settings import GENERAL_INFO_FILE
+
+
+date_format = "%Y-%m-%d, %H:%M"
 
 
 def index(request):
@@ -58,13 +61,12 @@ def index(request):
         "GLAROS_CURRENTLY_ON_COLOUR", 'rgb(255,0,0)')
 
     # Get Dates
-    date_format = "%d/%m/%Y"
     try:
         last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
     except AttributeError:
         last_migration = "No migration history"
 
-    current_date = date.today().strftime(date_format)
+    current_date = datetime.today().strftime(date_format)
 
     # Add to context
     csp_stock_list = AbstractCSP.get_stock_names()
@@ -82,10 +84,10 @@ def index(request):
 
 
 # Helper Method
-def date_to_dict(date):
-    """
-    Takes a datetime.date and returns its dictionary equivalent in the format:
-    {"d": day, "m": month, "y": year}
+def datetime_to_dict(dt):
+    """Takes a datetime.datetime and returns its dictionary equivalent in the format:
+    {"y": year, "m": month, "d": day, "h": hours, "m": minutes, "s": seconds}
+
 
     Needed for keeping consistency across timezones. Also, keeps
     consistency between the client side and server side
@@ -104,7 +106,7 @@ def date_to_dict(date):
     date : dict
         the date has this format: {"d": day, "m": month, "y": year}
     """
-    return {"d": date.day, "m": date.month, "y": date.year}
+    return {"y": dt.year, "m": dt.month, "d": dt.day, "h": dt.hour, "min": dt.minute, "s": dt.second}
 
 
 def update_stock_prices(request):
@@ -141,17 +143,13 @@ def update_stock_prices(request):
         # Obtain the stock names of all available CSPs
         all_stock_names = AbstractCSP.get_stock_names()
 
-        print(len(all_stock_names))
-        for stock in all_stock_names:
-            print(">>>>>>>>", stock)
-
         # First obtain the data that will populate the graph
         latest_stocks = get_N_last_stock_differences_for(
             all_stock_names, N=int(points), interval=interval)
 
         # Then build the data object which will hold that data
         data = {
-            'labels': [date_to_dict(date) for date in latest_stocks.get('dates')],
+            'labels': [datetime_to_dict(date) for date in latest_stocks.get('dates')],
             'datasets': [],
         }
 
@@ -210,12 +208,12 @@ def update_migration_timeline(request):
             entry = last_migrations[i]
 
             # Now we'll format the migration entries for the chart to accept them
-            entry_date = date_to_dict(entry._date)
+            entry_date = datetime_to_dict(entry._date)
 
             # If we are on the last entry, the 'date_until' variable should be today's date.
             # Meaning that since the last migration, the app is still running on that CSP until this day.
             if i == len(last_migrations) - 1:
-                date_until = date.today()
+                date_until = datetime.today()
             else:
                 # until the next migration (i.e. next entry).
                 date_until = last_migrations[i + 1]._date
@@ -224,7 +222,7 @@ def update_migration_timeline(request):
             structured_entry = [
                 entry._to,
                 entry_date,
-                date_to_dict(date_until)
+                datetime_to_dict(date_until)
             ]
 
             data.get('migrations', []).append(structured_entry)
@@ -292,7 +290,7 @@ def update_migration_table(request):
             formatted_migrations.append(
                 {
                     "id": m.id,
-                    "date": m._date,
+                    "date": m._date.strftime(date_format),
                     "from": m._from,
                     "to": m._to,
                 }

@@ -1,14 +1,17 @@
-from dashboard_app.models import MigrationEntry
-import django
 import os
+import django
 from datetime import date
 from collections import namedtuple
+import datetime
+import sqlite3
+import random
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 
-
 django.setup()
 
+from dashboard_app.models import MigrationEntry
 
 ME = namedtuple('MigrationEntry', 'Date From To')
 
@@ -24,141 +27,18 @@ ME = namedtuple('MigrationEntry', 'Date From To')
 # ['Azure', new Date(2015, 10, 29), new Date(2015, 10, 30)],
 # ['AWS', new Date(2015, 10, 30), new Date(2015, 11, 6)],
 
-dummy_entries = [
-    ME(date(2017, 1, 3), 'AZURE', 'GCP'),
-    ME(date(2017, 1, 4), 'GCP', 'AWS'),
-    ME(date(2017, 1, 5), 'AWS', 'GCP'),
-    ME(date(2017, 1, 6), 'GCP', 'AZURE'),
-    ME(date(2017, 1, 7), 'AZURE', 'AWS'),
-    ME(date(2017, 1, 9), 'AWS', 'GCP'),
-    ME(date(2017, 1, 10), 'GCP', 'AZURE'),
-    ME(date(2017, 1, 11), 'AZURE', 'AWS'),
-    ME(date(2017, 11, 12), 'AWS', 'AZURE'),
-    ME(date(2017, 11, 13), 'AZURE', 'GCP'),
-    ME(date(2017, 11, 14), 'GCP', 'AWS'),
-    ME(date(2017, 11, 15), 'AWS', 'GCP'),
-    ME(date(2017, 11, 16), 'GCP', 'AZURE'),
-    ME(date(2017, 11, 17), 'AZURE', 'AWS'),
-    ME(date(2017, 11, 19), 'AWS', 'GCP'),
-    ME(date(2017, 11, 20), 'GCP', 'AZURE'),
-    ME(date(2017, 11, 21), 'AZURE', 'AWS'),
-    ME(date(2017, 11, 22), 'AWS', 'AZURE'),
-    ME(date(2017, 11, 23), 'AZURE', 'GCP'),
-    ME(date(2017, 11, 24), 'GCP', 'AWS'),
-    ME(date(2017, 11, 25), 'AWS', 'GCP'),
-    ME(date(2017, 11, 26), 'GCP', 'AZURE'),
-    ME(date(2017, 11, 27), 'AZURE', 'AWS'),
-    ME(date(2017, 11, 29), 'AWS', 'GCP'),
-    ME(date(2017, 11, 30), 'GCP', 'AZURE'),
-    ME(date(2017, 12, 1), 'AZURE', 'AWS'),
-    ME(date(2017, 12, 2), 'AWS', 'AZURE'),
-    ME(date(2017, 12, 3), 'AZURE', 'GCP'),
-    ME(date(2017, 12, 4), 'GCP', 'AWS'),
-    ME(date(2017, 12, 5), 'AWS', 'GCP'),
-    ME(date(2017, 12, 6), 'GCP', 'AZURE'),
-    ME(date(2017, 12, 7), 'AZURE', 'AWS'),
-    ME(date(2017, 12, 9), 'AWS', 'GCP'),
-    ME(date(2017, 12, 20), 'GCP', 'AZURE'),
-    ME(date(2017, 12, 21), 'AZURE', 'AWS'),
-    ME(date(2018, 1, 2), 'AWS', 'AZURE'),
-    ME(date(2018, 1, 3), 'AZURE', 'GCP'),
-    ME(date(2018, 1, 4), 'GCP', 'AWS'),
-    ME(date(2018, 1, 5), 'AWS', 'GCP'),
-    ME(date(2018, 1, 6), 'GCP', 'AZURE'),
-    ME(date(2018, 1, 7), 'AZURE', 'AWS'),
-    ME(date(2018, 1, 9), 'AWS', 'GCP'),
-    ME(date(2018, 1, 10), 'GCP', 'AZURE'),
-    ME(date(2018, 1, 11), 'AZURE', 'AWS'),
-    ME(date(2018, 1, 12), 'AWS', 'AZURE'),
-    ME(date(2018, 1, 13), 'AZURE', 'GCP'),
-    ME(date(2018, 1, 14), 'GCP', 'AWS'),
-    ME(date(2018, 1, 15), 'AWS', 'GCP'),
-    ME(date(2018, 1, 16), 'GCP', 'AZURE'),
-    ME(date(2018, 1, 17), 'AZURE', 'AWS'),
-    ME(date(2018, 1, 19), 'AWS', 'GCP'),
-    ME(date(2018, 1, 20), 'GCP', 'AZURE'),
-    ME(date(2018, 1, 21), 'AZURE', 'AWS'),
-    ME(date(2018, 1, 22), 'AWS', 'AZURE'),
-    ME(date(2018, 1, 23), 'AZURE', 'GCP'),
-    ME(date(2018, 1, 24), 'GCP', 'AWS'),
-    ME(date(2018, 1, 25), 'AWS', 'GCP'),
-    ME(date(2018, 1, 26), 'GCP', 'AZURE'),
-    ME(date(2018, 1, 27), 'AZURE', 'AWS'),
-    ME(date(2018, 1, 29), 'AWS', 'GCP'),
-    ME(date(2018, 1, 30), 'GCP', 'AZURE'),
-    ME(date(2018, 2, 1), 'AZURE', 'AWS'),
-    ME(date(2018, 2, 2), 'AWS', 'AZURE'),
-    ME(date(2019, 1, 3), 'AZURE', 'GCP'),
-    ME(date(2019, 1, 4), 'GCP', 'AWS'),
-    ME(date(2019, 1, 5), 'AWS', 'GCP'),
-    ME(date(2019, 1, 6), 'GCP', 'AZURE'),
-    ME(date(2019, 1, 7), 'AZURE', 'AWS'),
-    ME(date(2019, 1, 9), 'AWS', 'GCP'),
-    ME(date(2019, 1, 10), 'GCP', 'AZURE'),
-    ME(date(2019, 1, 11), 'AZURE', 'AWS'),
-    ME(date(2019, 11, 12), 'AWS', 'AZURE'),
-    ME(date(2019, 11, 13), 'AZURE', 'GCP'),
-    ME(date(2019, 11, 14), 'GCP', 'AWS'),
-    ME(date(2019, 11, 15), 'AWS', 'GCP'),
-    ME(date(2019, 11, 16), 'GCP', 'AZURE'),
-    ME(date(2019, 11, 17), 'AZURE', 'AWS'),
-    ME(date(2019, 11, 19), 'AWS', 'GCP'),
-    ME(date(2019, 11, 20), 'GCP', 'AZURE'),
-    ME(date(2019, 11, 21), 'AZURE', 'AWS'),
-    ME(date(2019, 11, 22), 'AWS', 'AZURE'),
-    ME(date(2019, 11, 23), 'AZURE', 'GCP'),
-    ME(date(2019, 11, 24), 'GCP', 'AWS'),
-    ME(date(2019, 11, 25), 'AWS', 'GCP'),
-    ME(date(2019, 11, 26), 'GCP', 'AZURE'),
-    ME(date(2019, 11, 27), 'AZURE', 'AWS'),
-    ME(date(2019, 11, 29), 'AWS', 'GCP'),
-    ME(date(2019, 11, 30), 'GCP', 'AZURE'),
-    ME(date(2019, 12, 1), 'AZURE', 'AWS'),
-    ME(date(2019, 12, 2), 'AWS', 'AZURE'),
-    ME(date(2019, 12, 3), 'AZURE', 'GCP'),
-    ME(date(2019, 12, 4), 'GCP', 'AWS'),
-    ME(date(2019, 12, 5), 'AWS', 'GCP'),
-    ME(date(2019, 12, 6), 'GCP', 'AZURE'),
-    ME(date(2019, 12, 7), 'AZURE', 'AWS'),
-    ME(date(2019, 12, 9), 'AWS', 'GCP'),
-    ME(date(2019, 12, 20), 'GCP', 'AZURE'),
-    ME(date(2019, 12, 21), 'AZURE', 'AWS'),
-    ME(date(2020, 1, 2), 'AWS', 'AZURE'),
-    ME(date(2020, 1, 3), 'AZURE', 'GCP'),
-    ME(date(2020, 1, 4), 'GCP', 'AWS'),
-    ME(date(2020, 1, 5), 'AWS', 'GCP'),
-    ME(date(2020, 1, 6), 'GCP', 'AZURE'),
-    ME(date(2020, 1, 7), 'AZURE', 'AWS'),
-    ME(date(2020, 1, 9), 'AWS', 'GCP'),
-    ME(date(2020, 1, 10), 'GCP', 'AZURE'),
-    ME(date(2020, 1, 11), 'AZURE', 'AWS'),
-    ME(date(2020, 1, 12), 'AWS', 'AZURE'),
-    ME(date(2020, 1, 13), 'AZURE', 'GCP'),
-    ME(date(2020, 1, 14), 'GCP', 'AWS'),
-    ME(date(2020, 1, 15), 'AWS', 'GCP'),
-    ME(date(2020, 1, 16), 'GCP', 'AZURE'),
-    ME(date(2020, 1, 17), 'AZURE', 'AWS'),
-    ME(date(2020, 1, 19), 'AWS', 'GCP'),
-    ME(date(2020, 1, 20), 'GCP', 'AZURE'),
-    ME(date(2020, 1, 21), 'AZURE', 'AWS'),
-    ME(date(2020, 1, 22), 'AWS', 'AZURE'),
-    ME(date(2020, 1, 23), 'AZURE', 'GCP'),
-    ME(date(2020, 1, 24), 'GCP', 'AWS'),
-    ME(date(2020, 1, 25), 'AWS', 'GCP'),
-    ME(date(2020, 1, 26), 'GCP', 'AZURE'),
-    ME(date(2020, 1, 27), 'AZURE', 'AWS'),
-    ME(date(2020, 1, 29), 'AWS', 'GCP'),
-    ME(date(2020, 1, 30), 'GCP', 'AZURE'),
-    ME(date(2020, 2, 1), 'AZURE', 'AWS'),
-    ME(date(2020, 2, 2), 'AWS', 'AZURE'),
-]
-
 
 def populate():
-    for entry in dummy_entries:
-        # d, f, t = entry
-        print(entry)
-        add_migration_entry(_date=entry.Date, _from=entry.From, _to=entry.To)
+    csps = [
+        ('Aws', 'Azure'),
+        ('Azure', 'Google'),
+        ('Google', 'Aws'),
+    ]
+    for i in range(20):
+        hours_offset = i * 10
+        cps_pair = csps[i % 3]
+
+        database_entry(cps_pair[0], cps_pair[1], hours_offset)
 
     print("all!")
     print(MigrationEntry.objects.all())
@@ -172,6 +52,40 @@ def add_migration_entry(_date, _from, _to):
     me._date = _date
     me.save()
     return me
+
+
+def database_entry(currently_on, moving_to, hours_offset):
+    """
+
+    Update information about time and location of migration for front end
+
+    Parameters
+    ----------
+    moving_to: the CSP we are moving to
+    currently_on : the CSP we are currently on
+    """
+    # Log migration to database
+    connection = None
+    try:
+        now = datetime.datetime.now()\
+              - datetime.timedelta(hours=21*10)\
+              + datetime.timedelta(hours=hours_offset, minutes=random.randint(1, 59))
+        connection = sqlite3.connect('./db.sqlite3')
+        print("The sqlite3 connection is established.")
+        cursor = connection.cursor()
+        insert_query = """ INSERT INTO dashboard_app_migrationentry (_from,_to,_date) VALUES ('%s', '%s', '%s')""" \
+                       % (currently_on, moving_to,
+                          now)
+        cursor.execute(insert_query)
+        connection.commit()
+        cursor.close()
+
+    except sqlite3.Error as e:
+        raise e
+    finally:
+        if connection:
+            connection.close()
+            print("The sqlite3 connection is now closed.")
 
 
 # Start execution here!
