@@ -95,6 +95,28 @@ git clone https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main.git
 
 7. Environment variables
 
+    AWS_DIR="~/.aws/"
+    
+    AZURE_LOCATION=[location of Azure VM]
+    
+    AZURE_GROUP_NAME=[Resourse Group name for Azure]
+    
+    AZURE_VM_NAME=[Azure VM name]
+    
+    AZURE_USERNAME=[Username going to be ssh into on Azure VM]
+    
+    CLOUDSDK_PYTHON="/usr/bin/python"
+    
+    GOOGLE_PROJECT=[Name of Google Project]
+    
+    GOOGLE_ZONE=[location of Azure VM]
+    
+    GOOGLE_VM_NAME=[Google VM name]
+    
+    GOOGLE_USERNAME=[Username going to be ssh into on Google VM]
+    
+    GOOGLE_APPLICATION_CREDENTIALS="~/google-credentials.json"
+
 8. Install gunicorn3 and nginx for the web server
 
 <!-- USAGE EXAMPLES -->
