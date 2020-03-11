@@ -87,7 +87,7 @@ git clone https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main.git
 3. 6 Ssh keys
 
 
-4. Install Azure CLI on all virtual machines
+4. [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest) on all virtual machines
 
 5. Set up ~/.aws/ using the csv file downloaded while setting up a AWS instance in the file credentials.csv
 
