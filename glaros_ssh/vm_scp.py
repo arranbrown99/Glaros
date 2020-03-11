@@ -33,7 +33,7 @@ def connection(ip_address, username):
         key = get_key_for_host(ip_address,index)
         ki = RSAKey.from_private_key_file(key)
         try:
-            ssh.connect(ip_address, username=username,pkey=ki)
+            ssh.connect(ip_address, username=username,pkey=ki,banner_timeout=6000000)
             return ssh
         except:
             continue

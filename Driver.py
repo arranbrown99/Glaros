@@ -52,7 +52,7 @@ from dashboard.settings import GENERAL_INFO_FILE
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
 # Files not to be uploaded to receiving VMs
-exclude_files = ['.git', 'gunicorn.sock','admin']
+exclude_files = ['.git', 'gunicorn.sock', 'admin', '__pycache__']
 
 
 class Error(Exception):
@@ -76,6 +76,13 @@ class MigrationError(Error):
 
 
 def event_loop(currently_on):
+    """
+    Periodically check the stock prices and decide what CSP to move to.
+
+    Parameters
+    ----------
+    currently_on: the CSP object that is the current vm being ran on passed in through command line arguments
+    """
     current = currently_on.get_stock_name()
 
     # Logic to decide when to move
@@ -104,6 +111,14 @@ def event_loop(currently_on):
 
 
 def write_log_before(sender, target):
+    """
+    Write to a log file the time we start moving
+
+    Parameters
+    ----------
+    sender: the CSP we are moving to
+    target : the CSP we are currently on
+    """
     with open('migrations.log', 'a') as migrations_log:
         migrations_log.write(str(datetime.now().strftime(
             "%d/%m/%Y %H:%M:%S")) + " Starting migration from %s to %s...\n" %
@@ -112,14 +127,28 @@ def write_log_before(sender, target):
 
 # Write to logfile once migration finishes
 def write_log_after(sender, target):
+    """
+        Write to a log file the time we finish moving meaning we can see how long a migration takes
+
+    Parameters
+    ----------
+    sender: the CSP we are moving to
+    target : the CSP we are currently on
+    """
     with open('migrations.log', 'a') as migrations_log:
         migrations_log.write(str(datetime.now().strftime("%d/%m/%Y %H:%M:%S")) +
                              " Finished migration from %s to %s.\n" % (
                                  sender.get_formal_name(), target.get_formal_name()))
 
 
-# boot VM on another CSP / abstracted from migrate()
 def boot_vm(moving_to):
+    """
+    start remote vm
+
+    Parameters
+    ----------
+    moving_to: the CSP we are moving to
+    """
     if moving_to.is_running() is False:
         print("Turning on " + moving_to.get_stock_name() + " vm.")
         moving_to.start_vm()
@@ -127,19 +156,41 @@ def boot_vm(moving_to):
     time.sleep(30)
 
 
-# run Driver.py on VM / abstracted from migrate()
 def run_booted_vm(moving_to, currently_on):
+    """
+    start runglaros on the remote machine, start the new driver
+
+    Parameters
+    ----------
+    moving_to: the CSP we are moving to
+    currently_on : the CSP we are currently on
+    """
     try:
         remote_process.remote_python(
             moving_to.get_ip(),
             moving_to.get_username(),
             "runglaros " +
-            currently_on.get_stock_name() + " " + moving_to.get_stock_name())
+            moving_to.get_stock_name() + " " + currently_on.get_stock_name())
     except Exception as e:
         raise MigrationError(e)
 
 
 def migrate(stock_name, currently_on):
+    """
+    Logs where we are and where we are going
+    Starts remote vm
+    Sends
+
+    Parameters
+    ----------
+    stock_name : stock name of the CSP we are going to move to
+    currently_on : the CSP we are currently on
+
+
+    Returns
+    -------
+    when the migration ends at which point the new driver on the remote vm will take over
+    """
     retry_counter = 20
     while retry_counter > 0:
         try:
@@ -174,6 +225,15 @@ def migrate(stock_name, currently_on):
 
 
 def database_entry(currently_on, moving_to):
+    """
+
+    Update information about time and location of migration for front end
+
+    Parameters
+    ----------
+    moving_to: the CSP we are moving to
+    currently_on : the CSP we are currently on
+    """
     # Log migration to database
     connection = None
     try:
@@ -197,6 +257,17 @@ def database_entry(currently_on, moving_to):
 
 
 def after_migration(sender, currently_on):
+    """
+    Ran on the new driver
+    Deletes files from sender then
+    Stops senders vm
+    then updates log
+
+    Parameters
+    ----------
+    sender : the CSP that we started on
+    currently_on : the CSP we are now on
+    """
     # delete old driver on now remote vm
     parent_dir_path = os.path.abspath('.')
     parent_dir = os.path.basename(parent_dir_path)
@@ -216,6 +287,16 @@ def after_migration(sender, currently_on):
 
 
 def update_general_info(file, currently_on, status):
+    """
+
+    Updates the status of the project ie Running or Migrating and current ip
+
+    Parameters
+    ----------
+    file : the file that is the status of the project
+    currently_on : CSP we are currently on
+    status : ie Running or Migrating
+    """
     data = {"GLAROS_CURRENTLY_ON": currently_on.formal_name,
             "GLAROS_CURRENT_STATUS": status,
             "GLAROS_CURRENT_IP": currently_on.get_ip(),
@@ -226,6 +307,13 @@ def update_general_info(file, currently_on, status):
 
 
 def ignore(moving_to):
+    """
+    Sends files to remote vm if said file is not in the blacklist
+
+    Parameters
+    ----------
+    moving_to : CSP we are going to move to
+    """
     parent_dir = os.path.abspath('.')
     remote_filepath = os.path.basename(parent_dir)
     try:
@@ -235,9 +323,17 @@ def ignore(moving_to):
 
 
 def ignore_helper(parent_dir, moving_to, remote_filepath):
-    # helper function for ignore
-    # guarantees the folder exists on the remote vm, as scp does not create
-    # this directory
+    """
+    helper function for ignore
+    guarantees the folder exists on the remote vm, as scp does not create
+    this directory
+
+    Parameters
+    ----------
+    parent_dir : the parent directory of the current file
+    moving_to : CSP we are moving to
+    remote_filepath : the filepath the file will be sent to
+    """
     remote_process.remote_mkdir(
         moving_to.get_ip(),
         moving_to.get_username(),
@@ -246,9 +342,9 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     try:
         for _file in files_to_upload:
             print("Uploading -> " + _file)
-            path_to_file = os.path.join(parent_dir,_file)
+            path_to_file = os.path.join(parent_dir, _file)
             if os.path.isdir(path_to_file):
-                ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath,_file))
+                ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath, _file))
             else:
                 vm_scp.upload_file(path_to_file,
                                    moving_to.get_ip(),
@@ -260,15 +356,19 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
 
 
 def main():
-    # First we need to identify on which CSP this Driver was created from
+    """
+    First we need to identify on which CSP this Driver was created from
+    Achieved through command line arguments
+
+    """
     try:
 
         if len(sys.argv) == 2:
             currently_on = AbstractCSP.get_csp(sys.argv[1])
-
         elif len(sys.argv) == 3:
-            came_from = AbstractCSP.get_csp(sys.argv[1])
-            currently_on = AbstractCSP.get_csp(sys.argv[2])
+            currently_on = AbstractCSP.get_csp(sys.argv[1])
+            came_from = AbstractCSP.get_csp(sys.argv[2])
+
             update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
             after_migration(came_from, currently_on)
         else:
@@ -279,7 +379,6 @@ def main():
 
     # Update the General Information file
     update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-    database_entry(currently_on,currently_on)
     print("Currently on " + currently_on.get_stock_name())
     print()
     # update dns
