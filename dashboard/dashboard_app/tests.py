@@ -209,7 +209,9 @@ class TestMigrationTimeline(TestCase):
 
     def test_ajax_for_migration_timeline_entries(self):
         """Checks that the ajax call returns data to populate the timeline"""
-        pass
+        response = self.client.get(reverse('ajax_update_migration_timeline'))
+        # Assert that ajax call does not return with error code
+        self.assertEqual(response.status_code,200)
 
 
 @skip_test
@@ -224,5 +226,6 @@ class TestMigrationHistoryTable(TestCase):
 
     def test_ajax_for_migration_table_responds(self):
         """Basic with setup"""
-        pass
-
+        response = self.client.get(reverse('ajax_update_migration_table'))
+        # Assert that ajax call does not return with error code
+        self.assertEqual(response.status_code,200)
