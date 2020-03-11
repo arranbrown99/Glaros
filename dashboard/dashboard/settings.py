@@ -50,7 +50,6 @@ try:
     dns = config['dns']
     domain = dns['domain']
 except Exception as e:
-    # raise(DNSUpdateError(e, f'An error occured attempting to load configuration'))
     raise e
 
 ALLOWED_HOSTS = [domain]

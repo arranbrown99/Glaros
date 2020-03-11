@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 ############
 #  DJANGO  #
 ############
@@ -14,14 +15,14 @@ echo "Django configuration complete"
 
 pwd=$(pwd)
 my_ip=$(curl --silent http://checkip.amazonaws.com)
-domain_ip=$(dig glaros.uk +short)
+domain_ip=$(dig $domain +short)
 
 echo "Machine IP: $my_ip Domain IP: $domain_ip"
 while [ $my_ip != $domain_ip ]
 do
     echo "Waiting for DNS propagation..."
     sleep 10
-    domain_ip=$(dig glaros.uk +short)
+    domain_ip=$(dig $domain +short)
     echo "machine IP: $my_ip domain IP: $domain_ip"
 done
 
@@ -60,6 +61,8 @@ echo "Beginning NGINX configuration..."
 # Set up
 [ -d nginx ] || mkdir nginx
 touch nginx/dashboard.conf
+# Initialising domain var
+domain=$(awk '/^domain/{print $3}' config.ini)
 
 # This is done dynamically to accomodate different paths
 cat > nginx/dashboard.conf << EOF
@@ -68,7 +71,7 @@ upstream dashboard_gunicorn {
 }
 server {
     listen 80;
-    server_name glaros.uk;
+    server_name $domain;
     client_max_body_size 5M;
     keepalive_timeout 5;
     underscores_in_headers on;
