@@ -85,19 +85,26 @@ git clone https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main.git
 2. Set network firewall rules to accept web and ssh traffic on all virtual machines
 
 3. 6 Ssh keys
-Environment variables
-Install Azure CLI on all virtual machines
-~/.aws/
-Install cloud sdk (google) and auth it
 
+
+4. Install Azure CLI on all virtual machines
+
+5. Set up ~/.aws/ using the csv file downloaded while setting up a AWS instance in the file credentials.csv
+
+6. [Install cloud sdk (google)](https://cloud.google.com/sdk/docs/downloads-apt-get) and [auth it](https://cloud.google.com/docs/authentication/getting-started)
+
+7. Environment variables
+
+8. Install gunicorn3 and nginx for the web server
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 If correctly configured, the app is truly autonomous and will require no administration. On your first instance in the project root, simply
 ```sh
-./runglaros
+./runglaros stock_name
 ```
+Where stock_name is the stock name of the CSP that you are currently on ie amzn for amazon
 
 
 
