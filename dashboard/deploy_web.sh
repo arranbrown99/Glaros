@@ -1,5 +1,17 @@
 #!/bin/bash
 
+############
+#  DJANGO  #
+############
+
+echo "Beginning Django configuration..."
+
+python3 manage.py makemigrations --no-input
+python3 manage.py migrate
+python3 manage.py collectstatic --no-input
+
+echo "Django configuration complete"
+
 pwd=$(pwd)
 my_ip=$(curl --silent http://checkip.amazonaws.com)
 domain_ip=$(dig glaros.uk +short)
@@ -21,17 +33,6 @@ echo "Initialising required directory structure..."
 [ -d run ] || mkdir run
 [ -d nginx ] || mkdir nginx
 
-############
-#  DJANGO  #
-############
-
-echo "Beginning Django configuration..."
-
-python3 manage.py makemigrations --no-input
-python3 manage.py migrate
-python3 manage.py collectstatic --no-input --clear
-
-echo "Django configuration complete"
 
 ############
 # GUNICORN #
@@ -41,7 +42,12 @@ echo "Beginning Gunicorn configuration..."
 
 python3 -c "import socket as s; sock = s.socket(s.AF_UNIX); sock.bind('$(pwd)/run/gunicorn.sock')"
 touch logs/gunicorn.log
-gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
+if [ $1 == "amzn" ]
+then
+        gunicorn dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
+else
+        gunicorn3 dashboard.wsgi:application --workers 3 --bind=unix:$(pwd)/run/gunicorn.sock --log-file logs/gunicorn.log &
+fi
 
 echo "Gunicorn configuration complete"
 

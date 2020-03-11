@@ -5,26 +5,27 @@ import json
 from cloud_service_providers.AbstractCSP import AbstractCSP
 import os
 
+"""
+uses subprocesses to call the azure cli
 
-# uses subprocesses to call the azure cli
+install this first on ubuntu
 
-# install this first on ubuntu
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-# curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+on centOS ie amazon use these commands
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+sudo sh -c 'echo -e "[azure-cli] name=Azure CLI baseurl=https://packages.microsoft.com/yumrepos/azure-cli
+ enabled=1 gpgcheck=1 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
+sudo yum install azure-cli
 
-# on centOS ie amazon use these commands
-# sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-# sudo sh -c 'echo -e "[azure-cli] name=Azure CLI baseurl=https://packages.microsoft.com/yumrepos/azure-cli
-#  enabled=1 gpgcheck=1 gpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/azure-cli.repo'
-# sudo yum install azure-cli
+then must first be logged in on command line use
+az login
+or run the login function in this script
+this login stays for 3 months
+"""
 
-# then must first be logged in on command line use
-# az login
-# or run the login function in this script
-# this login stays for 3 months
 
 class AzureCSP(AbstractCSP):
-
     # Static Variables
     ui_colour = 'rgb(54,162,235)'
     formal_name = 'Azure'
@@ -79,17 +80,42 @@ class AzureCSP(AbstractCSP):
 
     @staticmethod
     def execute_commands(commands):
+        """
+
+        Parameters
+        ----------
+        commands : takes in a command that is a list of the command separated by spaces
+
+        Returns
+        -------
+        the output of the command
+        """
         return call(commands)
 
     def login(self):
-        # this logs in for 3 months
+        """
+        Logs in to Azure will take you to microsoft website
+        Note this logs in for 3 months
+        Returns
+        -------
+        the output of the command
+        """
         return self.execute_commands(["az", "login"])
 
     def logout(self):
+        """
+        Logs out of Azure will take you to microsoft website
+        Returns
+        -------
+        the output of the command
+        """
         return self.execute_commands(["az", "logout"])
 
 
 def main():
+    """
+    For testing and debugging purposes starts a VM and prints its IP address
+    """
     azure_vm = AzureCSP()
 
     if not azure_vm.is_running():

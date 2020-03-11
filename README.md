@@ -7,7 +7,7 @@
 <div align="center">
 <p align="center">
   <a href="">
-    <img src="https://i.imgur.com/Q23c2CU.png" alt="Logo" width="300" height="234">
+    <img src="https://i.imgur.com/Nk9D55F.png" alt="Logo" width="300" height="234">
   </a>
 
   <h3 align="center">GLAROS</h3>
@@ -85,19 +85,48 @@ git clone https://stgit.dcs.gla.ac.uk/tp3-2019-cs27/cs27-main.git
 2. Set network firewall rules to accept web and ssh traffic on all virtual machines
 
 3. 6 Ssh keys
-Environment variables
-Install Azure CLI on all virtual machines
-~/.aws/
-Install cloud sdk (google) and auth it
 
+
+4. [Install Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-apt?view=azure-cli-latest) on all virtual machines
+
+5. Set up ~/.aws/ using the csv file downloaded while setting up a AWS instance in the file credentials.csv
+
+6. [Install cloud sdk (google)](https://cloud.google.com/sdk/docs/downloads-apt-get) and [auth it](https://cloud.google.com/docs/authentication/getting-started)
+
+7. Environment variables
+
+    AWS_DIR="~/.aws/"
+    
+    AZURE_LOCATION=[location of Azure VM]
+    
+    AZURE_GROUP_NAME=[Resourse Group name for Azure]
+    
+    AZURE_VM_NAME=[Azure VM name]
+    
+    AZURE_USERNAME=[Username going to be ssh into on Azure VM]
+    
+    CLOUDSDK_PYTHON="/usr/bin/python"
+    
+    GOOGLE_PROJECT=[Name of Google Project]
+    
+    GOOGLE_ZONE=[location of Azure VM]
+    
+    GOOGLE_VM_NAME=[Google VM name]
+    
+    GOOGLE_USERNAME=[Username going to be ssh into on Google VM]
+    
+    GOOGLE_APPLICATION_CREDENTIALS="~/google-credentials.json"
+
+8. Install gunicorn3 and nginx for the web server
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
 If correctly configured, the app is truly autonomous and will require no administration. On your first instance in the project root, simply
 ```sh
-./runglaros
+./runglaros stock_name
 ```
+Where stock_name is the stock name of the CSP that you are currently on ie amzn for amazon
 
 
 

@@ -9,8 +9,13 @@ import numpy as np
 # Google = goog
 
 def get_stock_price(stock_name):
-    """retrieves stock price for given
+    """
+    retrieves stock price for given
     stock name
+
+    Parameters
+    ----------
+    stock_name : the stock name of the CSP we want to get the price of
     """
     # check stock_name is valid stock name
     try:
@@ -24,15 +29,34 @@ def get_stock_price(stock_name):
 
 
 def percentage_difference(opening, closing):
-    """Returns the percentage difference between the specified opening and closing prices
+    """
+    Returns the percentage difference between the specified opening and closing prices
+
+    Parameters
+    ----------
+    opening : opening price of stock
+    closing : closing price of stock
+
+    Returns
+    -------
+    float the percentage difference
     """
     diff = closing - opening  # find % difference from opening and closing price
     return (diff / opening) * 100  # to get the percentage
 
 
 def calculate_difference(stock_name):
-    """returns difference between market open
+    """
+    returns difference between market open
     and close for a given stock
+
+    Parameters
+    ----------
+    stock_name : stock name we want to ge the difference for
+
+    Returns
+    -------
+    float the percentage difference of the stock price
     """
     try:
         # get latest data for stock
@@ -51,8 +75,17 @@ def calculate_difference(stock_name):
 
 
 def get_stock_data(stock_name_list):
-    """creates dictionary of market open/close differences
+    """
+    creates dictionary of market open/close differences
     for a given list of stocks
+
+    Parameters
+    ----------
+    stock_name_list: a list of all of the stock names of the CSPs
+
+    Returns
+    -------
+    dict
     """
     stock_data = {}
     for name in stock_name_list:
@@ -61,8 +94,17 @@ def get_stock_data(stock_name_list):
 
 
 def best_stock(list_of_stocks):
-    """returns stock with the highest market open/close
+    """
+    returns stock with the highest market open/close
     difference
+
+    Parameters
+    ----------
+    list_of_stocks: dic of stock names, key is stock name value is stock price
+
+    Returns
+    -------
+    str
     """
     stock_data = get_stock_data(list_of_stocks)
     greatest = list_of_stocks[0]
@@ -73,12 +115,24 @@ def best_stock(list_of_stocks):
 
 
 def get_N_last_stock_differences_for(stock_names, N=10, interval='1d'):
-    """Takes in a list of stock_names eg. ['amzn', 'msft'], an integer N
+    """
+    Takes in a list of stock_names eg. ['amzn', 'msft'], an integer N
     for how many records to retrieve, and an interval:
     (i.e.'1d' for 1 day, '1wk' for 1 week or '1mo' for 1 month interval)
     Returns the last N calculated percentages differences for each stock_name
     based on the interval specified.
     Defaults: N=10, interval='1d'
+
+    Parameters
+    ----------
+    stock_names : List of stock names
+    N : an integer N for how many records to retrieve
+    interval : an interval i.e.'1d' for 1 day, '1wk' for 1 week or '1mo' for 1 month interval
+
+    Returns
+    -------
+    the last N calculated percentages differences for each stock_name
+    based on the interval specified.
 
     """
     output = {}
