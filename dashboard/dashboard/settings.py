@@ -13,6 +13,17 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import sys
 import environ
+import configparser
+
+
+# Read configuration file
+__config_file__ = 'config.ini'
+
+try:
+    config = configparser.ConfigParser()
+    config.read(__config_file__)
+except Exception as e:
+    raise e
 
 env = environ.Env()
 environ.Env.read_env(env.str('ENV_PATH', os.path.expanduser('~/.env')))
@@ -34,7 +45,14 @@ SECRET_KEY = 'b&joi9vc9sna95my!d_-_g%kvsp5qx1i8&f3b8mg%l+&4vdac1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = int(os.environ.get("DASHBOARD_DEBUG", default=0))
 
-ALLOWED_HOSTS = ["glaros.uk"]
+try:
+    # Read data from config
+    dns = config['dns']
+    domain = dns['domain']
+except Exception as e:
+    raise e
+
+ALLOWED_HOSTS = [domain]
 
 
 # Application definition
@@ -90,7 +108,7 @@ DATABASES = {
     }
 }
 
-AWS_DIR =env('AWS_DIR')
+AWS_DIR = env('AWS_DIR')
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
