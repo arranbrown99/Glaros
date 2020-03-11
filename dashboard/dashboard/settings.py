@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import sys
+import environ
 
+env = environ.Env()
+environ.Env.read_env(env.str('ENV_PATH', os.path.expanduser('~/.env')))
 # Add the parent directory of the Django project as a path.
 # Useful for imports
 sys.path.append(os.path.abspath('../'))
@@ -87,7 +90,7 @@ DATABASES = {
     }
 }
 
-
+AWS_DIR =env('AWS_DIR')
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
