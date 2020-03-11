@@ -17,6 +17,9 @@ from cloud_service_providers.GoogleCSP import GoogleCSP
 from dashboard.settings import GENERAL_INFO_FILE
 
 
+date_format = "%Y-%m-%d, %H:%M"
+
+
 def index(request):
     context = {}
 
@@ -38,7 +41,6 @@ def index(request):
         "GLAROS_CURRENTLY_ON_COLOUR", 'rgb(255,0,0)')
 
     # Get Dates
-    date_format = "%Y-%m-%d, %H:%M:%S"
     try:
         last_migration = MigrationEntry.objects.last()._date.strftime(date_format)
     except AttributeError:
@@ -186,7 +188,7 @@ def update_migration_table(request):
             formatted_migrations.append(
                 {
                     "id": m.id,
-                    "date": m._date,
+                    "date": m._date.strftime(date_format),
                     "from": m._from,
                     "to": m._to,
                 }
