@@ -31,19 +31,21 @@ restart the event loop
 import sys
 import threading
 import os
+import errno
 import time
 import sqlite3
 import json
 from datetime import datetime
-import dns
+import shutil
 
 from glaros_ssh import remote_process, vm_scp
-
 from cloud_service_providers.AbstractCSP import AbstractCSP
 from cloud_service_providers.AwsCSP import AwsCSP
 from cloud_service_providers.AzureCSP import AzureCSP
 from cloud_service_providers.GoogleCSP import GoogleCSP
 import StockRetriever
+
+import dns
 
 sys.path.append(os.path.abspath('./dashboard/'))
 
@@ -155,20 +157,21 @@ def boot_vm(moving_to):
     time.sleep(30)
 
 
-def run_booted_vm(moving_to, currently_on):
+def run_booted_vm(moving_to, currently_on, time_string):
     """
     start runglaros on the remote machine, start the new driver
 
     Parameters
     ----------
-    moving_to: the CSP we are moving to
+    time_string : the directory on the remote vm we will be runonng the driver from
+    moving_to : the CSP we are moving to
     currently_on : the CSP we are currently on
     """
     try:
         remote_process.remote_python(
             moving_to.get_ip(),
             moving_to.get_username(),
-            "runglaros " +
+            time_string + ";sudo ./runglaros " +
             moving_to.get_stock_name() + " " + currently_on.get_stock_name())
     except Exception as e:
         raise MigrationError(e)
@@ -190,36 +193,58 @@ def migrate(stock_name, currently_on):
     -------
     when the migration ends at which point the new driver on the remote vm will take over
     """
+    update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
+
+    moving_to = AbstractCSP.get_csp(stock_name)
+    # Write to logfile
+    write_log_before(currently_on, moving_to)
+    print("Moving to " + moving_to.get_stock_name())
+    # Log migration to database
+    database_entry(currently_on, moving_to)
     retry_counter = 20
     while retry_counter > 0:
         try:
-            update_general_info(GENERAL_INFO_FILE, currently_on, "Migrating")
-
-            moving_to = AbstractCSP.get_csp(stock_name)
-            # Write to logfile
-            write_log_before(currently_on, moving_to)
-            print("Moving to " + moving_to.get_stock_name())
-            # Log migration to database
-            database_entry(currently_on, moving_to)
             # start VM
             boot_vm(moving_to)
             print("Remote vm started up, ip address is " + moving_to.get_ip())
             # files to be sent
             # start sending entire directory of project
-            ignore(moving_to)
+            parent_dir = os.path.abspath('.')
+            parent_basename = os.path.basename(parent_dir)
+            time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+            remote_process.remote_mkdir(
+                moving_to.get_ip(),
+                moving_to.get_username(),
+                'cs27-main')
+            if parent_basename == 'cs27-main':
+                path_to_copy = os.path.abspath('./' + time_string)
+                copy(parent_dir, path_to_copy)
+                print("---")
+                vm_scp.upload_file(path_to_copy,
+                                   moving_to.get_ip(),
+                                   moving_to.get_username(),
+                                   remote_path="cs27-main/" + time_string,
+                                   recursive=True)
+            else:
+                path_to_copy = os.path.abspath('../' + time_string)
+                copy(parent_dir, path_to_copy)
+                print("---")
+                vm_scp.upload_file(path_to_copy,
+                                   moving_to.get_ip(), moving_to.get_username(),
+                                   remote_path="cs27-main/" + time_string,
+                                   recursive=True)
 
             # run the Driver on newly started VM and send the current CSP provider
-            run_booted_vm(moving_to, currently_on)
+            run_booted_vm(moving_to, currently_on, "cs27-main/" + time_string)
             return
         except MigrationError as e:
             print(e)
-            update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
-
         except sqlite3.Error as e:
             print(e)
-            update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
         retry_counter -= 1
         time.sleep(30)
+
+    update_general_info(GENERAL_INFO_FILE, currently_on, "Running")
     raise MigrationError("Failed to migrate")
 
 
@@ -268,7 +293,7 @@ def after_migration(sender, currently_on):
     currently_on : the CSP we are now on
     """
     # delete old driver on now remote vm
-    parent_dir_path = os.path.abspath('.')
+    parent_dir_path = os.path.abspath('..')
     parent_dir = os.path.basename(parent_dir_path)
     print("Deleting " + parent_dir +
           " from " + sender.get_stock_name() + " vm.")
@@ -308,6 +333,7 @@ def update_general_info(file, currently_on, status):
 def ignore(moving_to):
     """
     Sends files to remote vm if said file is not in the blacklist
+    deprecated we now simply copy the directory and send it in one go
 
     Parameters
     ----------
@@ -326,6 +352,7 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     helper function for ignore
     guarantees the folder exists on the remote vm, as scp does not create
     this directory
+    deprecated same as ignore
 
     Parameters
     ----------
@@ -333,10 +360,11 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     moving_to : CSP we are moving to
     remote_filepath : the filepath the file will be sent to
     """
-    remote_process.remote_mkdir(
-        moving_to.get_ip(),
-        moving_to.get_username(),
-        remote_filepath)
+    # remote_process.remote_mkdir(
+    #    moving_to.get_ip(),
+    #    moving_to.get_username(),
+    #    remote_filepath)
+
     files_to_upload = [f for f in os.listdir(parent_dir) if f not in exclude_files]
     try:
         for _file in files_to_upload:
@@ -345,6 +373,9 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
             if os.path.isdir(path_to_file):
                 ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath, _file))
             else:
+                print(path_to_file)
+                print(os.path.join("cs27", os.path.join(remote_filepath, _file)))
+                copy(path_to_file, os.path.join("./cs27", os.path.join(remote_filepath, _file)))
                 vm_scp.upload_file(path_to_file,
                                    moving_to.get_ip(),
                                    moving_to.get_username(),
@@ -352,6 +383,27 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
                                    recursive=False)
     except Exception as e:
         raise MigrationError(e)
+
+
+def copy(src, dest):
+    """
+
+    copy a file ie a directory, while complying to a blacklist
+    so don't copy those files
+    
+    Parameters
+    ----------
+    src : directory to be copied
+    dest : directory where we copy into
+    """
+    try:
+        shutil.copytree(src, dest, ignore=shutil.ignore_patterns('.git', 'gunicorn.sock', 'admin', '__pycache__'))
+    except OSError as e:
+        # If the error was caused because the source wasn't a directory
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(src, dest)
+        else:
+            print('Directory not copied. Error: %s' % e)
 
 
 def main():

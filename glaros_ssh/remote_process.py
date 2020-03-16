@@ -74,7 +74,7 @@ def remote_python(ip_address, username, python_file):
     """
 
     parent_dir = os.path.basename(os.path.abspath('.'))
-    cmd = 'cd ' + parent_dir + ';./' + python_file
+    cmd = 'cd ' + python_file
     return remote_cmd(ip_address, username, cmd)
 
 
