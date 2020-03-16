@@ -46,6 +46,7 @@ from cloud_service_providers.GoogleCSP import GoogleCSP
 import StockRetriever
 
 import dns
+
 sys.path.append(os.path.abspath('./dashboard/'))
 
 from dashboard.settings import GENERAL_INFO_FILE
@@ -156,13 +157,14 @@ def boot_vm(moving_to):
     time.sleep(30)
 
 
-def run_booted_vm(moving_to, currently_on,time_string):
+def run_booted_vm(moving_to, currently_on, time_string):
     """
     start runglaros on the remote machine, start the new driver
 
     Parameters
     ----------
-    moving_to: the CSP we are moving to
+    time_string : the directory on the remote vm we will be runonng the driver from
+    moving_to : the CSP we are moving to
     currently_on : the CSP we are currently on
     """
     try:
@@ -211,12 +213,12 @@ def migrate(stock_name, currently_on):
             parent_basename = os.path.basename(parent_dir)
             time_string = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
             remote_process.remote_mkdir(
-                                 moving_to.get_ip(),
-                                 moving_to.get_username(),
-                                 'cs27-main')
-            if(parent_basename == 'cs27-main'):
+                moving_to.get_ip(),
+                moving_to.get_username(),
+                'cs27-main')
+            if parent_basename == 'cs27-main':
                 path_to_copy = os.path.abspath('./' + time_string)
-                copy(parent_dir,path_to_copy)
+                copy(parent_dir, path_to_copy)
                 print("---")
                 vm_scp.upload_file(path_to_copy,
                                    moving_to.get_ip(),
@@ -225,10 +227,10 @@ def migrate(stock_name, currently_on):
                                    recursive=True)
             else:
                 path_to_copy = os.path.abspath('../' + time_string)
-                copy(parent_dir,path_to_copy)
+                copy(parent_dir, path_to_copy)
                 print("---")
                 vm_scp.upload_file(path_to_copy,
-                                   moving_to.get_ip(),                                                                moving_to.get_username(),
+                                   moving_to.get_ip(), moving_to.get_username(),
                                    remote_path="cs27-main/" + time_string,
                                    recursive=True)
 
@@ -331,6 +333,7 @@ def update_general_info(file, currently_on, status):
 def ignore(moving_to):
     """
     Sends files to remote vm if said file is not in the blacklist
+    deprecated we now simply copy the directory and send it in one go
 
     Parameters
     ----------
@@ -349,6 +352,7 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     helper function for ignore
     guarantees the folder exists on the remote vm, as scp does not create
     this directory
+    deprecated same as ignore
 
     Parameters
     ----------
@@ -356,7 +360,7 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     moving_to : CSP we are moving to
     remote_filepath : the filepath the file will be sent to
     """
-    #remote_process.remote_mkdir(
+    # remote_process.remote_mkdir(
     #    moving_to.get_ip(),
     #    moving_to.get_username(),
     #    remote_filepath)
@@ -370,17 +374,28 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
                 ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath, _file))
             else:
                 print(path_to_file)
-                print(os.path.join("cs27",os.path.join(remote_filepath, _file)))
-                copy(path_to_file,os.path.join("./cs27",os.path.join(remote_filepath, _file)))
-                #vm_scp.upload_file(path_to_file,
-                #                   moving_to.get_ip(),
-                #                   moving_to.get_username(),
-                #                   remote_path="~/" + remote_filepath + "/" + _file,
-                #                   recursive=False)
+                print(os.path.join("cs27", os.path.join(remote_filepath, _file)))
+                copy(path_to_file, os.path.join("./cs27", os.path.join(remote_filepath, _file)))
+                vm_scp.upload_file(path_to_file,
+                                   moving_to.get_ip(),
+                                   moving_to.get_username(),
+                                   remote_path="~/" + remote_filepath + "/" + _file,
+                                   recursive=False)
     except Exception as e:
         raise MigrationError(e)
 
+
 def copy(src, dest):
+    """
+
+    copy a file ie a directory, while complying to a blacklist
+    so don't copy those files
+    
+    Parameters
+    ----------
+    src : directory to be copied
+    dest : directory where we copy into
+    """
     try:
         shutil.copytree(src, dest, ignore=shutil.ignore_patterns('.git', 'gunicorn.sock', 'admin', '__pycache__'))
     except OSError as e:
@@ -389,6 +404,7 @@ def copy(src, dest):
             shutil.copy(src, dest)
         else:
             print('Directory not copied. Error: %s' % e)
+
 
 def main():
     """
