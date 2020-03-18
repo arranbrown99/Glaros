@@ -1,4 +1,3 @@
-from dashboard.settings import GENERAL_INFO_FILE
 """
 This class represents the main program that will be running on the current CSP.
 Every so often it will compare tbe stock prices of all available
@@ -50,6 +49,7 @@ import dns
 
 sys.path.append(os.path.abspath('./dashboard/'))
 
+from dashboard.settings import GENERAL_INFO_FILE
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds

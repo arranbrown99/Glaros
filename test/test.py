@@ -1,10 +1,3 @@
-import cloud_service_providers.CredentialsParser as cp
-from cloud_service_providers.AzureCSP import AzureCSP
-from glaros_ssh import vm_scp
-import StockRetriever
-from dns import gen_config
-import configparser
-from glaros_ssh import remote_process
 import unittest
 import os
 import sys
@@ -13,6 +6,15 @@ from scp import SCPException
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import cloud_service_providers.CredentialsParser as cp
+from cloud_service_providers.AzureCSP import AzureCSP
+from glaros_ssh import vm_scp
+import StockRetriever
+from dns import gen_config
+import configparser
+from glaros_ssh import remote_process
+
 
 # list for good test input
 good_l = ['amzn', 'goog', 'msft', ]

@@ -1,4 +1,3 @@
-from dashboard_app.models import MigrationEntry
 import os
 import django
 from datetime import date
@@ -12,6 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dashboard.settings')
 
 django.setup()
 
+from dashboard_app.models import MigrationEntry
 
 ME = namedtuple('MigrationEntry', 'Date From To')
 
