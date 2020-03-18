@@ -217,7 +217,8 @@ def update_migration_timeline(request):
                 # until the next migration (i.e. next entry).
                 date_until = last_migrations[i + 1]._date
 
-            diff_in_seconds = date_until.replace(tzinfo=None) - entry._date.replace(tzinfo=None)
+            diff_in_seconds = date_until.replace(
+                tzinfo=None) - entry._date.replace(tzinfo=None)
             diff_in_seconds = diff_in_seconds.total_seconds()
 
             # Calculate hours, minuter, seconds
@@ -240,12 +241,14 @@ def update_migration_timeline(request):
                 chart_row_ordering.append(entry._to)
 
         # Reference to all CSP needed to choose row colours
-        all_csps = [AbstractCSP.get_csp(name) for name in AbstractCSP.get_stock_names()]
+        all_csps = [AbstractCSP.get_csp(name)
+                    for name in AbstractCSP.get_stock_names()]
         colors_list = []
 
         # Loop through all CSPs to find the correct colour
         for row_name in chart_row_ordering:
-            chosen_color = AbstractCSP.ui_colour  # in case we don't find a matching CSP class
+            # in case we don't find a matching CSP class
+            chosen_color = AbstractCSP.ui_colour
             for csp in all_csps:
                 if csp.get_formal_name() == row_name:
                     chosen_color = csp.ui_colour  # if found, update it

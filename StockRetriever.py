@@ -139,7 +139,8 @@ def get_N_last_stock_differences_for(stock_names, N=10, interval='1d'):
     separate_stock_dates = []
     for stock_name in stock_names:
         # Request the stock records from yahoo-fin for this stock_name
-        stock_data = si.get_data(stock_name, interval=interval, index_as_date=False)[-N:]
+        stock_data = si.get_data(
+            stock_name, interval=interval, index_as_date=False)[-N:]
 
         # Separate the columns that we are interested in
         open_col = stock_data['open']
@@ -151,7 +152,8 @@ def get_N_last_stock_differences_for(stock_names, N=10, interval='1d'):
         separate_stock_dates.append(date_col)
 
         # We form a list with percentage differences using the open and close stock prices
-        perc_diff = [percentage_difference(open_col.iloc[i], close_col.iloc[i]) for i in range(N)]
+        perc_diff = [percentage_difference(
+            open_col.iloc[i], close_col.iloc[i]) for i in range(N)]
         output[stock_name] = perc_diff
 
     # Check that dates retrieved by each CSP are the same
@@ -162,8 +164,10 @@ def get_N_last_stock_differences_for(stock_names, N=10, interval='1d'):
         else:
             if not all(dates.values == current_date_list.values):
                 # In the case that at least one date list differs from the rest
-                raise Exception("The returned dates from each Cloud Service Provider don't match.")
+                raise Exception(
+                    "The returned dates from each Cloud Service Provider don't match.")
 
     # Convert Pandas.Timestamp to datetime.date objects because they are Serializable by JavaScript
-    output['dates'] = [timestamp.to_pydatetime() for timestamp in current_date_list]
+    output['dates'] = [timestamp.to_pydatetime()
+                       for timestamp in current_date_list]
     return output

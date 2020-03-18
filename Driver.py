@@ -1,3 +1,4 @@
+from dashboard.settings import GENERAL_INFO_FILE
 """
 This class represents the main program that will be running on the current CSP.
 Every so often it will compare tbe stock prices of all available
@@ -49,7 +50,6 @@ import dns
 
 sys.path.append(os.path.abspath('./dashboard/'))
 
-from dashboard.settings import GENERAL_INFO_FILE
 
 counter = 0  # used in dummy condition to move after 4 calls to migrate()
 check_every = 15 * 60  # seconds
@@ -123,7 +123,7 @@ def write_log_before(sender, target):
     with open('migrations.log', 'a') as migrations_log:
         migrations_log.write(str(datetime.now().strftime(
             "%d/%m/%Y %H:%M:%S")) + " Starting migration from %s to %s...\n" %
-                             (sender.get_formal_name(), target.get_formal_name()))
+            (sender.get_formal_name(), target.get_formal_name()))
 
 
 # Write to logfile once migration finishes
@@ -365,17 +365,20 @@ def ignore_helper(parent_dir, moving_to, remote_filepath):
     #    moving_to.get_username(),
     #    remote_filepath)
 
-    files_to_upload = [f for f in os.listdir(parent_dir) if f not in exclude_files]
+    files_to_upload = [f for f in os.listdir(
+        parent_dir) if f not in exclude_files]
     try:
         for _file in files_to_upload:
             print("Uploading -> " + _file)
             path_to_file = os.path.join(parent_dir, _file)
             if os.path.isdir(path_to_file):
-                ignore_helper(path_to_file, moving_to, os.path.join(remote_filepath, _file))
+                ignore_helper(path_to_file, moving_to,
+                              os.path.join(remote_filepath, _file))
             else:
                 print(path_to_file)
                 print(os.path.join("cs27", os.path.join(remote_filepath, _file)))
-                copy(path_to_file, os.path.join("./cs27", os.path.join(remote_filepath, _file)))
+                copy(path_to_file, os.path.join(
+                    "./cs27", os.path.join(remote_filepath, _file)))
                 vm_scp.upload_file(path_to_file,
                                    moving_to.get_ip(),
                                    moving_to.get_username(),
@@ -390,14 +393,15 @@ def copy(src, dest):
 
     copy a file ie a directory, while complying to a blacklist
     so don't copy those files
-    
+
     Parameters
     ----------
     src : directory to be copied
     dest : directory where we copy into
     """
     try:
-        shutil.copytree(src, dest, ignore=shutil.ignore_patterns('.git', 'gunicorn.sock', 'admin', '__pycache__'))
+        shutil.copytree(src, dest, ignore=shutil.ignore_patterns(
+            '.git', 'gunicorn.sock', 'admin', '__pycache__'))
     except OSError as e:
         # If the error was caused because the source wasn't a directory
         if e.errno == errno.ENOTDIR:

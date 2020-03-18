@@ -47,7 +47,8 @@ class AzureCSP(AbstractCSP):
 
     def get_info(self):
 
-        command = ["az", "vm", "list", "-d", "--output", "json", "--query", "[?name=='" + self.VM_NAME + "']"]
+        command = ["az", "vm", "list", "-d", "--output", "json",
+                   "--query", "[?name=='" + self.VM_NAME + "']"]
 
         info = check_output(command)
         return json.loads(info)
@@ -68,7 +69,8 @@ class AzureCSP(AbstractCSP):
     def start_vm(self):
         # Start the VM
         print('\nStart VM')
-        output = self.execute_commands(["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
+        output = self.execute_commands(
+            ["az", "vm", "start", "-g", self.GROUP_NAME, '-n', self.VM_NAME])
         time.sleep(2 * 60)  # mins
         return output
 
