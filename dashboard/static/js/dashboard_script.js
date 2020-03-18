@@ -39,11 +39,23 @@ $(document).ready(function () {
  * @returns {Date}
  */
 function json_to_date(date) {
-    return new Date(Date.UTC(date.y, date.m - 1, date.d))
+    return new Date(Date.UTC(date.y, date.m - 1, date.d, date.h, date.min, date.s))
+}
+
+function generate_timeline_tooltip(csp, from, until, duration) {
+    let html = "<div class=\"card\" style=\"height: 150px;width: 300px;\">\n" +
+        "  <div class=\"card-body\">\n" +
+        "    <h5 class=\"card-title\" style=\"color: darkslategray;\">" + csp + "</h5>\n" +
+        "    <hr>\n" +
+        "    <p class=\"card-text\">" + from + " - " + until + "</p>\n" +
+        "    <p class=\"card-text\" style=\"\"><strong>Duration:</strong> " + duration + "</p>\n" +
+        "  </div>\n" +
+        "</div>";
+    return html
 }
 
 /**
- *
+ * Function that presents the migrations timeline chart
  */
 function drawChart() {
     var container = document.getElementById('timeline');
@@ -56,41 +68,42 @@ function drawChart() {
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-            dataTable.addColumn({type: 'string', id: 'President'});
+            dataTable.addColumn({type: 'string', id: 'csp_name'});
+            dataTable.addColumn({type: 'string', id: 'dummy bar label'});
+            dataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
             dataTable.addColumn({type: 'date', id: 'Start'});
             dataTable.addColumn({type: 'date', id: 'End'});
+
+            var data_options = {weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'};
 
             data.migrations.forEach(entry => dataTable.addRows([
                 [
                     entry[0],
+                    "",
+                    generate_timeline_tooltip(
+                        csp = entry[0],
+                        from = json_to_date(entry[1]).toLocaleDateString('en-GB', data_options),
+                        until = json_to_date(entry[2]).toLocaleDateString('en-GB', data_options),
+                        duration = entry[3]),
                     json_to_date(entry[1]),
                     json_to_date(entry[2]),
                 ]]
             ));
 
-            // Assign each Cloud Service Provider to its color (provided by 'data' object)
-            var colors = [];
-            var colorMap = {
-                // should contain a map of category -> color for every category
-                AWS: data.AWS_color,
-                AZURE: data.AZURE_color,
-                GCP: data.GCP_color
-            };
-
-            // Generate the color array based on the above color map
-            for (let i = 0; i < dataTable.getNumberOfRows(); i++) {
-                colors.push(colorMap[dataTable.getValue(i, 0)]);
-            }
-
-            var options = {
-                colors: colors,
+            var chart_options = {
+                hAxis: {
+                    format: 'dd-MMM',
+                    // gridlines: {count: 15}
+                },
+                tooltip: {isHtml: true},
+                colors: data.colors_list,
                 timeline: {
-                    colorByRowLabel: true
+                    colorByRowLabel: true,
                 }
             };
-            chart.draw(dataTable, options);
+            chart.draw(dataTable, chart_options);
             $(window).on('resize', function () {
-                chart.draw(dataTable, options);
+                chart.draw(dataTable, chart_options);
             });
         }
     });
