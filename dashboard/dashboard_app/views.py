@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.paginator import Paginator
 from .models import MigrationEntry
 
@@ -15,7 +15,6 @@ from cloud_service_providers.GoogleCSP import GoogleCSP
 
 # file that stores the general information of the app provided by the Driver
 from dashboard.settings import GENERAL_INFO_FILE
-
 
 date_format = "%Y-%m-%d, %H:%M"
 
@@ -218,11 +217,21 @@ def update_migration_timeline(request):
                 # until the next migration (i.e. next entry).
                 date_until = last_migrations[i + 1]._date
 
+            diff_in_seconds = date_until.replace(
+                tzinfo=None) - entry._date.replace(tzinfo=None)
+            diff_in_seconds = diff_in_seconds.total_seconds()
+
+            # Calculate hours, minuter, seconds
+            h = diff_in_seconds // (60 * 60)
+            m = (diff_in_seconds - h * 60 * 60) // 60
+            s = diff_in_seconds - (h * 60 * 60) - (m * 60)
+
             # Example: ['AWS', {'d': 30, 'm': 1, 'y': 2020}, {'d': 2, 'm': 2, 'y': 2020}]
             structured_entry = [
                 entry._to,
                 entry_date,
-                datetime_to_dict(date_until)
+                datetime_to_dict(date_until),
+                f"{int(h):d} hours, {int(m):d} mins, {int(s):d} secs."
             ]
 
             data.get('migrations', []).append(structured_entry)
@@ -232,12 +241,14 @@ def update_migration_timeline(request):
                 chart_row_ordering.append(entry._to)
 
         # Reference to all CSP needed to choose row colours
-        all_csps = [AbstractCSP.get_csp(name) for name in AbstractCSP.get_stock_names()]
+        all_csps = [AbstractCSP.get_csp(name)
+                    for name in AbstractCSP.get_stock_names()]
         colors_list = []
 
         # Loop through all CSPs to find the correct colour
         for row_name in chart_row_ordering:
-            chosen_color = AbstractCSP.ui_colour  # in case we don't find a matching CSP class
+            # in case we don't find a matching CSP class
+            chosen_color = AbstractCSP.ui_colour
             for csp in all_csps:
                 if csp.get_formal_name() == row_name:
                     chosen_color = csp.ui_colour  # if found, update it

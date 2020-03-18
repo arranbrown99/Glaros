@@ -19,13 +19,16 @@ class AwsCSP(AbstractCSP):
         """
         Reads from a csv file the credentials used to access the VM
         """
-        credentials = cp.CredentialsParser(os.path.join(AWS_DIR, 'credentials.csv'))
+        credentials = cp.CredentialsParser(
+            os.path.join(AWS_DIR, 'credentials.csv'))
         self.client = boto3.client(
             'ec2',
             # Locate ".aws/credentials.csv" and get the access keys
             # for the username "PythonManager"
-            aws_access_key_id=credentials.get("PythonManager").get("Access key ID"),
-            aws_secret_access_key=credentials.get("PythonManager").get("Secret access key"),
+            aws_access_key_id=credentials.get(
+                "PythonManager").get("Access key ID"),
+            aws_secret_access_key=credentials.get(
+                "PythonManager").get("Secret access key"),
             region_name='eu-west-1'
 
         )
@@ -44,7 +47,8 @@ class AwsCSP(AbstractCSP):
 
         # Dry run succeeded, run start_instances without dryrun
         try:
-            self.client.start_instances(InstanceIds=[instance_id], DryRun=False)
+            self.client.start_instances(
+                InstanceIds=[instance_id], DryRun=False)
         except ClientError as e:
             print(e)
 
@@ -75,7 +79,8 @@ class AwsCSP(AbstractCSP):
         return response
 
     def is_running(self):
-        response = self.client.describe_instance_status(InstanceIds=[instance_id], IncludeAllInstances=True)
+        response = self.client.describe_instance_status(
+            InstanceIds=[instance_id], IncludeAllInstances=True)
         return response['InstanceStatuses'][0]['InstanceState']['Name'] == 'running'
 
     def is_stopped(self):
@@ -85,12 +90,14 @@ class AwsCSP(AbstractCSP):
         -------
         True if vm is stopped
         """
-        response = self.client.describe_instance_status(InstanceIds=[instance_id], IncludeAllInstances=True)
+        response = self.client.describe_instance_status(
+            InstanceIds=[instance_id], IncludeAllInstances=True)
         return response['InstanceStatuses'][0]['InstanceState']['Name'] == 'stopped'
 
     def get_ip(self):
         if self.is_running:
-            response = self.client.describe_instances(InstanceIds=[instance_id])
+            response = self.client.describe_instances(
+                InstanceIds=[instance_id])
             return response['Reservations'][0]['Instances'][0]['NetworkInterfaces'][0]['Association']['PublicIp']
         else:
             raise Exception("VM is not turned on")

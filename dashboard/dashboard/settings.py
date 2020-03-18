@@ -90,7 +90,7 @@ DATABASES = {
     }
 }
 
-AWS_DIR =env('AWS_DIR')
+AWS_DIR = env('AWS_DIR')
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 

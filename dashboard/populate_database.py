@@ -68,8 +68,9 @@ def database_entry(currently_on, moving_to, hours_offset):
     connection = None
     try:
         now = datetime.datetime.now()\
-              - datetime.timedelta(hours=21*10)\
-              + datetime.timedelta(hours=hours_offset, minutes=random.randint(1, 59))
+            - datetime.timedelta(hours=21*10)\
+            + datetime.timedelta(hours=hours_offset,
+                                 minutes=random.randint(1, 59))
         connection = sqlite3.connect('./db.sqlite3')
         print("The sqlite3 connection is established.")
         cursor = connection.cursor()

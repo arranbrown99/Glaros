@@ -6,13 +6,15 @@ from scp import SCPException
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from glaros_ssh import remote_process
-import configparser
-from dns import gen_config
-import StockRetriever
-from glaros_ssh import vm_scp
-from cloud_service_providers.AzureCSP import AzureCSP
+
 import cloud_service_providers.CredentialsParser as cp
+from cloud_service_providers.AzureCSP import AzureCSP
+from glaros_ssh import vm_scp
+import StockRetriever
+from dns import gen_config
+import configparser
+from glaros_ssh import remote_process
+
 
 # list for good test input
 good_l = ['amzn', 'goog', 'msft', ]
@@ -73,9 +75,12 @@ class TestRemoteProcess(unittest.TestCase):
         remote_process.remote_remove(ip_address, username, 'test.py')
         remote_process.remote_ls(ip_address, username, 'test.py')
 
-        remote_process.remote_python(ip_address, username, 'test/create_file.py')
-        remote_process.remote_ls(ip_address, username, '~/cs27-main/test/test_remote.txt')
-        remote_process.remote_remove(ip_address, username, '~/cs27-main/test/test_remote.txt')
+        remote_process.remote_python(
+            ip_address, username, 'test/create_file.py')
+        remote_process.remote_ls(ip_address, username,
+                                 '~/cs27-main/test/test_remote.txt')
+        remote_process.remote_remove(
+            ip_address, username, '~/cs27-main/test/test_remote.txt')
 
 
 class TestDNS(unittest.TestCase):
@@ -120,7 +125,8 @@ class TestVMSCP(unittest.TestCase):
             vm_scp.upload_file('doesnt_exist.txt', ip, un, 'doesnt_exist/')
         # valid local_path, invalid remote_path
         with self.assertRaises(Exception):
-            vm_scp.upload_file('test.txt', ip, un, 'doesnt_exist/test.txt', recursive=True)
+            vm_scp.upload_file('test.txt', ip, un,
+                               'doesnt_exist/test.txt', recursive=True)
         # sending itself
         vm_scp.upload_file('test.py', ip, un)
         scp_base_dir = os.path.dirname(os.path.realpath(__file__))
@@ -132,7 +138,8 @@ class TestCredentialsParser(unittest.TestCase):
 
     def test_parse_csv(self):
         aws_dir = os.path.expanduser(os.environ['AWS_DIR'])
-        credentials = cp.CredentialsParser(os.path.join(aws_dir, 'credentials.csv'))
+        credentials = cp.CredentialsParser(
+            os.path.join(aws_dir, 'credentials.csv'))
         credentials.get("PythonManager").get("Access key ID")
 
     def test_parse_csv_fail(self):

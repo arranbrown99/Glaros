@@ -4,8 +4,8 @@ import os
 
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from cloud_service_providers.AzureCSP import AzureCSP
 
+from cloud_service_providers.AzureCSP import AzureCSP
 
 # tests use AzureTesting VM
 class TestAzureVM(unittest.TestCase):

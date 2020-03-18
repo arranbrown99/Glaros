@@ -44,16 +44,18 @@ class GoogleCSP(AbstractCSP):
     def start_vm(self):
         # Start the VM
         print('\nStart VM')
-        # command is 
+        # command is
         # gcloud compute instances start google-vm
-        output = self.execute_commands(["gcloud", "compute", "instances", "start", self.name])
+        output = self.execute_commands(
+            ["gcloud", "compute", "instances", "start", self.name])
         return output
 
     def stop_vm(self):
         # Stop the VM
         # uses deallocate rather than stop as it costs less money
         print('\nStop VM')
-        output = self.execute_commands(["gcloud", "compute", "instances", "stop", self.name])
+        output = self.execute_commands(
+            ["gcloud", "compute", "instances", "stop", self.name])
         return output
 
     @staticmethod
@@ -72,7 +74,8 @@ class GoogleCSP(AbstractCSP):
     def get_info(self):
         # command is
         # gcloud compute instances describe google-vm
-        output = check_output(["gcloud", "compute", "instances", "describe", self.name, "--format=json"])
+        output = check_output(
+            ["gcloud", "compute", "instances", "describe", self.name, "--format=json"])
         return json.loads(output)
 
     @staticmethod
