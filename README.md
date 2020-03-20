@@ -44,7 +44,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://i.imgur.com/rZ8xFGH.png)
+<!--[![Product Name Screen Shot][product-screenshot]](https://i.imgur.com/yqurFw7.png)-->
+
+<img src="https://i.imgur.com/yqurFw7.png" alt="Dashboard" width="515" height="325">
+
 Glaros is designed to achieve three primary goals, namely
 * Avoiding cloud service provider lock-in
 * Get the best price for computation
