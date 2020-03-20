@@ -46,7 +46,7 @@
 
 <!--[![Product Name Screen Shot][product-screenshot]](https://i.imgur.com/yqurFw7.png)-->
 
-<img src="https://i.imgur.com/yqurFw7.png" alt="Dashboard" width="515" height="325">
+<img src="https://i.imgur.com/yqurFw7.png" alt="Dashboard" width="540" height="325">
 
 Glaros is designed to achieve three primary goals, namely
 * Avoiding cloud service provider lock-in
