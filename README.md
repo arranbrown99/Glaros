@@ -54,9 +54,10 @@ Glaros uses stock market data from yahoo_fin about the respective cloud provider
 
 ### Built With
 
-* [Python]()
-* [Nginx]()
-* [Gunicorn]()
+* [Python](https://www.python.org/)
+* [Nginx](https://www.nginx.com/)
+* [Gunicorn](https://docs.gunicorn.org/)
+* [Django](https://www.djangoproject.com/)
 
 
 
@@ -133,7 +134,7 @@ Where stock_name is the stock name of the CSP that you are currently on ie amzn 
 <!-- LICENSE -->
 ## License
 
-Distributed under the TBD License
+Distributed under the Creative Commons Attribution-NonCommercial 4.0 International License
 
 
 
